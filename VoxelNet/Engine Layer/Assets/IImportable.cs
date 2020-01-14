@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace VoxelNet.Assets
 {
-    public abstract class Importable
+    public interface IImportable
     {
-        public Importable() { }
-
-        public abstract Importable Import(string path);
+        IImportable Import(string path);
     }
 }

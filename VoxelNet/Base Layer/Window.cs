@@ -127,7 +127,7 @@ namespace VoxelNet
 
             vertices = new VertexContainer(positions, uvs);
 
-            mesh = new Mesh(vertices, indices);
+            mesh = AssetDatabase.GetAsset<Mesh>("Resources/Models/Tests/Teapot.obj");//new Mesh(vertices, indices);
 
             mat = AssetDatabase.GetAsset<Material>("Resources/Materials/TestMaterial.mat");//new Material();
 

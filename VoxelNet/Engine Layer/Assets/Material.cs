@@ -9,7 +9,7 @@ using VoxelNet.Assets;
 
 namespace VoxelNet.Rendering.Material
 {
-    public class Material : Importable, IDisposable
+    public class Material : IImportable, IDisposable
     {
         public Shader Shader { get; private set; }
 
@@ -138,7 +138,7 @@ namespace VoxelNet.Rendering.Material
             }
         }
 
-        public override Importable Import(string path)
+        public IImportable Import(string path)
         {
             return new Material(path);
         }

@@ -20,6 +20,9 @@ namespace VoxelNet
 
         public static void Assert(string msg = null)
         {
+            Program.Window.CursorGrabbed = false;
+            Program.Window.CursorVisible = true;
+
             if (string.IsNullOrEmpty(msg))
                 System.Diagnostics.Debug.Assert(false);
             else

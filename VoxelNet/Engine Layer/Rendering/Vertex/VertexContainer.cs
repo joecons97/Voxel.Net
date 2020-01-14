@@ -11,7 +11,7 @@ namespace VoxelNet.Rendering
     {
         public virtual int[] ElementCount { get; } = {3, 2};
 
-        List<float> elements = new List<float>();
+        protected List<float> elements = new List<float>();
 
         public float[] GetElements()
         {
@@ -33,6 +33,8 @@ namespace VoxelNet.Rendering
         {
             return elements.Count;
         }
+
+        public VertexContainer() { }
 
         public VertexContainer(Vector3[] positions, Vector2[] uvs)
         {

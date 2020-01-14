@@ -10,7 +10,7 @@ using VoxelNet.Assets;
 
 namespace VoxelNet.Rendering
 {
-    public class Texture : Importable, IDisposable
+    public class Texture : IImportable, IDisposable
     {
         public int Handle { get; private set; }
 
@@ -47,7 +47,7 @@ namespace VoxelNet.Rendering
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        public override Importable Import(string path)
+        public IImportable Import(string path)
         {
             Texture texture = new Texture(path);
             return texture;

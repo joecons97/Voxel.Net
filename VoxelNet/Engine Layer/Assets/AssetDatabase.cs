@@ -11,11 +11,11 @@ namespace VoxelNet
 {
     public static class AssetDatabase
     {
-        static Dictionary<string, Importable> assets = new Dictionary<string, Importable>();
+        static Dictionary<string, IImportable> assets = new Dictionary<string, IImportable>();
 
-        public static T GetAsset<T>(string assetPath) where T : Importable
+        public static T GetAsset<T>(string assetPath) where T : IImportable
         {
-            if (assets.TryGetValue(assetPath, out Importable asset))
+            if (assets.TryGetValue(assetPath, out IImportable asset))
             {
                 T cast = (T) asset;
                 if (cast != null)
@@ -30,9 +30,9 @@ namespace VoxelNet
             return importable;
         }
 
-        public static T CreateAsset<T>(string path) where T : Importable
+        public static T CreateAsset<T>(string path) where T : IImportable
         {
-            var importable = (Importable) Activator.CreateInstance<T>();
+            var importable = (IImportable) Activator.CreateInstance<T>();
             return (T) importable.Import(path);
         }
     }
