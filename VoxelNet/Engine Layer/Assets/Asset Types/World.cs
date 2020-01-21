@@ -37,7 +37,7 @@ namespace VoxelNet.Assets
         private Vector2 mouseD;
 
         private LightingUniformBufferData lightBufferData;
-        private float lightDir;
+        private float lightAngle;
 
         [JsonIgnore]
         public string Path =>
@@ -86,7 +86,7 @@ namespace VoxelNet.Assets
             Randomizer = new Random(Seed.GetHashCode());
             WorldCamera = new Camera();
 
-            lightDir = 90;
+            lightAngle = 90;
             lightBufferData = new LightingUniformBufferData();
 
             //Check for custom texture pack
@@ -138,12 +138,13 @@ namespace VoxelNet.Assets
             WorldCamera.Rotation = new Vector3(WorldCamera.Rotation.X + mouseD.Y * .05f, 
                 WorldCamera.Rotation.Y + mouseD.X * .05f, WorldCamera.Rotation.Z);
 
-            //lightDir += 0.1f;
+            lightAngle += 0.1f;
 
             lightBufferData.SunColour = Color4.LightYellow.ToVector4();
-            lightBufferData.SunDirection = new Vector4(Maths.GetForwardFromRotation(new Vector3(lightDir, 0, 0)), 1);
-            lightBufferData.SunStrength = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0)) * 1.5f;
-            lightBufferData.AmbientColour = Color4.White.ToVector4();
+            lightBufferData.SunDirection = new Vector4(Maths.GetForwardFromRotation(new Vector3(lightAngle, 0, 0)), 1);
+            lightBufferData.SunStrength = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0)) * 2f;
+            float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0));
+            lightBufferData.AmbientColour = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/1.5f, Color4.DarkSlateGray.ToVector4(), t);
 
             if (chunksToUpdate.Count > 0)
             {

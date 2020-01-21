@@ -10,8 +10,6 @@ namespace VoxelNet.Buffers
 {
     public class UniformBuffer<T> where T : struct
     {
-        protected static int TotalUBOs = 0;
-
         public int Handle { get; private set; }
 
         private T data;
@@ -26,8 +24,8 @@ namespace VoxelNet.Buffers
             name = blockName;
             size = Marshal.SizeOf<T>();
 
-            port = TotalUBOs;
-            TotalUBOs++;
+            port = UniformBuffers.TotalUBOs;
+            UniformBuffers.TotalUBOs++;
 
             Update(data);
         }
@@ -37,6 +35,7 @@ namespace VoxelNet.Buffers
             data = Data;
             GL.BindBuffer(BufferTarget.UniformBuffer, Handle);
             GL.BufferData(BufferTarget.UniformBuffer, size, ref data, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
 
         public void Bind(int program)

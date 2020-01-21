@@ -239,6 +239,9 @@
     <None Include="Resources\Shaders\Basic.shader">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Resources\Shaders\Voxel.incl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Shaders\Camera.ubo">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

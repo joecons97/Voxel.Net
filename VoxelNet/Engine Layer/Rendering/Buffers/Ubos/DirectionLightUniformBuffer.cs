@@ -14,6 +14,5 @@ namespace VoxelNet.Buffers.Ubos
         public Vector4 SunDirection;
         public Vector4 SunColour;
         public float SunStrength;
-        private float p, a, d;
     }
 }

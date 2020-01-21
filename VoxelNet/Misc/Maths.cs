@@ -4,11 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace VoxelNet.Misc
 {
     public static class Maths
     {
+        public static float Lerp(float a, float b, float t)
+        {
+            return a + t * (b - a);
+        }
+
+
         public static Vector3 GetForwardFromRotation(Vector3 Rotation)
         {
             float yaw = MathHelper.DegreesToRadians(Rotation.Y + 90);

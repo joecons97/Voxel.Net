@@ -10,6 +10,8 @@ namespace VoxelNet.Buffers
 {
     public static class UniformBuffers
     {
+        public static int TotalUBOs { get; set; }
+
         public static UniformBuffer<LightingUniformBufferData> DirectionLightBuffer { get; }
         public static UniformBuffer<CameraUniformBuffer> WorldCameraBuffer { get; }
 
