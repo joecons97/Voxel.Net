@@ -27,6 +27,11 @@ namespace VoxelNet.Rendering
             GL.BindBuffer(BufferTarget.ArrayBuffer, Handle);
         }
 
+        public void Unbind()
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+
         public void Dispose()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

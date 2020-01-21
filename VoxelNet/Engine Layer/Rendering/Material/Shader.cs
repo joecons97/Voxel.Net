@@ -44,11 +44,6 @@ namespace VoxelNet.Rendering
             CompileShader(vertexSrc, fragmentSrc);
         }
 
-        ~Shader()
-        {
-            GL.DeleteProgram(Handle);
-        }
-
         public int GetUniformLocation(string uniform)
         {
             int loc = GL.GetUniformLocation(Handle, uniform);
@@ -69,6 +64,11 @@ namespace VoxelNet.Rendering
         public void Bind()
         {
             GL.UseProgram(Handle);
+        }
+
+        public void Unbind()
+        {
+            GL.UseProgram(0);
         }
 
         public void Dispose()
@@ -111,7 +111,29 @@ namespace VoxelNet.Rendering
                 }
             }
 
+            void CheckForIncludes()
+            {
+                Check(ref vertexSrc);
+                Check(ref fragmentSrc);
+
+                void Check(ref string source)
+                {
+                    var lines = source.Split('\n');
+                    foreach (var line in lines)
+                    {
+                        if (line.StartsWith("#include "))
+                        {
+                            string inc = line.Split(' ')[1].Trim('"');
+                            string file = File.ReadAllText("Resources/Shaders/" + inc);
+                            source = source.Replace(line, file);
+                        }
+                    }
+                }
+            }
+
             int vertShader = 0, fragShader = 0;
+
+            CheckForIncludes();
 
             vertShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertShader, vertexSrc);

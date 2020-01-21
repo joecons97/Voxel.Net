@@ -40,15 +40,15 @@ namespace VoxelNet.Rendering.Material
             {
                 if (value is Vector2 vec2)
                 {
-                    GL.ProgramUniform2(Shader.Handle, UniformLocation, ref vec2);
+                    GL.ProgramUniform2(Shader.Handle, UniformLocation, vec2.X, vec2.Y);
                 }
                 else if(value is Vector3 vec3)
                 {
-                    GL.ProgramUniform3(Shader.Handle, UniformLocation, ref vec3);
+                    GL.ProgramUniform3(Shader.Handle, UniformLocation, vec3.X, vec3.Y, vec3.Z);
                 }
                 else if (value is Vector4 vec4)
                 {
-                    GL.ProgramUniform4(Shader.Handle, UniformLocation, ref vec4);
+                    GL.ProgramUniform4(Shader.Handle, UniformLocation, vec4.X, vec4.Y, vec4.Z, vec4.W);
                 }
                 else if (value is Matrix4 mat4)
                 {

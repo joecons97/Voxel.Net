@@ -35,5 +35,13 @@ namespace VoxelNet
             var importable = (IImportable) Activator.CreateInstance<T>();
             return (T) importable.Import(path);
         }
+
+        public static void Dispose()
+        {
+            foreach (var value in assets.Values)
+            {
+                value.Dispose();
+            }
+        }
     }
 }

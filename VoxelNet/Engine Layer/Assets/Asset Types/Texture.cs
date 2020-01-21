@@ -18,10 +18,14 @@ namespace VoxelNet.Rendering
 
         public Texture() { }
 
+        /// <summary>
+        /// Use AssetData.GetAsset instead!
+        /// </summary>
+        /// <param name="file"></param>
         public Texture(string file)
         {
             Image<Rgba32> img = Image.Load(File.ReadAllBytes(file));
-            img.Mutate(x => x.Flip(FlipMode.Vertical));
+            //img.Mutate(x => x.Flip(FlipMode.Vertical));
             Rgba32[] tempPixels = img.GetPixelSpan().ToArray();
 
             foreach (Rgba32 p in tempPixels)
@@ -35,8 +39,8 @@ namespace VoxelNet.Rendering
             Handle = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, Handle);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
@@ -44,7 +48,38 @@ namespace VoxelNet.Rendering
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, img.Width, img.Height, 
                 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.ToArray());
 
+            //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
             GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        public Texture(IntPtr data, int width, int height)
+        {
+            int tex = 0;
+            GL.CreateTextures(TextureTarget.Texture2D, 1, out tex);
+            Handle = tex;
+
+            GL.TextureStorage2D(Handle, 1, SizedInternalFormat.Rgba8, width, height);
+
+            GL.TextureSubImage2D(Handle, 0, 0, 0, width, height, PixelFormat.Bgra, PixelType.UnsignedByte, data);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+
+            GL.TextureParameter(Handle, TextureParameterName.TextureMaxLevel, 0);
+        }
+
+        public void SetMinFilter(TextureMinFilter filter)
+        {
+            GL.TextureParameter(Handle, TextureParameterName.TextureMinFilter, (int)filter);
+        }
+
+        public void SetMagFilter(TextureMagFilter filter)
+        {
+            GL.TextureParameter(Handle, TextureParameterName.TextureMagFilter, (int) filter);
         }
 
         public IImportable Import(string path)

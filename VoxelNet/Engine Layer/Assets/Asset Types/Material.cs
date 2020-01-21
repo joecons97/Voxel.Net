@@ -17,6 +17,10 @@ namespace VoxelNet.Rendering.Material
 
         public Material() { }
 
+        /// <summary>
+        /// Use AssetData.GetAsset instead!
+        /// </summary>
+        /// <param name="file"></param>
         public Material(string file)
         {
             var lines = File.ReadAllLines(file);
@@ -129,6 +133,13 @@ namespace VoxelNet.Rendering.Material
             Shader?.Dispose();
         }
 
+        public void SetTexture(int index, Texture tex)
+        {
+            if (index >= textures.Count) return;
+
+            textures[index] = tex;
+        }
+
         public void Bind()
         {
             Shader.Bind();
@@ -136,6 +147,11 @@ namespace VoxelNet.Rendering.Material
             {
                 textures[i].Bind(i);
             }
+        }
+
+        public void Unbind()
+        {
+            Shader.Unbind();
         }
 
         public IImportable Import(string path)

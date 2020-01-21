@@ -18,6 +18,10 @@ namespace VoxelNet.Rendering
         //Material...
         public Mesh() { }
 
+        /// <summary>
+        /// Use AssetData.GetAsset instead!
+        /// </summary>
+        /// <param name="file"></param>
         public Mesh(VertexContainer verticesContainer, uint[] indices)
         {
             VertexBuffer = new VertexBuffer(verticesContainer);
@@ -25,11 +29,6 @@ namespace VoxelNet.Rendering
             VertexArray = new VertexArray(VertexBuffer);
 
             IndexBuffer = new IndexBuffer(indices);
-        }
-
-        public void Draw()
-        {
-            Renderer.Draw(this);
         }
 
         public void Dispose()
@@ -71,19 +70,22 @@ namespace VoxelNet.Rendering
                     {
                         case "v":
                             float x, y, z;
-                            success = float.TryParse(parts[1], out x); if (!success)
+                            success = float.TryParse(parts[1], out x); 
+                            if (!success)
                             {
                                 Debug.Log("Failed to parse X of vertex", DebugLevel.Error);
                                 break;
                             }
 
-                            success = float.TryParse(parts[2], out y); if (!success)
+                            success = float.TryParse(parts[2], out y);
+                            if (!success)
                             {
                                 Debug.Log("Failed to parse Y of vertex", DebugLevel.Error);
                                 break;
                             }
 
-                            success = float.TryParse(parts[3], out z); if (!success)
+                            success = float.TryParse(parts[3], out z);
+                            if (!success)
                             {
                                 Debug.Log("Failed to parse Z of vertex", DebugLevel.Error);
                                 break;
@@ -93,19 +95,22 @@ namespace VoxelNet.Rendering
                             break;
                         case "vn":
                             float nx, ny, nz;
-                            success = float.TryParse(parts[1], out nx); if (!success)
+                            success = float.TryParse(parts[1], out nx); 
+                            if (!success)
                             {
                                 Debug.Log("Failed to parse X of vertex", DebugLevel.Error);
                                 break;
                             }
 
-                            success = float.TryParse(parts[2], out ny); if (!success)
+                            success = float.TryParse(parts[2], out ny);
+                            if (!success)
                             {
                                 Debug.Log("Failed to parse Y of vertex", DebugLevel.Error);
                                 break;
                             }
 
-                            success = float.TryParse(parts[3], out nz); if (!success)
+                            success = float.TryParse(parts[3], out nz); 
+                            if (!success)
                             {
                                 Debug.Log("Failed to parse Z of vertex", DebugLevel.Error);
                                 break;
@@ -179,15 +184,15 @@ namespace VoxelNet.Rendering
 
             for (int i = 0; i < vIndices.Count; i++)
             {
-                Finalvertices.Add(vertices[(int)vIndices[i]]);
+                Finalvertices.Add(vertices[(int) vIndices[i]]);
 
-                if(uvs.Count > 0)
-                    Finaluvs.Add(uvs[(int)uvIndices[i]]);
+                if (uvs.Count > 0)
+                    Finaluvs.Add(uvs[(int) uvIndices[i]]);
 
-                if(normals.Count > 0)
-                    Finalnormals.Add(normals[(int)nIndices[i]]);
+                if (normals.Count > 0)
+                    Finalnormals.Add(normals[(int) nIndices[i]]);
 
-                indices.Add((uint)i);
+                indices.Add((uint) i);
             }
 
             VertexContainer container = null;

@@ -31,7 +31,8 @@ namespace VoxelNet
             {
                 FPS = 60,
                 WindowWidth = 1280,
-                WindowHeight = 720
+                WindowHeight = 720,
+                FieldOfView = 65
             };
         }
     }

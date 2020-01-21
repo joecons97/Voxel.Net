@@ -11,12 +11,15 @@ namespace VoxelNet.Rendering
     {
         public int Handle { get; private set; }
 
+        private VertexBuffer vertBuffer;
+
         public VertexArray(VertexBuffer vb)
         {
             Handle = GL.GenVertexArray();
+            vertBuffer = vb;
 
             Bind();
-            vb.Bind();
+            vertBuffer.Bind();
 
             int offset = 0;
             for (int i = 0; i < vb.VertexContainer.ElementCount.Length; i++)
@@ -35,6 +38,13 @@ namespace VoxelNet.Rendering
         public void Bind()
         {
             GL.BindVertexArray(Handle);
+            //vertBuffer.Bind();
+        }
+
+        public void Unbind()
+        {
+            GL.BindVertexArray(0);
+            //vertBuffer.Unbind();
         }
 
         public void Dispose()

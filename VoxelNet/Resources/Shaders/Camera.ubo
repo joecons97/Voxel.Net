@@ -1,0 +1,7 @@
+﻿layout(std140) uniform U_Camera
+{
+    mat4 ProjectionMat;
+    mat4 ViewMat;
+    vec4 Position;
+
+} Camera;

@@ -48,8 +48,8 @@ namespace VoxelNet.Rendering
                 elements.Add(position.Y);
                 elements.Add(position.Z);
 
-                elements.Add(uvs[index].X);
-                elements.Add(uvs[index].Y);
+                 elements.Add(uvs[index].X);
+                 elements.Add(uvs[index].Y);
 
                 index++;
             }

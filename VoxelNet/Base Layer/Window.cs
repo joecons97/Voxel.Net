@@ -1,114 +1,22 @@
 ﻿using System;
-using System.Drawing.Drawing2D;
+using ImGuiNET;
+using ImGuiNet.OpenTK;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
-using VoxelNet;
-using VoxelNet.Rendering;
+using VoxelNet.Assets;
+using VoxelNet.Buffers;
 using VoxelNet.Rendering.Material;
-
-//NOTE: OPENGL FORWARD IS 0,0,-1
 
 namespace VoxelNet
 {
     public class Window : GameWindow
-    {   
-        private Vector3[] positions =
-        {
-            new Vector3(-0.5f, -0.5f, 0.5f), // front
-            new Vector3(0.5f, -0.5f,  0.5f),  // front
-            new Vector3(0.5f, 0.5f,   0.5f),   // front
-            new Vector3(-0.5f, 0.5f,  0.5f),  // front
+    {
+        private World world;
 
-            new Vector3(-0.5f, -0.5f, 0.5f),  // left
-            new Vector3(-0.5f, -0.5f, -.5f),  // left
-            new Vector3(-0.5f, 0.5f,  -.5f),   // left
-            new Vector3(-0.5f, 0.5f,  0.5f),   // left
-                                           
-            new Vector3(0.5f, -0.5f,0.5f),   // right
-            new Vector3(0.5f, -0.5f,-.5f),   // right
-            new Vector3(0.5f, 0.5f, -.5f),   // right
-            new Vector3(0.5f, 0.5f, 0.5f),   // right
+        private ImGuiController guiController;
 
-            new Vector3(-0.5f, -0.5f, -.5f), // back
-            new Vector3(0.5f, -0.5f, -.5f),  // back
-            new Vector3(0.5f, 0.5f, -.5f),   // back
-            new Vector3(-0.5f, 0.5f, -.5f),   // back
-
-            new Vector3(-0.5f,0.5f,  0.5f),   // top
-            new Vector3(-0.5f,0.5f,  -.5f),   // top
-            new Vector3(0.5f, 0.5f,  -.5f),   // top
-            new Vector3(0.5f, 0.5f,  0.5f),   // top
-
-            new Vector3(-0.5f,-0.5f,  0.5f),   // bottom
-            new Vector3(-0.5f,-0.5f,  -.5f),   // bottom
-            new Vector3(0.5f, -0.5f,  -.5f),   // bottom
-            new Vector3(0.5f, -0.5f,  0.5f),   // bottom
-        };
-
-        private Vector2[] uvs =
-        {
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(0.0f, 1.0f),
-
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(0.0f, 1.0f),
-
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(0.0f, 1.0f),
-
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(0.0f, 1.0f),
-
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(0.0f, 1.0f),
-
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(0.0f, 1.0f),
-        };
-        
-        private VertexContainer vertices;
-
-        private uint[] indices =
-        {
-            0, 1, 2,
-            2, 3, 0,
-
-            4, 5, 6,
-            6, 7, 4,
-
-            8, 9, 10,
-            10, 11, 8,
-
-            12, 13, 14,
-            14, 15, 12,
-
-            16, 17, 18,
-            18, 19, 16,
-
-            20, 21, 22,
-            22, 23, 20,
-        };
-
-        private Mesh mesh;
-        private double time;
-        private Material mat;
-        private Camera cam;
-        private Vector2 lastMousePos;
-        private Vector2 mouseD;
         public Window(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
         }
@@ -117,79 +25,93 @@ namespace VoxelNet
         {
             CursorGrabbed = true;
             CursorVisible = false;
-            GL.PolygonMode(MaterialFace.Front, PolygonMode.Fill);
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
 
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(.39f, .58f, .92f, 1.0f);
 
-            cam = new Camera();
-            cam.Position = new Vector3(0,0,2);
+            guiController = new ImGuiController(Width, Height);
 
-            vertices = new VertexContainer(positions, uvs);
+            AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
 
-            mesh = AssetDatabase.GetAsset<Mesh>("Resources/Models/Tests/Teapot.obj");//new Mesh(vertices, indices);
-
-            mat = AssetDatabase.GetAsset<Material>("Resources/Materials/TestMaterial.mat");//new Material();
-
-            mat.Bind();
+            world = new World("poo", "poohead");
 
             base.OnLoad(e);
         }
 
         protected override void OnUnload(EventArgs e)
         {
-            CursorGrabbed = false;
-            CursorVisible = true;
-            mesh.Dispose();
-            mat.Dispose();
+            world?.Dispose();
+
+            AssetDatabase.Dispose();
+
+            guiController?.Dispose();
+
+            UniformBuffers.Dispose();
+
             base.OnUnload(e);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            KeyboardState kbdState = Keyboard.GetState();
-            MouseState mseState = Mouse.GetState();
+            if (Focused)
+            {
+                KeyboardState kbdState = Keyboard.GetState();
 
-            mouseD.X = (mseState.X - lastMousePos.X);
-            mouseD.Y = (mseState.Y - lastMousePos.Y);
+                if (kbdState.IsKeyDown(Key.Escape))
+                    Exit();
 
-            lastMousePos.X = mseState.X;
-            lastMousePos.Y = mseState.Y;
-
-            if (kbdState.IsKeyDown(Key.Escape))
-                Exit();
-
-            cam.Rotation = new Vector3(cam.Rotation.X + (mouseD.Y * (float)e.Time) * 5, cam.Rotation.Y + (mouseD.X * (float)e.Time) * 5, cam.Rotation.Z);
+                world.Update();
+            }
 
             base.OnUpdateFrame(e);
         }
 
+        protected override void OnKeyPress(KeyPressEventArgs e)
+        {
+            guiController.PressChar(e.KeyChar);
+
+            base.OnKeyPress(e);
+        }
+
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            guiController.Update(this, (float)e.Time);
+            
+            GL.Enable(EnableCap.CullFace);
+            GL.CullFace(CullFaceMode.Back);
+
+            GL.Enable(EnableCap.DepthTest);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            Matrix4 proj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90), (float)Width / (float)Height, 0.01f, 100.0f);
-            var up = cam.GetUp();
-            var forward = cam.GetForward();
-            Matrix4 view = Matrix4.LookAt(cam.Position, cam.Position + forward, up);
-            Matrix4 world = Matrix4.CreateRotationY((float)time) * Matrix4.CreateRotationX((float)time) * Matrix4.CreateTranslation(0,0, -1);
+            world.Render();
 
-            mat.Shader.SetUniform("u_Projection", proj);
-            mat.Shader.SetUniform("u_View", view);
-            mat.Shader.SetUniform("u_World", world);
+            ImGui.Begin("", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.AlwaysAutoResize);
 
-            Renderer.Draw(mesh.IndexBuffer, mesh.VertexArray, mat.Shader);
+            ImGui.Text($"{(int)(1f/Time.DeltaTime)}fps" + $" {(int)(Time.DeltaTime * 1000f)}ms");
 
+            ImGui.Text($"World Pos:  {world.WorldCamera.Position.ToString()}");
+            ImGui.Text($"Chunk:  {world.WorldCamera.Position.ToChunkPosition().ToString()}");
+            ImGui.Text($"Pos In Chunk:  {world.WorldCamera.Position.ToChunkSpace().ToString()}");
+
+
+            ImGui.End();
+
+            guiController.Render();
+            
             Context.SwapBuffers();
-            time += e.Time;
-            string fps = (1 / e.Time).ToString("f1");
-            Title = Program.PROGRAMTITLE + $" {fps}fps";
+
+            Time.GameTime += (float)e.Time;
+            Time.DeltaTime = (float)e.Time;
+
             base.OnRenderFrame(e);
         }
 
         protected override void OnResize(EventArgs e)
         {
             GL.Viewport(0,0,Width, Height);
+            guiController.WindowResized(Width,Height);
             base.OnResize(e);
         }
     }
