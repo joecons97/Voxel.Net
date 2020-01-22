@@ -24,8 +24,8 @@ namespace VoxelNet.Rendering
         public Matrix4 ViewMatrix { get; private set; }
         public Matrix4 ProjectionMatrix { get; private set; }
 
-        private float nearPlane = 0.05f;
-        private float farPlane = 5000;
+        public float NearPlane { get; } = 0.05f;
+        public float FarPlane { get; } = 5000;
 
         private CameraUniformBuffer bufferData = new CameraUniformBuffer();
 
@@ -33,7 +33,7 @@ namespace VoxelNet.Rendering
         {
             ViewMatrix = Matrix4.LookAt(Position, Position + GetForward(), GetUp());
             ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Program.Settings.FieldOfView),
-                (float) Program.Settings.WindowWidth / (float) Program.Settings.WindowHeight, nearPlane, farPlane);
+                (float) Program.Settings.WindowWidth / (float) Program.Settings.WindowHeight, NearPlane, FarPlane);
 
             bufferData.ProjectionMat = ProjectionMatrix;
             bufferData.ViewMat = ViewMatrix;
@@ -51,7 +51,7 @@ namespace VoxelNet.Rendering
             float y = (float)Math.Sin(pitch);
             float z = (float)(Math.Cos(pitch) * Math.Sin(yaw));
 
-            return new Vector3(-x, -y, -z);
+            return new Vector3(-x, -y, -z).Normalized();
         }
 
         public Vector3 GetRight()
@@ -61,7 +61,7 @@ namespace VoxelNet.Rendering
             float x = (float)Math.Cos(yaw);
             float z = (float)Math.Sin(yaw);
 
-            return new Vector3(x, 0, z);
+            return new Vector3(x, 0, z).Normalized();
         }
 
         public Vector3 GetUp()
@@ -70,7 +70,7 @@ namespace VoxelNet.Rendering
 
             float y = (float)Math.Sin(pitch);
 
-            return new Vector3(0, y, 0);
+            return new Vector3(0, y, 0).Normalized();
         }
     }
 }

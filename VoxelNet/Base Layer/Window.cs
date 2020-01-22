@@ -7,7 +7,10 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using VoxelNet.Assets;
 using VoxelNet.Buffers;
+using VoxelNet.Physics;
+using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
+using Vector2 = System.Numerics.Vector2;
 
 namespace VoxelNet
 {
@@ -25,6 +28,8 @@ namespace VoxelNet
         {
             CursorGrabbed = true;
             CursorVisible = false;
+            TargetRenderFrequency = 120;
+            VSync = VSyncMode.Off;
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
 
@@ -68,6 +73,34 @@ namespace VoxelNet
             base.OnUpdateFrame(e);
         }
 
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            if (Raycast.CastVoxel(world.WorldCamera.Position, world.WorldCamera.GetForward(), 5, out RayVoxelOut op))
+            {
+                if (e.Button == MouseButton.Left)
+                {
+                    if (world.TryGetChunkAtPosition((int) op.ChunkPosition.X, (int) op.ChunkPosition.Y, out Chunk chunk))
+                    {
+                        chunk.DestroyBlock((int) op.BlockPosition.X, (int) op.BlockPosition.Y, (int) op.BlockPosition.Z);
+
+                        world.RequestChunkUpdate(chunk);
+                    }
+                }
+                else
+                {
+                    if (world.TryGetChunkAtPosition((int)op.PlacementChunk.X, (int)op.PlacementChunk.Y, out Chunk chunk))
+                    {
+                        chunk.PlaceBlock((int)op.PlacementPosition.X, (int)op.PlacementPosition.Y, (int)op.PlacementPosition.Z, 1);
+
+                        world.RequestChunkUpdate(chunk);
+                    }
+                }
+
+
+            }
+            base.OnMouseDown(e);
+        }
+
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             guiController.PressChar(e.KeyChar);
@@ -95,6 +128,13 @@ namespace VoxelNet
             ImGui.Text($"Chunk:  {world.WorldCamera.Position.ToChunkPosition().ToString()}");
             ImGui.Text($"Pos In Chunk:  {world.WorldCamera.Position.ToChunkSpace().ToString()}");
 
+            ImGui.End();
+
+            ImGui.Begin("crosshair", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.AlwaysAutoResize);
+
+            ImGui.Image((IntPtr)world.TexturePack.Crosshair.Handle, Vector2.One*32);
+
+            ImGui.SetWindowPos("crosshair", new Vector2(((float)Width/2f) - 16, ((float)Height /2f) - 16));
 
             ImGui.End();
 

@@ -23,6 +23,11 @@ namespace VoxelNet.Rendering.Material
             SetValue(value);
         }
 
+        public void Bind()
+        {
+            SetValue(Value);
+        }
+
         public void SetValue(object value)
         {
             if (value == null)
@@ -30,6 +35,8 @@ namespace VoxelNet.Rendering.Material
 
             if (UniformLocation == -1)
                 UniformLocation = Shader.GetUniformLocation(Name);
+
+            Value = value;
 
             if(IsNumericType(value))
             {

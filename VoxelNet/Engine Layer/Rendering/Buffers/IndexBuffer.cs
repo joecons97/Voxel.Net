@@ -27,11 +27,6 @@ namespace VoxelNet.Rendering
             GL.BufferData(BufferTarget.ElementArrayBuffer, Length * sizeof(uint), this.indices, BufferUsageHint.StaticDraw);
         }
 
-        ~IndexBuffer()
-        {
-            Dispose();
-        }
-
         public void Bind()
         {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, Handle);

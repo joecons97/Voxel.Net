@@ -113,7 +113,7 @@ namespace VoxelNet
                 for (int z = 0; z < WIDTH; z++)
                 {
                     int h = (int)heightmap[x, z]/20;
-                    h += 2;
+                    h += 32;
                     for (int y = 0; y < h; y++)
                     {
                         if(y == h - 1)
@@ -165,6 +165,9 @@ namespace VoxelNet
 
                         if (ShouldDrawBlockFacing(x, y + 1, z))
                             AddTopFace(x, y, z);
+
+                        if (ShouldDrawBlockFacing(x, y - 1, z))
+                            AddBottomFace(x, y, z);
                     }
                 }
             }
@@ -271,6 +274,44 @@ namespace VoxelNet
                 normals.Add(new Vector3(0,1,0));
                 normals.Add(new Vector3(0,1,0));
                 normals.Add(new Vector3(0,1,0));
+
+                indices.Add(indexCount);
+                indices.Add(indexCount + 1);
+                indices.Add(indexCount + 2);
+
+                indices.Add(indexCount + 2);
+                indices.Add(indexCount + 3);
+                indices.Add(indexCount);
+
+                indexCount += 4;
+            }
+
+            void AddBottomFace(int x, int y, int z)
+            {
+                vertices.Add(new Vector3(1 + x, 0 + y, 1 + z));
+                vertices.Add(new Vector3(0 + x, 0 + y, 1 + z));
+                vertices.Add(new Vector3(0 + x, 0 + y, 0 + z));
+                vertices.Add(new Vector3(1 + x, 0 + y, 0 + z));
+
+                uvs.Add(new Vector2(workingBlock.BottomFace.UVCoordinates.X, workingBlock.BottomFace.UVCoordinates.Y));
+                uvs.Add(new Vector2(workingBlock.BottomFace.UVCoordinates.Width, workingBlock.BottomFace.UVCoordinates.Y));
+                uvs.Add(new Vector2(workingBlock.BottomFace.UVCoordinates.Width, workingBlock.BottomFace.UVCoordinates.Height));
+                uvs.Add(new Vector2(workingBlock.BottomFace.UVCoordinates.X, workingBlock.BottomFace.UVCoordinates.Height));
+
+                uv2.Add(new Vector2(workingBlock.BottomFace.Mask.X, workingBlock.BottomFace.Mask.Y));
+                uv2.Add(new Vector2(workingBlock.BottomFace.Mask.Width, workingBlock.BottomFace.Mask.Y));
+                uv2.Add(new Vector2(workingBlock.BottomFace.Mask.Width, workingBlock.BottomFace.Mask.Height));
+                uv2.Add(new Vector2(workingBlock.BottomFace.Mask.X, workingBlock.BottomFace.Mask.Height));
+
+                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
+                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
+                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
+                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
+
+                normals.Add(new Vector3(0, -1, 0));
+                normals.Add(new Vector3(0, -1, 0));
+                normals.Add(new Vector3(0, -1, 0));
+                normals.Add(new Vector3(0, -1, 0));
 
                 indices.Add(indexCount);
                 indices.Add(indexCount + 1);

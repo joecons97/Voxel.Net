@@ -28,6 +28,11 @@ namespace VoxelNet.Blocks
             {
                 UVCoordinates = uvs;
                 Mask = mask;
+
+                if (Mask.X == -1 || Mask.Y == -1)
+                {
+                    Mask = new Rect(-1, -1, -1, -1);
+                }
             }
 
             public Rect UVCoordinates { get; }

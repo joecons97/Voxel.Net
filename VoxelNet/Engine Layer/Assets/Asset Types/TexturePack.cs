@@ -16,41 +16,20 @@ namespace VoxelNet.Assets
         public const string DEFAULTPACK = "Resources/Packs/Default/";
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Icon { get; set; }
         public Texture IconTexture { get; set; }
         public Texture Blocks { get; set; }
+        public Texture Crosshair { get; set; }
 
         public TexturePackBlocks BlockData { get; set; }
 
         public IImportable Import(string path)
         {
             TexturePack pack = JsonConvert.DeserializeObject<TexturePack>(File.ReadAllText(path + "/Pack.json"));
-            pack.IconTexture = AssetDatabase.GetAsset<Texture>(path + "/" + pack.Icon);
+            pack.IconTexture = AssetDatabase.GetAsset<Texture>(path + "/Textures/icon.png");
             pack.Blocks = AssetDatabase.GetAsset<Texture>(path + "/Textures/blocks.png");
+            pack.Crosshair = AssetDatabase.GetAsset<Texture>(path + "/Textures/crosshair.png");
             pack.BlockData = JsonConvert.DeserializeObject<TexturePackBlocks>(File.ReadAllText(path + "/Blocks.json"));
             
-            //Apply default values to makes if needed
-            foreach (var block in pack.BlockData.Blocks)
-            {
-                if (block.back_face_mask == Vector2.Zero)
-                    block.back_face_mask = block.back_face;
-
-                if (block.front_face_mask == Vector2.Zero)
-                    block.front_face_mask = block.front_face;
-
-                if (block.left_face_mask == Vector2.Zero)
-                    block.left_face_mask = block.left_face;
-
-                if (block.right_face_mask == Vector2.Zero)
-                    block.right_face_mask = block.right_face;
-
-                if (block.top_face_mask == Vector2.Zero)
-                    block.top_face_mask = block.top_face;
-
-                if (block.bottom_face_mask == Vector2.Zero)
-                    block.bottom_face_mask = block.bottom_face;
-            }
-
             float oneSlotX = 1f / (float) pack.BlockData.BlocksPerRow;
             float oneSlotY = 1f / (float)pack.BlockData.BlocksPerColumn;
 
@@ -124,6 +103,8 @@ namespace VoxelNet.Assets
         public void Dispose()
         {
             //throw new NotImplementedException();
+            IconTexture?.Dispose();
+            Blocks?.Dispose();
         }
 
         public class TexturePackBlocks

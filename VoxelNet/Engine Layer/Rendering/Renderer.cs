@@ -18,12 +18,9 @@ namespace VoxelNet.Rendering
             if (material == null)
             {
                 material = AssetDatabase.GetAsset<Material.Material>("Resources/Materials/Fallback.mat");
-                material.Shader.SetUniform("u_World", Matrix4.Identity);
             }
 
             material.Bind();
-            //material.Shader.SetUniform("u_Projection", World.GetInstance().WorldCamera.ProjectionMatrix);
-            //material.Shader.SetUniform("u_View", World.GetInstance().WorldCamera.ViewMatrix);
 
             UniformBuffers.BindAll(material.Shader.Handle);
 

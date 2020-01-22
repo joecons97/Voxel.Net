@@ -1,31 +1,31 @@
 {
   "BlocksPerRow": 5,
-  "BlocksPerColumn":  1,
+  "BlocksPerColumn":  2,
   "Blocks": [
     {
       "block_id": "Block_Dirt",
       "top_face": {
-        "X": 0,
+        "X": 1,
         "Y": 0
       },
       "bottom_face": {
-        "X": 0,
+        "X": 1,
         "Y": 0
       },
       "left_face": {
-        "X": 0,
+        "X": 1,
         "Y": 0
       },
       "right_face": {
-        "X": 0,
+        "X": 1,
         "Y": 0
       },
       "front_face": {
-        "X": 0,
+        "X": 1,
         "Y": 0
       },
       "back_face": {
-        "X": 0,
+        "X": 1,
         "Y": 0
       }
     },
@@ -34,44 +34,48 @@
       "block_id": "Block_Grass",
 
       "top_face": {
-        "X": 3,
+        "X": 4,
         "Y": 0
       },
       "bottom_face": {
-        "X": 0,
+        "X": 1,
         "Y": 0
       },
       "left_face": {
-        "X": 1,
+        "X": 2,
         "Y": 0
       },
       "right_face": {
-        "X": 1,
+        "X": 2,
         "Y": 0
       },
       "front_face": {
-        "X": 1,
+        "X": 2,
         "Y": 0
       },
       "back_face": {
-        "X": 1,
+        "X": 2,
         "Y": 0
       },
 
+      "top_face_mask": {
+        "X": 4,
+        "Y": 0
+      },
       "left_face_mask": {
-        "X": 2,
+        "X": 3,
         "Y": 0
       },
       "right_face_mask": {
-        "X": 2,
+        "X": 3,
         "Y": 0
       },
       "front_face_mask": {
-        "X": 2,
+        "X": 3,
         "Y": 0
       },
       "back_face_mask": {
-        "X": 2,
+        "X": 3,
         "Y": 0
       }
     },
@@ -79,28 +83,28 @@
     {
       "block_id": "Block_Stone",
       "top_face": {
-        "X": 4,
-        "Y": 0
+        "X": 0,
+        "Y": 1
       },
       "bottom_face": {
-        "X": 4,
-        "Y": 0
+        "X": 0,
+        "Y": 1
       },
       "left_face": {
-        "X": 4,
-        "Y": 0
+        "X": 0,
+        "Y": 1
       },
       "right_face": {
-        "X": 4,
-        "Y": 0
+        "X": 0,
+        "Y": 1
       },
       "front_face": {
-        "X": 4,
-        "Y": 0
+        "X": 0,
+        "Y": 1
       },
       "back_face": {
-        "X": 4,
-        "Y": 0
+        "X": 0,
+        "Y": 1
       }
     }
   ]

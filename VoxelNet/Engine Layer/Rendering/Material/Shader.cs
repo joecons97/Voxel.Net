@@ -63,6 +63,10 @@ namespace VoxelNet.Rendering
 
         public void Bind()
         {
+            foreach (var uniform in uniforms.Values)
+            {
+                uniform.Bind();
+            }
             GL.UseProgram(Handle);
         }
 

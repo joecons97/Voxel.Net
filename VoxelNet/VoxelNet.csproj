@@ -163,6 +163,7 @@
     <Compile Include="Engine Layer\Chunk\Blocks\GrassBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Chunk.cs" />
     <Compile Include="Engine Layer\Physics\BoundingBox.cs" />
+    <Compile Include="Engine Layer\Physics\Raycast.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\IndexBuffer.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Material.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\Ubos\DirectionLightUniformBuffer.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Engine Layer\Rendering\Buffers\UniformBuffer.cs" />
     <Compile Include="Engine Layer\Rendering\Camera.cs" />
     <Compile Include="Engine Layer\Rendering\ImGuiController.cs" />
+    <Compile Include="Engine Layer\Rendering\Material\Skybox.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Uniform.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Mesh.cs" />
     <Compile Include="Engine Layer\Rendering\Renderer.cs" />
@@ -212,7 +214,13 @@
     <None Include="Resources\Materials\Fallback.mat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Resources\Materials\Sky.mat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Materials\TestMaterial.mat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Models\InvertedCube.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Models\Tests\HiSphere.obj">
@@ -234,6 +242,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Packs\Default\Pack.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Shaders\SkyProc.shader">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Shaders\Basic.shader">
@@ -259,7 +270,10 @@
     <Content Include="Resources\Packs\Default\Textures\blocks.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Packs\Default\Textures\defaultpack.png">
+    <Content Include="Resources\Packs\Default\Textures\crosshair.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Packs\Default\Textures\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Textures\FallBack.png">
