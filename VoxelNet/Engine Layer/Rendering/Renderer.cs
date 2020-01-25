@@ -13,6 +13,7 @@ namespace VoxelNet.Rendering
 {
     public static class Renderer
     {
+        public static int DrawCalls { get; set; }
         public static void Draw(Mesh mesh, Material.Material material)
         {
             if (material == null)
@@ -27,6 +28,7 @@ namespace VoxelNet.Rendering
             mesh.VertexArray.Bind();
             mesh.IndexBuffer.Bind();
 
+            DrawCalls++;
             GL.DrawElements(PrimitiveType.Triangles, mesh.IndexBuffer.Length, DrawElementsType.UnsignedInt, 0);
 
             mesh.VertexArray.Unbind();

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics;
 using VoxelNet.Assets;
+using VoxelNet.Physics;
 
 namespace VoxelNet.Blocks
 {
@@ -14,6 +15,8 @@ namespace VoxelNet.Blocks
         public virtual string Key { get; set; } = "NULL";
         public virtual int ID { get; set; } = -1;
         public virtual GetBlockColor BlockColor { get; set; } = (x, y, z) => Color4.White;
+        public virtual bool IsTransparent { get; set; } = false;
+        public virtual Shape CollisionShape { get; set; } = new BoundingBox(0,1,0,1,0,1);
 
         public Face TopFace { get; set; }
         public Face BottomFace { get; set; }

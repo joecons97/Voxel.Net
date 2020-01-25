@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics;
+using VoxelNet.Assets;
 
 namespace VoxelNet.Blocks
 {
@@ -11,6 +12,12 @@ namespace VoxelNet.Blocks
     {
         public override int ID => 2;
         public override string Key => "Block_Grass";
-        public override GetBlockColor BlockColor => (x, y, z) => new Color4(117, 192, 93, 255);
-    }
+        public override GetBlockColor BlockColor => (x,y,z) =>
+        {
+            float scale = 0.25f;
+            var biome = 1;//(float)(World.GetInstance().BiomeNoise.Value2D(((float)x/Chunk.WIDTH) * scale, ((float)z / Chunk.WIDTH) * scale) + 1f) / 2f;
+
+            return new Color4(0.45f * biome, 0.75f * biome, 0.36f * biome,1);
+        };
+}
 }

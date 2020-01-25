@@ -33,8 +33,8 @@ namespace VoxelNet.Rendering
 
         public void Dispose()
         {
-            VertexBuffer?.Dispose();
             VertexArray?.Dispose();
+            VertexBuffer?.Dispose();
             IndexBuffer?.Dispose();
         }
 

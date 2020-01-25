@@ -49,6 +49,7 @@ namespace VoxelNet.Rendering
 
         public void Dispose()
         {
+            GL.BindVertexArray(0);
             GL.DeleteVertexArray(Handle);
         }
     }

@@ -146,6 +146,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base Layer\Debug.cs" />
+    <Compile Include="Base Layer\Input\Input.cs" />
+    <Compile Include="Base Layer\Input\InputSetting.cs" />
+    <Compile Include="Base Layer\Input\InputSettings.cs" />
     <Compile Include="Base Layer\Program.cs" />
     <Compile Include="Base Layer\Time.cs" />
     <Compile Include="Base Layer\Window.cs" />
@@ -157,13 +160,25 @@
     <Compile Include="Engine Layer\Assets\Asset Types\World.cs" />
     <Compile Include="Engine Layer\Chunk\BlockColors.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\Block.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\BlockLogOak.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\BlockState.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\BlockLog.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\LeavesBlock.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\BlockLeavesOak.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\StoneBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\DirtBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\GrassBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Chunk.cs" />
+    <Compile Include="Engine Layer\Chunk\Decoration\Decorator.cs" />
+    <Compile Include="Engine Layer\Chunk\Decoration\IDecorator.cs" />
+    <Compile Include="Engine Layer\Chunk\Decoration\OakDecorator.cs" />
+    <Compile Include="Engine Layer\Entity\Entity.cs" />
+    <Compile Include="Engine Layer\Entity\Player.cs" />
     <Compile Include="Engine Layer\Physics\BoundingBox.cs" />
+    <Compile Include="Engine Layer\Physics\PhysicSimulation.cs" />
     <Compile Include="Engine Layer\Physics\Raycast.cs" />
+    <Compile Include="Engine Layer\Physics\Rigidbody.cs" />
+    <Compile Include="Engine Layer\Physics\Shape.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\IndexBuffer.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Material.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\Ubos\DirectionLightUniformBuffer.cs" />
@@ -184,6 +199,16 @@
     <Compile Include="Engine Layer\Rendering\Vertex\VertexNormalContainer.cs" />
     <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\External\Noise.cs" />
+    <Compile Include="Misc\External\Noise\CellNoise.cs" />
+    <Compile Include="Misc\External\Noise\ClampNoise.cs" />
+    <Compile Include="Misc\External\Noise\FractalBrownianMotion.cs" />
+    <Compile Include="Misc\External\Noise\INoise.cs" />
+    <Compile Include="Misc\External\Noise\InvertNoise.cs" />
+    <Compile Include="Misc\External\Noise\ModifyNoise.cs" />
+    <Compile Include="Misc\External\Noise\NoiseGen.cs" />
+    <Compile Include="Misc\External\Noise\OpenSimplex.cs" />
+    <Compile Include="Misc\External\Noise\Perlin.cs" />
+    <Compile Include="Misc\External\Noise\ScaleNoise.cs" />
     <Compile Include="Misc\Maths.cs" />
     <Compile Include="Misc\Rect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -250,7 +275,7 @@
     <None Include="Resources\Shaders\Basic.shader">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\Shaders\Voxel.incl">
+    <None Include="Resources\Shaders\Voxel.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Resources\Shaders\Camera.ubo">
@@ -276,6 +301,9 @@
     <Content Include="Resources\Packs\Default\Textures\icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\Shaders\Sky\Atmos.glsl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Resources\Textures\FallBack.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

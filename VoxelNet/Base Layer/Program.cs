@@ -1,5 +1,6 @@
 ﻿using System;
 using VoxelNet;
+using VoxelNet.Input;
 
 namespace VoxelNet
 {
@@ -32,7 +33,8 @@ namespace VoxelNet
                 FPS = 60,
                 WindowWidth = 1280,
                 WindowHeight = 720,
-                FieldOfView = 65
+                FieldOfView = 65,
+                Input = new InputSettings()
             };
         }
     }

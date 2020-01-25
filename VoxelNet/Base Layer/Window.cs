@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ImGuiNET;
 using ImGuiNet.OpenTK;
 using OpenTK;
@@ -19,6 +20,7 @@ namespace VoxelNet
         private World world;
 
         private ImGuiController guiController;
+        private string testInput = "";
 
         public Window(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
@@ -28,6 +30,7 @@ namespace VoxelNet
         {
             CursorGrabbed = true;
             CursorVisible = false;
+            TargetUpdateFrequency = 120;
             TargetRenderFrequency = 120;
             VSync = VSyncMode.Off;
             GL.Enable(EnableCap.CullFace);
@@ -36,11 +39,47 @@ namespace VoxelNet
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(.39f, .58f, .92f, 1.0f);
 
+            KeyDown += (sender, args) =>
+            {
+                if (args.IsRepeat)
+                    return;
+
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.KeyButton == args.Key);
+                foreach (var input in inputs)
+                {
+                    input.KeyDown?.Invoke();
+                }
+            };
+            KeyUp += (sender, args) =>
+            {
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.KeyButton == args.Key);
+                foreach (var input in inputs)
+                {
+                    input.KeyUp?.Invoke();
+                }
+            };
+            MouseDown += (sender, args) =>
+            {
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
+                foreach (var input in inputs)
+                {
+                    input.KeyDown?.Invoke();
+                }
+            };
+            MouseUp += (sender, args) =>
+            {
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
+                foreach (var input in inputs)
+                {
+                    input.KeyUp?.Invoke();
+                }
+            };
+
             guiController = new ImGuiController(Width, Height);
 
             AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
 
-            world = new World("poo", "poohead");
+            world = new World("poo", "bigduck");
 
             base.OnLoad(e);
         }
@@ -70,35 +109,10 @@ namespace VoxelNet
                 world.Update();
             }
 
+            Time.GameTime += (float)e.Time;
+            Time.DeltaTime = (float)e.Time;
+
             base.OnUpdateFrame(e);
-        }
-
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-            if (Raycast.CastVoxel(world.WorldCamera.Position, world.WorldCamera.GetForward(), 5, out RayVoxelOut op))
-            {
-                if (e.Button == MouseButton.Left)
-                {
-                    if (world.TryGetChunkAtPosition((int) op.ChunkPosition.X, (int) op.ChunkPosition.Y, out Chunk chunk))
-                    {
-                        chunk.DestroyBlock((int) op.BlockPosition.X, (int) op.BlockPosition.Y, (int) op.BlockPosition.Z);
-
-                        world.RequestChunkUpdate(chunk);
-                    }
-                }
-                else
-                {
-                    if (world.TryGetChunkAtPosition((int)op.PlacementChunk.X, (int)op.PlacementChunk.Y, out Chunk chunk))
-                    {
-                        chunk.PlaceBlock((int)op.PlacementPosition.X, (int)op.PlacementPosition.Y, (int)op.PlacementPosition.Z, 1);
-
-                        world.RequestChunkUpdate(chunk);
-                    }
-                }
-
-
-            }
-            base.OnMouseDown(e);
         }
 
         protected override void OnKeyPress(KeyPressEventArgs e)
@@ -112,38 +126,21 @@ namespace VoxelNet
         {
             guiController.Update(this, (float)e.Time);
             
+            Renderer.DrawCalls = 0;
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
 
             GL.Enable(EnableCap.DepthTest);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             world.Render();
 
-            ImGui.Begin("", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.AlwaysAutoResize);
-
-            ImGui.Text($"{(int)(1f/Time.DeltaTime)}fps" + $" {(int)(Time.DeltaTime * 1000f)}ms");
-
-            ImGui.Text($"World Pos:  {world.WorldCamera.Position.ToString()}");
-            ImGui.Text($"Chunk:  {world.WorldCamera.Position.ToChunkPosition().ToString()}");
-            ImGui.Text($"Pos In Chunk:  {world.WorldCamera.Position.ToChunkSpace().ToString()}");
-
-            ImGui.End();
-
-            ImGui.Begin("crosshair", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.AlwaysAutoResize);
-
-            ImGui.Image((IntPtr)world.TexturePack.Crosshair.Handle, Vector2.One*32);
-
-            ImGui.SetWindowPos("crosshair", new Vector2(((float)Width/2f) - 16, ((float)Height /2f) - 16));
-
-            ImGui.End();
+            world.GUI();
 
             guiController.Render();
             
             Context.SwapBuffers();
-
-            Time.GameTime += (float)e.Time;
-            Time.DeltaTime = (float)e.Time;
 
             base.OnRenderFrame(e);
         }

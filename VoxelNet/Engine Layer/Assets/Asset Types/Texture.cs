@@ -12,7 +12,9 @@ namespace VoxelNet.Rendering
 {
     public class Texture : IImportable, IDisposable
     {
-        public int Handle { get; private set; }
+        public int Handle { get; }
+        public int Width { get; }
+        public int Height { get; }
 
         List<byte> pixels = new List<byte>();
 
@@ -25,6 +27,8 @@ namespace VoxelNet.Rendering
         public Texture(string file)
         {
             Image<Rgba32> img = Image.Load(File.ReadAllBytes(file));
+            Width = img.Width;
+            Height = img.Height;
             //img.Mutate(x => x.Flip(FlipMode.Vertical));
             Rgba32[] tempPixels = img.GetPixelSpan().ToArray();
 

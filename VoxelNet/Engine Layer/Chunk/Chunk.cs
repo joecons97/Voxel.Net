@@ -8,6 +8,7 @@ using OpenTK.Graphics;
 using SimplexNoise;
 using VoxelNet.Assets;
 using VoxelNet.Blocks;
+using VoxelNet.Decoration;
 using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
 
@@ -55,7 +56,7 @@ namespace VoxelNet
         private Material material;
         private float[,] heightmap;
 
-        private float noiseScale = 0.01f;
+        private float noiseScale = 0.25f;
 
         public Chunk(Vector2 position)
         {
@@ -94,34 +95,47 @@ namespace VoxelNet
 
         public void GenerateHeightMap()
         {
-            Noise.Seed = World.GetInstance().Seed.GetHashCode();
             heightmap = new float[WIDTH, WIDTH];
             for (int x = 0; x < WIDTH; x++)
             {
                 for (int y = 0; y < WIDTH; y++)
                 {
-                    heightmap[x, y] = Noise.CalcPixel2D(x + (int) (Position.X * WIDTH), y + (int) (Position.Y * WIDTH),
-                        noiseScale);
+                    float NoiseX = ((float) x / (float) WIDTH) + (Position.X);
+                    float NoiseY = ((float) y / (float) WIDTH) + (Position.Y);
+                    heightmap[x, y] = (float)((World.GetInstance().TerrainNoise.Value2D(NoiseX * noiseScale, NoiseY * noiseScale) + 1) / 2) * 255;
                 }
             }
         }
 
+        public int GetHeightAtBlock(int x, int z)
+        {
+            int h = (int)heightmap[x, z] / 20;
+            h += 32;
+            return h;
+        }
+
         public void FillBlocks()
         {
-            for (int x = 0; x < WIDTH; x++)
+            using (OakDecorator decorator = new OakDecorator())
             {
-                for (int z = 0; z < WIDTH; z++)
+                for (int x = 0; x < WIDTH; x++)
                 {
-                    int h = (int)heightmap[x, z]/20;
-                    h += 32;
-                    for (int y = 0; y < h; y++)
+                    for (int z = 0; z < WIDTH; z++)
                     {
-                        if(y == h - 1)
-                            Blocks[x, y, z] = 2;
-                        else if(y >= h - 4)
-                            Blocks[x, y, z] = 1;
-                        else
-                            Blocks[x, y, z] = 3;
+                        int h = GetHeightAtBlock(x, z);
+                        for (int y = 0; y < h; y++)
+                        {
+                            if (y == h - 1)
+                            {
+                                Blocks[x, y, z] = 2;
+                                decorator.DecorateAtBlock(this, x, y, z);
+                            }
+                            else if (y >= h - 4)
+                                Blocks[x, y, z] = 1;
+                            else
+                                Blocks[x, y, z] = 3;
+
+                        }
                     }
                 }
             }
@@ -227,10 +241,10 @@ namespace VoxelNet
                 uv2.Add(new Vector2(workingBlock.BackFace.Mask.Width, workingBlock.BackFace.Mask.Height));
                 uv2.Add(new Vector2(workingBlock.BackFace.Mask.X, workingBlock.BackFace.Mask.Height));
 
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
 
                 normals.Add(new Vector3(0,0,-1));
                 normals.Add(new Vector3(0,0,-1));
@@ -265,10 +279,10 @@ namespace VoxelNet
                 uv2.Add(new Vector2(workingBlock.TopFace.Mask.Width, workingBlock.TopFace.Mask.Height));
                 uv2.Add(new Vector2(workingBlock.TopFace.Mask.X, workingBlock.TopFace.Mask.Height));
 
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
 
                 normals.Add(new Vector3(0,1,0));
                 normals.Add(new Vector3(0,1,0));
@@ -303,10 +317,10 @@ namespace VoxelNet
                 uv2.Add(new Vector2(workingBlock.BottomFace.Mask.Width, workingBlock.BottomFace.Mask.Height));
                 uv2.Add(new Vector2(workingBlock.BottomFace.Mask.X, workingBlock.BottomFace.Mask.Height));
 
-                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
-                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
-                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
-                col.Add(workingBlock.BlockColor(x, y, z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
 
                 normals.Add(new Vector3(0, -1, 0));
                 normals.Add(new Vector3(0, -1, 0));
@@ -341,10 +355,10 @@ namespace VoxelNet
                 uv2.Add(new Vector2(workingBlock.RightFace.Mask.Width, workingBlock.RightFace.Mask.Height));
                 uv2.Add(new Vector2(workingBlock.RightFace.Mask.X, workingBlock.RightFace.Mask.Height));
 
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
 
                 normals.Add(new Vector3(1,0,0));
                 normals.Add(new Vector3(1,0,0));
@@ -379,10 +393,10 @@ namespace VoxelNet
                 uv2.Add(new Vector2(workingBlock.LeftFace.Mask.Width, workingBlock.LeftFace.Mask.Height));
                 uv2.Add(new Vector2(workingBlock.LeftFace.Mask.X, workingBlock.LeftFace.Mask.Height));
 
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
-                col.Add(workingBlock.BlockColor(x,y,z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
+                col.Add(workingBlock.BlockColor((int)(Position.X * WIDTH) + x, (int)(Position.X * WIDTH) + y, (int)(Position.X * WIDTH) + z).ToVector4());
 
                 normals.Add(new Vector3(-1,0,0));
                 normals.Add(new Vector3(-1, 0, 0));
@@ -410,7 +424,12 @@ namespace VoxelNet
 
         public bool ShouldDrawBlockFacing(int x, int y, int z)
         {
-            return GetBlock(x, y, z) == 0;
+            short block = GetBlock(x, y, z);
+
+            if (block == 0)
+                return true;
+
+            return BlockDatabase.GetBlock(block).IsTransparent;
         }
 
         public short GetBlock(int x, int y, int z)
@@ -453,12 +472,45 @@ namespace VoxelNet
             return Blocks[x, y, z];
         }
 
-        public void PlaceBlock(int x, int y, int z, short blockIndex)
+        public void PlaceBlock(int x, int y, int z, short blockIndex, bool updateChunk = true)
         {
+            if (x <= -1)
+            {
+                if (LeftNeighbour != null)
+                    LeftNeighbour.PlaceBlock(WIDTH + x, y, z, blockIndex, updateChunk);
+
+                return;
+            }
+
+            if (x >= WIDTH)
+            {
+                if (RightNeighbour != null)
+                    RightNeighbour.PlaceBlock(x - WIDTH, y, z, blockIndex, updateChunk);
+
+                return;
+            }
+
+            if (z <= -1)
+            {
+                if (BackNeighbour != null)
+                    BackNeighbour.PlaceBlock(x, y, WIDTH + z, blockIndex, updateChunk);
+
+                return;
+            }
+
+            if (z >= WIDTH)
+            {
+                if (FrontNeighbour != null)
+                    FrontNeighbour.PlaceBlock(x, y, z - WIDTH, blockIndex, updateChunk);
+
+                return;
+            }
+
             int layer = (int)Math.Floor((float) y / (float) (HEIGHT / LAYERCOUNT));
             Blocks[x, y, z] = blockIndex;
 
-            World.GetInstance().RequestChunkUpdate(this);
+            if(updateChunk)
+                World.GetInstance().RequestChunkUpdate(this);
         }
 
         public void DestroyBlock(int x, int y, int z)
@@ -490,7 +542,7 @@ namespace VoxelNet
         public void Dispose()
         {
             mesh?.Dispose();
-            material?.Dispose();
+            //material?.Dispose();
         }
     }
 }

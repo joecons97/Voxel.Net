@@ -43,6 +43,13 @@ namespace VoxelNet
             return vec - chunkPos;
         }
 
+        public static Vector3 ToChunkSpaceFloored(this Vector3 vec)
+        {
+            var final = ToChunkSpace(vec);
+
+            return new Vector3((float)Math.Floor(final.X), (float)Math.Floor(final.Y), (float)Math.Floor(final.Z));
+        }
+
         public static Color4 GetRandomColor()
         {
             byte r, g, b, a;

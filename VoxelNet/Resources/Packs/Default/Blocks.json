@@ -106,6 +106,85 @@
         "X": 0,
         "Y": 1
       }
+    },
+    {
+      "block_id": "Block_Log_Oak",
+      "top_face": {
+        "X": 2,
+        "Y": 1
+      },
+      "bottom_face": {
+        "X": 2,
+        "Y": 1
+      },
+      "left_face": {
+        "X": 1,
+        "Y": 1
+      },
+      "right_face": {
+        "X": 1,
+        "Y": 1
+      },
+      "front_face": {
+        "X": 1,
+        "Y": 1
+      },
+      "back_face": {
+        "X": 1,
+        "Y": 1
+      }
+    },
+    {
+      "block_id": "Block_Leaves_Oak",
+      "top_face": {
+        "X": 3,
+        "Y": 1
+      },
+      "bottom_face": {
+        "X": 3,
+        "Y": 1
+      },
+      "left_face": {
+        "X": 3,
+        "Y": 1
+      },
+      "right_face": {
+        "X": 3,
+        "Y": 1
+      },
+      "front_face": {
+        "X": 3,
+        "Y": 1
+      },
+      "back_face": {
+        "X": 3,
+        "Y": 1
+      },
+      "top_face_mask": {
+        "X": 3,
+        "Y": 1
+      },
+      "bottom_face_mask": {
+        "X": 3,
+        "Y": 1
+      },
+      "left_face_mask": {
+        "X": 3,
+        "Y": 1
+      },
+      "right_face_mask": {
+        "X": 3,
+        "Y": 1
+      },
+      "front_face_mask": {
+        "X": 3,
+        "Y": 1
+      },
+      "back_face_mask": {
+        "X": 3,
+        "Y": 1
+      }
     }
+
   ]
 }

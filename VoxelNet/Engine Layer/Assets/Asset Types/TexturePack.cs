@@ -102,7 +102,6 @@ namespace VoxelNet.Assets
 
         public void Dispose()
         {
-            //throw new NotImplementedException();
             IconTexture?.Dispose();
             Blocks?.Dispose();
         }

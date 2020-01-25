@@ -9,9 +9,11 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
 using SimplexNoise;
+using TrueCraft.Core.TerrainGen.Noise;
 using VoxelNet.Blocks;
 using VoxelNet.Buffers;
 using VoxelNet.Buffers.Ubos;
+using VoxelNet.Entity;
 using VoxelNet.Misc;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
@@ -27,21 +29,24 @@ namespace VoxelNet.Assets
         public Camera WorldCamera { get; private set; }
         public Skybox Skybox { get; private set; }
         public TexturePack TexturePack { get; private set; }
-
         public Random Randomizer { get; private set; }
+        public OpenSimplex TerrainNoise { get; private set; }
+        public CellNoise BiomeNoise { get; private set; }
 
+        List<Entity.Entity> loadedEntities = new List<Entity.Entity>();
         List<Chunk> loadedChunks = new List<Chunk>();
 
         LinkedList<Chunk> chunksToUpdate = new LinkedList<Chunk>();
-        private int worldSize = 5;
+        private int worldSize = 6;
 
         private static World instance;
         
-        private Vector2 lastMousePos;
-        private Vector2 mouseD;
-
         private LightingUniformBufferData lightBufferData;
         private float lightAngle;
+
+        private Vector2 lastPlayerPos = Vector2.One;
+        List<Vector2> chunksToKeep = new List<Vector2>();
+        List<Vector2> newChunks = new List<Vector2>();
 
         [JsonIgnore]
         public string Path =>
@@ -75,6 +80,8 @@ namespace VoxelNet.Assets
             Name = name;
             Seed = seed;
 
+            loadedEntities.Add(new Player());
+
             Begin();
         }
 
@@ -87,48 +94,19 @@ namespace VoxelNet.Assets
         {
             BlockDatabase.Init();
             TexturePack = AssetDatabase.GetAsset<TexturePack>(TexturePack.DEFAULTPACK);
+            TerrainNoise = new OpenSimplex(Seed.GetHashCode());
+            BiomeNoise = new CellNoise(Seed.GetHashCode());
             Randomizer = new Random(Seed.GetHashCode());
             WorldCamera = new Camera();
+
             Skybox = new Skybox(AssetDatabase.GetAsset<Material>("Resources/Materials/Sky.mat"));
 
             lightAngle = 60;
             lightBufferData = new LightingUniformBufferData();
 
-            for (int x = -worldSize - 1; x < worldSize; x++)
+            foreach (var entity in loadedEntities)
             {
-                for (int z = -worldSize - 1; z < worldSize; z++)
-                {
-                    if (TryGetChunkAtPosition(x, z, out Chunk oChunk))
-                        continue;
-
-                    Chunk c = new Chunk(new Vector2(x, z));
-                    c.GenerateHeightMap();
-                    c.FillBlocks();
-                    if (TryGetChunkAtPosition(x - 1, z, out oChunk))
-                    {
-                        c.LeftNeighbour = oChunk;
-                        oChunk.RightNeighbour = c;
-                    }
-
-                    if (TryGetChunkAtPosition(x + 1, z, out oChunk))
-                    {
-                        c.RightNeighbour = oChunk;
-                        oChunk.LeftNeighbour = c;
-                    }
-                    if (TryGetChunkAtPosition(x, z - 1, out oChunk))
-                    {
-                        c.BackNeighbour = oChunk;
-                        oChunk.FrontNeighbour = c;
-                    }
-
-                    if (TryGetChunkAtPosition(x, z + 1, out oChunk))
-                    {
-                        c.FrontNeighbour = oChunk;
-                        oChunk.BackNeighbour = c;
-                    }
-                    loadedChunks.Add(c);
-                    RequestChunkUpdate(c);
-                }
+                entity.Begin();
             }
 
             //Check for custom texture pack
@@ -172,37 +150,98 @@ namespace VoxelNet.Assets
                 }
             }
 
-            KeyboardState kbdState = Keyboard.GetState();
-            MouseState mseState = Mouse.GetState();
+            foreach (var entity in loadedEntities)
+            {
+                entity.Update();
+            }
 
-            mouseD.X = (mseState.X - lastMousePos.X);
-            mouseD.Y = (mseState.Y - lastMousePos.Y);
-
-            lastMousePos.X = mseState.X;
-            lastMousePos.Y = mseState.Y;
-
-            if (kbdState.IsKeyDown(Key.S))
-                WorldCamera.Position -= WorldCamera.GetForward() / 10;
-
-            if (kbdState.IsKeyDown(Key.W))
-                WorldCamera.Position += WorldCamera.GetForward() / 10;
-
-            if (kbdState.IsKeyDown(Key.A))
-                WorldCamera.Position -= WorldCamera.GetRight() / 10;
-
-            if (kbdState.IsKeyDown(Key.D))
-                WorldCamera.Position += WorldCamera.GetRight() / 10;
-
-            WorldCamera.Rotation = new Vector3(WorldCamera.Rotation.X + mouseD.Y * .05f, 
-                WorldCamera.Rotation.Y + mouseD.X * .05f, WorldCamera.Rotation.Z);
-
-            lightAngle += 0.01f;
+            lightAngle += 0.005f;
 
             lightBufferData.SunColour = Color4.LightYellow.ToVector4();
             lightBufferData.SunDirection = new Vector4(Maths.GetForwardFromRotation(new Vector3(lightAngle, 0, 0)), 1);
-            lightBufferData.SunStrength = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0)) * 2f;
-            float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0));
+            float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -.25f, 0)) * 4f;
+            lightBufferData.SunStrength = t * 2f;
             lightBufferData.AmbientColour = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/1.5f, Color4.DarkSlateGray.ToVector4(), t);
+            UpdateView();
+
+            PhysicSimulation.Simulate(Time.DeltaTime);
+        }
+
+        public void GUI()
+        {
+            foreach (var entity in loadedEntities)
+            {
+                entity.GUI();
+            }
+        }
+
+        void UpdateView()
+        {
+            int roundedX = (int)Math.Ceiling(WorldCamera.Position.X / 16) * 16;
+            int roundedZ = (int)Math.Ceiling(WorldCamera.Position.Z / 16) * 16;
+
+            if (roundedX != (int)lastPlayerPos.X || roundedZ != (int)lastPlayerPos.Y)
+            {
+                for (int x = -worldSize - 1; x < worldSize; x++)
+                {
+                    for (int z = -worldSize - 1; z < worldSize; z++)
+                    {
+                        int wantedX = x + (roundedX / 16);
+                        int wantedZ = z + (roundedZ / 16);
+
+                        if (TryGetChunkAtPosition(wantedX, wantedZ, out Chunk oChunk))
+                        {
+                            chunksToKeep.Add(new Vector2(wantedX, wantedZ));
+                            continue;
+                        }
+
+                        Chunk c = new Chunk(new Vector2(wantedX, wantedZ));
+                        newChunks.Add(c.Position);
+                        c.GenerateHeightMap();
+                        c.FillBlocks();
+                        if (TryGetChunkAtPosition(wantedX - 1, wantedZ, out oChunk))
+                        {
+                            c.LeftNeighbour = oChunk;
+                            oChunk.RightNeighbour = c;
+                        }
+
+                        if (TryGetChunkAtPosition(wantedX + 1, wantedZ, out oChunk))
+                        {
+                            c.RightNeighbour = oChunk;
+                            oChunk.LeftNeighbour = c;
+                        }
+                        if (TryGetChunkAtPosition(wantedX, wantedZ - 1, out oChunk))
+                        {
+                            c.BackNeighbour = oChunk;
+                            oChunk.FrontNeighbour = c;
+                        }
+
+                        if (TryGetChunkAtPosition(wantedX, wantedZ + 1, out oChunk))
+                        {
+                            c.FrontNeighbour = oChunk;
+                            oChunk.BackNeighbour = c;
+                        }
+                        loadedChunks.Add(c);
+                        RequestChunkUpdate(c);
+                    }
+                }
+
+                for (int i = 0; i < loadedChunks.Count; i++)
+                {
+                    if (chunksToKeep.Any(v => (int)v.X == (int)loadedChunks[i].Position.X && (int)v.Y == (int)loadedChunks[i].Position.Y) ||
+                        newChunks.Any(v => (int)v.X == (int)loadedChunks[i].Position.X && (int)v.Y == (int)loadedChunks[i].Position.Y))
+                        continue;
+
+                    loadedChunks[i].Dispose();
+                    loadedChunks.Remove(loadedChunks[i]);
+                }
+
+                chunksToKeep.Clear();
+                newChunks.Clear();
+                lastPlayerPos = new Vector2(roundedX, roundedZ);
+            }
+
+            
         }
 
         public void Render()
@@ -210,6 +249,10 @@ namespace VoxelNet.Assets
             UniformBuffers.DirectionLightBuffer.Update(lightBufferData);
             WorldCamera.Update();
             Skybox.Render();
+            foreach (var entity in loadedEntities)
+            {
+                entity.Render();
+            }
             foreach (var loadedChunk in loadedChunks)
             {
                 loadedChunk.Render();
@@ -235,6 +278,10 @@ namespace VoxelNet.Assets
 
         public void Dispose()
         {
+            foreach (var entity in loadedEntities)
+            {
+                entity.End();
+            }
             foreach (var loadedChunk in loadedChunks)
             {
                 loadedChunk.Dispose();

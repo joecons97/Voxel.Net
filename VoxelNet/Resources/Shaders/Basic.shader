@@ -38,7 +38,7 @@ void main()
 #shader fragment
 #version 330 core
 
-#include "Voxel.incl"
+#include "Voxel.glsl"
 #include "Lighting.ubo"
 
 layout(location = 0) out vec4 color;
@@ -52,13 +52,14 @@ in vec4 v_Normal;
 
 void main()
 {
+	vec4 texCol = texture(u_ColorMap, v_TexCoord);
+
 	vec3 worldNormal = normalize(v_Normal.rgb);
 	vec3 lightDir = vec3(0, .5, .5);
 
 	float ndl = saturate(dot(worldNormal.rgb, -Lighting.SunDirection.rgb));
 	vec4 pxLight = saturate((ndl * Lighting.SunStrength * Lighting.SunColour)) + Lighting.AmbientColour;
 
-	vec4 texCol = texture(u_ColorMap, v_TexCoord);
 
 	if (v_TexCoord2 != vec2(-1, -1))
 	{
@@ -68,6 +69,7 @@ void main()
 			texCol = mask * v_Color;
 		}
 	}
-
+	if (texCol.a < 0.5)
+		discard;
     color = texCol * pxLight;
 }

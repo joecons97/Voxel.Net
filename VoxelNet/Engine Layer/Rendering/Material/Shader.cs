@@ -78,7 +78,6 @@ namespace VoxelNet.Rendering
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -110,7 +109,7 @@ namespace VoxelNet.Rendering
                 var lines = src.Split('\n');
                 foreach (var line in lines)
                 {
-                    if (line.Contains("uniform") && !line.StartsWith("//"))
+                    if (line.Contains("uniform") && !line.StartsWith("//") && !line.Contains("layout(std140)"))
                         GetUniform(line);
                 }
             }

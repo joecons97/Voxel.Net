@@ -21,6 +21,12 @@ namespace VoxelNet.Assets
 
             StoneBlock stone = new StoneBlock();
             blocks.Add(stone.Key, stone);
+
+            BlockLogOak oakLog = new BlockLogOak();
+            blocks.Add(oakLog.Key, oakLog);
+
+            BlockLeavesOak oakLeaves = new BlockLeavesOak();
+            blocks.Add(oakLeaves.Key, oakLeaves);
         }
 
         public static Block GetBlock(string key)
