@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ionic.Zip;
 using OpenTK;
 using VoxelNet.Assets;
 
@@ -38,11 +39,23 @@ namespace VoxelNet.Rendering
             IndexBuffer?.Dispose();
         }
 
-        public IImportable Import(string path)
+        public IImportable Import(string path, ZipFile pack)
         {
             if (path.ToLower().EndsWith(".obj"))
             {
-                return ParseObj(path);
+                if (pack.ContainsEntry(path))
+                {
+                    MemoryStream stream = new MemoryStream();
+                    pack[path].Extract(stream);
+                    var text = Encoding.ASCII.GetString(stream.ToArray());
+                    string[] lines = text.Split('\n');
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        lines[i] = lines[i].Trim('\r');
+                    }
+                    return ParseObj(lines);
+                }
+                return ParseObj(File.ReadAllLines(path));
             }
             else
             {
@@ -50,7 +63,7 @@ namespace VoxelNet.Rendering
             }
         }
 
-        Mesh ParseObj(string file)
+        Mesh ParseObj(string[] lines)
         {
             List<Vector3> vertices = new List<Vector3>();
             List<Vector3> normals = new List<Vector3>();
@@ -59,7 +72,6 @@ namespace VoxelNet.Rendering
             List<uint> nIndices = new List<uint>();
             List<uint> uvIndices = new List<uint>();
 
-            var lines = File.ReadAllLines(file);
             foreach (var line in lines)
             {
                 string[] parts = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);

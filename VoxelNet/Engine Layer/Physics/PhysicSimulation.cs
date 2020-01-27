@@ -9,7 +9,7 @@ namespace VoxelNet.Physics
 {
     public static class PhysicSimulation
     {
-        public static Vector3 Gravity = new Vector3(0, -0.49f, 0);
+        public static Vector3 Gravity = new Vector3(0, -25, 0);
         private static List<Rigidbody> rigidbodies = new List<Rigidbody>();
 
         public static void AddRigidbody(Rigidbody body)
@@ -30,7 +30,7 @@ namespace VoxelNet.Physics
                 var normVelocity = body.Velocity.Normalized();
                 for (int c = 0; c < body.GetCollisionShapes().Length; c++)
                 {
-                    body.Velocity += Gravity;
+                    body.Velocity += Gravity * deltaTime;
 
                     if (body.Velocity.X != 0)
                     {

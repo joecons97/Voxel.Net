@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ionic.Zip;
 using Newtonsoft.Json;
 using OpenTK;
 using OpenTK.Graphics;
@@ -93,7 +94,7 @@ namespace VoxelNet.Assets
         public void Begin()
         {
             BlockDatabase.Init();
-            TexturePack = AssetDatabase.GetAsset<TexturePack>(TexturePack.DEFAULTPACK);
+            TexturePack = AssetDatabase.GetAsset<TexturePack>("");
             TerrainNoise = new OpenSimplex(Seed.GetHashCode());
             BiomeNoise = new CellNoise(Seed.GetHashCode());
             Randomizer = new Random(Seed.GetHashCode());
@@ -259,7 +260,7 @@ namespace VoxelNet.Assets
             }
         }
 
-        public IImportable Import(string path)
+        public IImportable Import(string path, ZipFile pack)
         {
             if (instance != null)
                 return null;

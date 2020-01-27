@@ -14,8 +14,6 @@ namespace VoxelNet.Entity
 {
     public class Player : Entity
     {
-        private Vector2 lastMousePos;
-        private Vector2 mouseD;
         private bool hasHadInitialSet;
         private World currentWorld;
         private Rigidbody rigidbody;
@@ -29,13 +27,13 @@ namespace VoxelNet.Entity
             currentWorld = World.GetInstance();
             hasHadInitialSet = false;
 
-            Program.Settings.Input.GetSetting("Jump").KeyDown += () =>
+            Input.Input.GetSetting("Jump").KeyDown += () =>
             {
                 if(Raycast.CastVoxel(currentWorld.WorldCamera.Position, new Vector3(0,-1,0), 2.1f, out RayVoxelOut output))
-                    rigidbody.AddImpluse(new Vector3(0, 1, 0) * 900);
+                    rigidbody.AddImpluse(new Vector3(0, 1, 0) * 600);
             };
 
-            Program.Settings.Input.GetSetting("Interact").KeyDown += () =>
+            Input.Input.GetSetting("Interact").KeyDown += () =>
             {
                 if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
                     out RayVoxelOut op))
@@ -49,7 +47,7 @@ namespace VoxelNet.Entity
                 }
             };
 
-            Program.Settings.Input.GetSetting("Destroy Block").KeyDown += () =>
+            Input.Input.GetSetting("Destroy Block").KeyDown += () =>
             {
                 if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
                     out RayVoxelOut op))
@@ -69,13 +67,6 @@ namespace VoxelNet.Entity
         {
             vel = Vector3.Zero;
             KeyboardState kbdState = Keyboard.GetState();
-            MouseState mseState = Mouse.GetState();
-
-            mouseD.X = (mseState.X - lastMousePos.X);
-            mouseD.Y = (mseState.Y - lastMousePos.Y);
-
-            lastMousePos.X = mseState.X;
-            lastMousePos.Y = mseState.Y;
 
             if (kbdState.IsKeyDown(Key.S))
                 vel += -GetForwardVector() * walkSpeed;
@@ -91,8 +82,11 @@ namespace VoxelNet.Entity
 
             currentWorld.WorldCamera.Position = Position + new Vector3(0, 1.7f, 0);
 
-            Rotation = new Vector3(0, Rotation.Y + mouseD.X * .05f, 0);
-            currentWorld.WorldCamera.Rotation = new Vector3(currentWorld.WorldCamera.Rotation.X + mouseD.Y * .05f, Rotation.Y, 0);
+            float x = Input.Input.GetMouseDelta().X / 20f;
+            float y = Input.Input.GetMouseDelta().Y / 20f;
+
+            Rotation = new Vector3(0, Rotation.Y + x, 0);
+            currentWorld.WorldCamera.Rotation = new Vector3(currentWorld.WorldCamera.Rotation.X + y, Rotation.Y, 0);
         }
 
         public override void Update()

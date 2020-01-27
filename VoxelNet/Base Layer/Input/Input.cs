@@ -3,68 +3,52 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK;
 using OpenTK.Input;
 
 namespace VoxelNet.Input
 {
-    /*public static class Input
+    public static class Input
     {
-        private static List<KeyboardKeyEventArgs> inputs = new List<KeyboardKeyEventArgs>();
-        private static List<KeyboardKeyEventArgs> inputsDownDetected = new List<KeyboardKeyEventArgs>();
-        private static List<KeyboardKeyEventArgs> inputsReleased = new List<KeyboardKeyEventArgs>();
+        private static Vector2 mouseDelta = new Vector2(0,0);
 
-        public static void Init()
+       // public static Action<MouseMoveEventArgs> MouseMoved;
+
+        private static MouseState currentMouseState, previousMouseState;
+
+        static Input()
         {
-            
+            //Program.Window.MouseMove += (sender, args) =>
+           // {
+           //     Mouse.SetPosition(Program.Window.Width / 2f, Program.Window.Height / 2f);
+           //     MouseMoved?.Invoke(args);
+           // };
         }
 
-        /*public static bool GetButtonHeld(string input)
+        public static InputSetting GetSetting(string input)
         {
-            var val = Program.Settings.Input.Settings.FirstOrDefault(x => x.Name == input);
-            if (val != null)
+            return Program.Settings.Input.GetSetting(input);
+        }
+
+        public static void Update()
+        {
+            currentMouseState = Mouse.GetState();
+            if (currentMouseState != previousMouseState)
             {
-                if (inputs.Any(i => i.Key == val.Key))
-                {
-                    return true;
-                }
+                mouseDelta = new Vector2(currentMouseState.X - previousMouseState.X, currentMouseState.Y - previousMouseState.Y);
+            }
+            else
+            {
+                mouseDelta = Vector2.Zero;
             }
 
-            return false;
+            previousMouseState = currentMouseState;
         }
 
-        public static bool GetButtonPressed(string input)
+        public static Vector2 GetMouseDelta()
         {
-            var val = Program.Settings.Input.Settings.FirstOrDefault(x => x.Name == input);
-            if (val != null)
-            {
-                var keyboardInput = inputs.FirstOrDefault(i => i.Key == val.Key && i.IsRepeat == false);
-                if (keyboardInput != null && inputsDownDetected.All(i => i.Key != val.Key))
-                {
-                    inputsDownDetected.Add(keyboardInput);
-                    Debug.Log("Pressed " + input);
-                    return true;
-                }
-            }
-
-            return false;
+            return mouseDelta;
         }
-
-        public static bool GetButtonReleased(string input)
-        {
-            var val = Program.Settings.Input.Settings.FirstOrDefault(x => x.Name == input);
-            if (val != null)
-            {
-                var index = inputsReleased.FindIndex(i => i.Key == val.Key && i.IsRepeat == false);
-                if (index != -1)
-                {
-                    inputsReleased.RemoveAt(index);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        
     }
-    */
+    
 }

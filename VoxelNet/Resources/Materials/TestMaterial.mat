@@ -1,7 +1,0 @@
-﻿//Valid material type: number, mat4, vec2, vec3, vec4
-
-shader Resources/Shaders/Basic.shader
-
-texture0 Resources/Textures/racoon.png
-
-uniform number u_ColorMap 0

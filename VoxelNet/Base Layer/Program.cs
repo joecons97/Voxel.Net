@@ -18,10 +18,7 @@ namespace VoxelNet
 
             using (Window = new Window(Settings.WindowWidth, Settings.WindowHeight, PROGRAMTITLE))
             {
-                if (Settings.FPS == -1)
-                    Window.Run();
-                else
-                    Window.Run(60);
+                Window.Run();
             }
         }
 

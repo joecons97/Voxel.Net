@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Ionic.Zip;
 using OpenTK.Graphics.OpenGL4;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
@@ -56,7 +57,38 @@ namespace VoxelNet.Rendering
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
+        public Texture(MemoryStream file)
+        {
+            Image<Rgba32> img = Image.Load(file.GetBuffer());
+            Width = img.Width;
+            Height = img.Height;
+            //img.Mutate(x => x.Flip(FlipMode.Vertical));
+            Rgba32[] tempPixels = img.GetPixelSpan().ToArray();
 
+            foreach (Rgba32 p in tempPixels)
+            {
+                pixels.Add(p.R);
+                pixels.Add(p.G);
+                pixels.Add(p.B);
+                pixels.Add(p.A);
+            }
+
+            Handle = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, Handle);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, img.Width, img.Height,
+                0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.ToArray());
+
+            //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
         public Texture(IntPtr data, int width, int height)
         {
             int tex = 0;
@@ -86,10 +118,23 @@ namespace VoxelNet.Rendering
             GL.TextureParameter(Handle, TextureParameterName.TextureMagFilter, (int) filter);
         }
 
-        public IImportable Import(string path)
+        public IImportable Import(string path, ZipFile pack)
         {
-            Texture texture = new Texture(path);
-            return texture;
+            if (pack.ContainsEntry(path))
+            {
+                var entry = pack[path];
+                MemoryStream outputStream = new MemoryStream();
+                entry.Extract(outputStream);
+                Texture texture = new Texture(outputStream);
+                Debug.Log("Loaded texture from pack");
+                return texture;
+            }
+            else
+            {
+                Debug.Log("Loaded texture from file");
+                Texture texture = new Texture(path);
+                return texture;
+            }
         }
 
         public void Bind(int slot = 0)

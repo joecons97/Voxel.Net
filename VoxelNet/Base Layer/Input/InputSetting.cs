@@ -10,36 +10,37 @@ namespace VoxelNet.Input
     public class InputSetting
     {
         public string Name;
-        public Input Main;
-        public Input Alt;
+        public Interaction Main;
+        public Interaction Alt;
 
         public Action KeyDown;
         public Action KeyUp;
 
-        public InputSetting(string name, Input main)
+        public InputSetting(string name, Interaction main)
         {
             Name = name;
             Main = main;
         }
+        
     }
-
-    public class Input
+    public class Interaction
     {
         public Key? KeyButton;
         public MouseButton? MouseButton;
         public KeyModifiers? Modifiers;
 
-        public Input(Key input, KeyModifiers? modifiers = null)
+        public Interaction(Key input, KeyModifiers? modifiers = null)
         {
             KeyButton = input;
             MouseButton = null;
             Modifiers = modifiers;
         }
-        public Input(MouseButton input, KeyModifiers? modifiers = null)
+        public Interaction(MouseButton input, KeyModifiers? modifiers = null)
         {
             KeyButton = null;
             MouseButton = input;
             Modifiers = modifiers;
         }
     }
+
 }

@@ -1,3 +1,0 @@
-﻿//Valid material type: number, mat4, vec2, vec3, vec4
-
-shader Resources/Shaders/SkyProc.shader

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using OpenTK.Graphics.OpenGL4;
 using VoxelNet;
 using VoxelNet.Rendering.Material;
@@ -20,7 +22,23 @@ namespace VoxelNet.Rendering
             short shaderType = -1;
             string[] src = new string[2];
             //-1 = none, 0 = vertex, 1 = fragment
-            var lines = File.ReadAllLines(fileLocation);
+            List<string> lines = null;
+
+            if (AssetDatabase.GetPackageFile().ContainsEntry(fileLocation))
+            {
+                var entry = AssetDatabase.GetPackageFile()[fileLocation];
+                MemoryStream outputStream = new MemoryStream();
+                entry.Extract(outputStream);
+                string text = Encoding.ASCII.GetString(outputStream.ToArray());
+                lines = text.Split('\n').ToList();
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    lines[i] = lines[i].Trim('\r');
+                }
+            }
+            else
+                lines = File.ReadAllLines(fileLocation).ToList();
+
             foreach (var line in lines)
             {
                 if(line.Contains("#shader"))
@@ -127,7 +145,16 @@ namespace VoxelNet.Rendering
                         if (line.StartsWith("#include "))
                         {
                             string inc = line.Split(' ')[1].Trim('"');
-                            string file = File.ReadAllText("Resources/Shaders/" + inc);
+                            string location = "Resources/Shaders/" + inc;
+
+                            var entry = AssetDatabase.GetPackageFile()[location];
+                            MemoryStream outputStream = new MemoryStream();
+                            entry.Extract(outputStream);
+                            string text = Encoding.ASCII.GetString(outputStream.ToArray());
+
+                            text = text.Replace("?", "").Replace("\r", "").Replace("\t", "");
+
+                            string file = text;
                             source = source.Replace(line, file);
                         }
                     }

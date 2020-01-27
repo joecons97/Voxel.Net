@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Ionic.Zip;
 using VoxelNet.Assets;
 using VoxelNet.Rendering;
 
@@ -11,7 +12,14 @@ namespace VoxelNet
 {
     public static class AssetDatabase
     {
+        private static string pack = "Default";
+        private static ZipFile packFile;
         static Dictionary<string, IImportable> assets = new Dictionary<string, IImportable>();
+
+        public static ZipFile GetPackageFile()
+        {
+            return packFile;
+        }
 
         public static T GetAsset<T>(string assetPath) where T : IImportable
         {
@@ -33,7 +41,12 @@ namespace VoxelNet
         public static T CreateAsset<T>(string path) where T : IImportable
         {
             var importable = (IImportable) Activator.CreateInstance<T>();
-            return (T) importable.Import(path);
+            return (T) importable.Import(path, packFile);
+        }
+
+        public static void SetPack(string pack)
+        {
+            packFile = ZipFile.Read("Resources/" + pack + ".vnp");
         }
 
         public static void Dispose()

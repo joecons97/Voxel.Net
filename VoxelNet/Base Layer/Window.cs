@@ -20,7 +20,6 @@ namespace VoxelNet
         private World world;
 
         private ImGuiController guiController;
-        private string testInput = "";
 
         public Window(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
@@ -28,10 +27,16 @@ namespace VoxelNet
 
         protected override void OnLoad(EventArgs e)
         {
-            CursorGrabbed = true;
+            #if !DEBUG
+                WindowState = WindowState.Fullscreen;
+            #endif
+
+            AssetDatabase.SetPack("Default");
+            
             CursorVisible = false;
-            TargetUpdateFrequency = 120;
-            TargetRenderFrequency = 120;
+            CursorGrabbed = true;
+            TargetUpdateFrequency = Program.Settings.FPS;
+            TargetRenderFrequency = Program.Settings.FPS;
             VSync = VSyncMode.Off;
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
@@ -101,6 +106,8 @@ namespace VoxelNet
         {
             if (Focused)
             {
+                Input.Input.Update();
+
                 KeyboardState kbdState = Keyboard.GetState();
 
                 if (kbdState.IsKeyDown(Key.Escape))

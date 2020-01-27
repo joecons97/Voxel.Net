@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ionic.Zip;
 using Newtonsoft.Json;
 using OpenTK;
 using VoxelNet.Blocks;
@@ -13,6 +14,9 @@ namespace VoxelNet.Assets
 {
     public class TexturePack : IImportable
     {
+        const string texturesLocation = "Resources/Pack/Textures/";
+        const string infoLocation = "Resources/Pack/Pack.json";
+        const string blocksLocation = "Resources/Pack/Blocks.json";
         public const string DEFAULTPACK = "Resources/Packs/Default/";
         public string Name { get; set; }
         public string Description { get; set; }
@@ -22,18 +26,24 @@ namespace VoxelNet.Assets
 
         public TexturePackBlocks BlockData { get; set; }
 
-        public IImportable Import(string path)
+        public IImportable Import(string path, ZipFile pack)
         {
-            TexturePack pack = JsonConvert.DeserializeObject<TexturePack>(File.ReadAllText(path + "/Pack.json"));
-            pack.IconTexture = AssetDatabase.GetAsset<Texture>(path + "/Textures/icon.png");
-            pack.Blocks = AssetDatabase.GetAsset<Texture>(path + "/Textures/blocks.png");
-            pack.Crosshair = AssetDatabase.GetAsset<Texture>(path + "/Textures/crosshair.png");
-            pack.BlockData = JsonConvert.DeserializeObject<TexturePackBlocks>(File.ReadAllText(path + "/Blocks.json"));
-            
-            float oneSlotX = 1f / (float) pack.BlockData.BlocksPerRow;
-            float oneSlotY = 1f / (float)pack.BlockData.BlocksPerColumn;
+            MemoryStream stream = new MemoryStream();
+            pack[infoLocation].Extract(stream);
+            TexturePack texPack = JsonConvert.DeserializeObject<TexturePack>(Encoding.ASCII.GetString(stream.ToArray()));//(File.ReadAllText(path + "/Pack.json"));
 
-            foreach (var block in pack.BlockData.Blocks)
+            texPack.IconTexture = AssetDatabase.GetAsset<Texture>(texturesLocation + "icon.png");
+            texPack.Blocks = AssetDatabase.GetAsset<Texture>(texturesLocation + "blocks.png");
+            texPack.Crosshair = AssetDatabase.GetAsset<Texture>(texturesLocation + "crosshair.png");
+
+            stream = new MemoryStream();
+            pack[blocksLocation].Extract(stream);
+            texPack.BlockData = JsonConvert.DeserializeObject<TexturePackBlocks>(Encoding.ASCII.GetString(stream.ToArray()));
+            
+            float oneSlotX = 1f / (float) texPack.BlockData.BlocksPerRow;
+            float oneSlotY = 1f / (float)texPack.BlockData.BlocksPerColumn;
+
+            foreach (var block in texPack.BlockData.Blocks)
             {
                 var bl = BlockDatabase.GetBlock(block.block_id);
 
@@ -97,7 +107,7 @@ namespace VoxelNet.Assets
                 BlockDatabase.SetBlock(block.block_id, bl);
             }
 
-            return pack;
+            return texPack;
         }
 
         public void Dispose()
