@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using ImGuiNET;
 using ImGuiNet.OpenTK;
 using OpenTK;
 using OpenTK.Graphics;
@@ -8,9 +6,9 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using VoxelNet.Assets;
 using VoxelNet.Buffers;
-using VoxelNet.Physics;
 using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
+using VoxelNet.Menus;
 using Vector2 = System.Numerics.Vector2;
 
 namespace VoxelNet
@@ -44,47 +42,13 @@ namespace VoxelNet
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(.39f, .58f, .92f, 1.0f);
 
-            KeyDown += (sender, args) =>
-            {
-                if (args.IsRepeat)
-                    return;
-
-                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.KeyButton == args.Key);
-                foreach (var input in inputs)
-                {
-                    input.KeyDown?.Invoke();
-                }
-            };
-            KeyUp += (sender, args) =>
-            {
-                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.KeyButton == args.Key);
-                foreach (var input in inputs)
-                {
-                    input.KeyUp?.Invoke();
-                }
-            };
-            MouseDown += (sender, args) =>
-            {
-                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
-                foreach (var input in inputs)
-                {
-                    input.KeyDown?.Invoke();
-                }
-            };
-            MouseUp += (sender, args) =>
-            {
-                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
-                foreach (var input in inputs)
-                {
-                    input.KeyUp?.Invoke();
-                }
-            };
-
             guiController = new ImGuiController(Width, Height);
 
             AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
 
-            world = new World("poo", "bigduck");
+            //world = new World("poo", "bigduck");
+
+            new TestMenu().Show();
 
             base.OnLoad(e);
         }
@@ -141,9 +105,10 @@ namespace VoxelNet
 
             GL.Enable(EnableCap.DepthTest);
 
-            world.Render();
+            world?.Render();
+            world?.GUI();
 
-            world.GUI();
+            Menu.GUIAll();
 
             guiController.Render();
             

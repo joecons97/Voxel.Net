@@ -12,17 +12,46 @@ namespace VoxelNet.Input
     {
         private static Vector2 mouseDelta = new Vector2(0,0);
 
-       // public static Action<MouseMoveEventArgs> MouseMoved;
-
         private static MouseState currentMouseState, previousMouseState;
 
         static Input()
         {
-            //Program.Window.MouseMove += (sender, args) =>
-           // {
-           //     Mouse.SetPosition(Program.Window.Width / 2f, Program.Window.Height / 2f);
-           //     MouseMoved?.Invoke(args);
-           // };
+
+            Program.Window.KeyDown += (sender, args) =>
+            {
+                if (args.IsRepeat)
+                    return;
+
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.KeyButton == args.Key);
+                foreach (var input in inputs)
+                {
+                    input.KeyDown?.Invoke();
+                }
+            };
+            Program.Window.KeyUp += (sender, args) =>
+            {
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.KeyButton == args.Key);
+                foreach (var input in inputs)
+                {
+                    input.KeyUp?.Invoke();
+                }
+            };
+            Program.Window.MouseDown += (sender, args) =>
+            {
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
+                foreach (var input in inputs)
+                {
+                    input.KeyDown?.Invoke();
+                }
+            };
+            Program.Window.MouseUp += (sender, args) =>
+            {
+                var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
+                foreach (var input in inputs)
+                {
+                    input.KeyUp?.Invoke();
+                }
+            };
         }
 
         public static InputSetting GetSetting(string input)
