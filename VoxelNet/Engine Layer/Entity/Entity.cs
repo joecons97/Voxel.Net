@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK;
+﻿using OpenTK;
 using VoxelNet.Misc;
 
-namespace VoxelNet.Entity
+namespace VoxelNet
 {
     public class Entity
     {

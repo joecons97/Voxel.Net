@@ -15,7 +15,7 @@ namespace VoxelNet
 {
     public class Window : GameWindow
     {
-        private World world;
+        //private World world;
 
         private ImGuiController guiController;
 
@@ -29,7 +29,7 @@ namespace VoxelNet
                 WindowState = WindowState.Fullscreen;
             #endif
 
-            AssetDatabase.SetPack("Default");
+            AssetDatabase.SetPack(AssetDatabase.DEFAULTPACK);
             
             CursorVisible = false;
             CursorGrabbed = true;
@@ -55,7 +55,7 @@ namespace VoxelNet
 
         protected override void OnUnload(EventArgs e)
         {
-            world?.Dispose();
+            World.GetInstance()?.Dispose();
 
             AssetDatabase.Dispose();
 
@@ -77,7 +77,7 @@ namespace VoxelNet
                 if (kbdState.IsKeyDown(Key.Escape))
                     Exit();
 
-                world.Update();
+                World.GetInstance()?.Update();
             }
 
             Time.GameTime += (float)e.Time;
@@ -105,8 +105,8 @@ namespace VoxelNet
 
             GL.Enable(EnableCap.DepthTest);
 
-            world?.Render();
-            world?.GUI();
+            World.GetInstance()?.Render();
+            World.GetInstance()?.GUI();
 
             Menu.GUIAll();
 

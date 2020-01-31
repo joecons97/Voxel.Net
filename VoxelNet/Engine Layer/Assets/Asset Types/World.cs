@@ -2,23 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ionic.Zip;
 using Newtonsoft.Json;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Input;
-using SimplexNoise;
 using TrueCraft.Core.TerrainGen.Noise;
-using VoxelNet.Blocks;
 using VoxelNet.Buffers;
 using VoxelNet.Buffers.Ubos;
-using VoxelNet.Entity;
 using VoxelNet.Misc;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
+using VoxelNet.Entities;
 
 namespace VoxelNet.Assets
 {
@@ -34,7 +29,7 @@ namespace VoxelNet.Assets
         public OpenSimplex TerrainNoise { get; private set; }
         public CellNoise BiomeNoise { get; private set; }
 
-        List<Entity.Entity> loadedEntities = new List<Entity.Entity>();
+        List<Entity> loadedEntities = new List<Entity>();
         List<Chunk> loadedChunks = new List<Chunk>();
 
         LinkedList<Chunk> chunksToUpdate = new LinkedList<Chunk>();

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ImGuiNET;
 using OpenTK;
 using OpenTK.Input;
@@ -10,7 +6,7 @@ using VoxelNet.Assets;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
 
-namespace VoxelNet.Entity
+namespace VoxelNet.Entities
 {
     public class Player : Entity
     {

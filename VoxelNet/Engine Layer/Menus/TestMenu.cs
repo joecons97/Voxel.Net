@@ -1,5 +1,6 @@
 ﻿using System;
 using ImGuiNET;
+using VoxelNet.Assets;
 
 namespace VoxelNet.Menus
 {
@@ -9,11 +10,13 @@ namespace VoxelNet.Menus
         {
             if(ImGui.Button("Play"))
             {
-
+                var wrld = new World("New World", "New World");
+                //Instantiate world...?
             }
 
             if(ImGui.Button("Quit"))
             {
+                //Does this actually end the program process?
                 Program.Window.Close();
             }
         }

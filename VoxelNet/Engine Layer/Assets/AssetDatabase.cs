@@ -12,7 +12,7 @@ namespace VoxelNet
 {
     public static class AssetDatabase
     {
-        private static string pack = "Default";
+        public static string DEFAULTPACK = "Default";
         private static ZipFile packFile;
         static Dictionary<string, IImportable> assets = new Dictionary<string, IImportable>();
 

@@ -9,14 +9,14 @@ namespace VoxelNet.Physics
 {
     public class Rigidbody
     {
-        public Entity.Entity Owner { get; }
+        public Entity Owner { get; }
         public float Mass { get; set; } = 1;
         public Vector3 Velocity { get; set; }
         public Vector3 AngularVelocity { get; set; }
 
         private Shape[] collisionShapes;
 
-        public Rigidbody(Entity.Entity owner, float mass, params Shape[] colShapes)
+        public Rigidbody(Entity owner, float mass, params Shape[] colShapes)
         {
             Owner = owner;
             Mass = mass;
