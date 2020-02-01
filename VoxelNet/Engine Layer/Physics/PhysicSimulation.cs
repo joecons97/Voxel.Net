@@ -34,7 +34,7 @@ namespace VoxelNet.Physics
 
                     if (body.Velocity.X != 0)
                     {
-                        if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(normVelocity.X / 10, .5f, 0)))
+                        if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(normVelocity.X / 10, .25f, 0)))
                         {
                             body.Velocity = new Vector3(0, body.Velocity.Y, body.Velocity.Z);
                         }
@@ -42,7 +42,7 @@ namespace VoxelNet.Physics
 
                     if (body.Velocity.Z != 0)
                     {
-                        if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(0, .5f, normVelocity.Z / 10)))
+                        if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(0, .25f, normVelocity.Z / 10)))
                         {
                             body.Velocity = new Vector3(body.Velocity.X, body.Velocity.Y, 0);
                         }
@@ -57,9 +57,10 @@ namespace VoxelNet.Physics
                     }
                     else if (body.Velocity.Y < 0)
                     {
-                        if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(0, -.125f, 0)))
+                        if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(0, -.1f, 0)))
                         {
                             body.Velocity = new Vector3(body.Velocity.X, 0, body.Velocity.Z);
+                            body.Owner.Position = new Vector3(body.Owner.Position.X, (float)Math.Round(body.Owner.Position.Y), body.Owner.Position.Z);
                         }
                     }
                 }

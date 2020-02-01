@@ -9,6 +9,7 @@ using VoxelNet.Buffers;
 using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
 using VoxelNet.Menus;
+using VoxelNet.Physics;
 using Vector2 = System.Numerics.Vector2;
 
 namespace VoxelNet
@@ -31,8 +32,6 @@ namespace VoxelNet
 
             AssetDatabase.SetPack(AssetDatabase.DEFAULTPACK);
             
-            CursorVisible = false;
-            CursorGrabbed = true;
             TargetUpdateFrequency = Program.Settings.FPS;
             TargetRenderFrequency = Program.Settings.FPS;
             VSync = VSyncMode.Off;
@@ -45,8 +44,6 @@ namespace VoxelNet
             guiController = new ImGuiController(Width, Height);
 
             AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
-
-            //world = new World("poo", "bigduck");
 
             new TestMenu().Show();
 
@@ -78,6 +75,8 @@ namespace VoxelNet
                     Exit();
 
                 World.GetInstance()?.Update();
+
+                PhysicSimulation.Simulate(Time.DeltaTime);
             }
 
             Time.GameTime += (float)e.Time;

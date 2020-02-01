@@ -27,7 +27,7 @@ namespace VoxelNet
             //TODO Load from file
             Settings = new Settings()
             {
-                FPS = 60,
+                FPS = 90,
                 WindowWidth = 1280,
                 WindowHeight = 720,
                 FieldOfView = 65,

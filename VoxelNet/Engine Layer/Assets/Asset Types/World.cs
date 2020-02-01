@@ -151,16 +151,27 @@ namespace VoxelNet.Assets
                 entity.Update();
             }
 
-            lightAngle += 0.005f;
+            float dayInMins = 10f;
 
-            lightBufferData.SunColour = Color4.LightYellow.ToVector4();
+            lightAngle += Time.DeltaTime * (6f/dayInMins);
+
+            float colTime = (float) Math.Abs(Math.Cos(MathHelper.DegreesToRadians(lightAngle)));
+            colTime = (float)Math.Pow(colTime, 10);
+
+            lightBufferData.SunColour = Vector4.Lerp(Color4.LightYellow.ToVector4(), Color4.OrangeRed.ToVector4(), colTime);
             lightBufferData.SunDirection = new Vector4(Maths.GetForwardFromRotation(new Vector3(lightAngle, 0, 0)), 1);
-            float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -.25f, 0)) * 4f;
-            lightBufferData.SunStrength = t * 2f;
-            lightBufferData.AmbientColour = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/1.5f, Color4.DarkSlateGray.ToVector4(), t);
-            UpdateView();
 
-            PhysicSimulation.Simulate(Time.DeltaTime);
+            float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0));
+            t = (float)Math.Pow(t, .25f) * 1.5f;
+
+            lightBufferData.SunStrength = t;
+
+            if (float.IsNaN(t))
+                t = .0f;
+
+            lightBufferData.AmbientColour = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/3f, Color4.DarkSlateGray.ToVector4(), t);
+
+            UpdateView();
         }
 
         public void GUI()

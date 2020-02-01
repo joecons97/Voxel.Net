@@ -119,7 +119,7 @@ namespace VoxelNet.Entities
             int size = 32;
             ImGui.Image((IntPtr)currentWorld.TexturePack.Crosshair.Handle, System.Numerics.Vector2.One * size);
 
-            ImGui.SetWindowPos("crosshair", new System.Numerics.Vector2(((float)Program.Window.Width / 2f) - 16, ((float)Program.Window.Height / 2f) - 16));
+            ImGui.SetWindowPos("crosshair", new System.Numerics.Vector2(((float)Program.Window.Width / 2f) - size/2f, ((float)Program.Window.Height / 2f) - size / 2f));
 
             ImGui.End();
         }
