@@ -6,6 +6,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using VoxelNet.Assets;
 using VoxelNet.Buffers;
+using VoxelNet.Buffers.Ubos;
 using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
 using VoxelNet.Menus;
@@ -30,6 +31,8 @@ namespace VoxelNet
                 WindowState = WindowState.Fullscreen;
             #endif
 
+            GameBlocks.Init();
+            //Debug.Log(GameBlocks.DIRT.Key);
             AssetDatabase.SetPack(AssetDatabase.DEFAULTPACK);
             
             TargetUpdateFrequency = Program.Settings.FPS;
@@ -82,6 +85,8 @@ namespace VoxelNet
             Time.GameTime += (float)e.Time;
             Time.DeltaTime = (float)e.Time;
 
+            UniformBuffers.TimeBuffer.Update(new TimeUniformBuffer(){DeltaTime = Time.DeltaTime, Time = Time.GameTime});
+
             base.OnUpdateFrame(e);
         }
 
@@ -106,6 +111,8 @@ namespace VoxelNet
 
             World.GetInstance()?.Render();
             World.GetInstance()?.GUI();
+
+            Renderer.DrawQueue();
 
             Menu.GUIAll();
 

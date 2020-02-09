@@ -28,6 +28,7 @@ namespace VoxelNet.Assets
         public Random Randomizer { get; private set; }
         public OpenSimplex TerrainNoise { get; private set; }
         public CellNoise BiomeNoise { get; private set; }
+        public float WaterHeight { get; }
 
         List<Entity> loadedEntities = new List<Entity>();
         List<Chunk> loadedChunks = new List<Chunk>();
@@ -75,6 +76,7 @@ namespace VoxelNet.Assets
 
             Name = name;
             Seed = seed;
+            WaterHeight = 30;
 
             loadedEntities.Add(new Player());
 
@@ -88,7 +90,6 @@ namespace VoxelNet.Assets
 
         public void Begin()
         {
-            BlockDatabase.Init();
             TexturePack = AssetDatabase.GetAsset<TexturePack>("");
             TerrainNoise = new OpenSimplex(Seed.GetHashCode());
             BiomeNoise = new CellNoise(Seed.GetHashCode());
@@ -169,7 +170,7 @@ namespace VoxelNet.Assets
             if (float.IsNaN(t))
                 t = .0f;
 
-            lightBufferData.AmbientColour = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/3f, Color4.DarkSlateGray.ToVector4(), t);
+            lightBufferData.AmbientColour = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/1.5f, Color4.DarkSlateGray.ToVector4(), t);
 
             UpdateView();
         }
@@ -180,6 +181,8 @@ namespace VoxelNet.Assets
             {
                 entity.GUI();
             }
+
+            Inventory.GUIAll();
         }
 
         void UpdateView()
@@ -272,6 +275,12 @@ namespace VoxelNet.Assets
                 return null;
 
             return JsonConvert.DeserializeObject<World>(File.ReadAllText(path));
+        }
+
+        public void AddEntity(Entity entity)
+        {
+            loadedEntities.Add(entity);
+            entity.Begin();
         }
 
         public void Export()

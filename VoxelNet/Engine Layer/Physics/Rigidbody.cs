@@ -11,6 +11,7 @@ namespace VoxelNet.Physics
     {
         public Entity Owner { get; }
         public float Mass { get; set; } = 1;
+        public float Drag { get; set; } = 0;
         public Vector3 Velocity { get; set; }
         public Vector3 AngularVelocity { get; set; }
 

@@ -40,7 +40,7 @@ namespace VoxelNet.Physics
 
                 if(world.TryGetChunkAtPosition((int)chunkPos.X, (int)chunkPos.Z, out Chunk chunk))
                 {
-                    var possibleBlock = chunk.GetBlock((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y), (int)Math.Floor(pos.Z));
+                    var possibleBlock = chunk.GetBlockID((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y), (int)Math.Floor(pos.Z));
                     if (possibleBlock != 0)
                     {
                         op.BlockID = possibleBlock;

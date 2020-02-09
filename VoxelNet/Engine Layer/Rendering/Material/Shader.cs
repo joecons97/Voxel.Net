@@ -9,9 +9,18 @@ using VoxelNet.Rendering.Material;
 
 namespace VoxelNet.Rendering
 {
+    public enum CullType
+    {
+        None,
+        Front,
+        Back
+    }
+
     public class Shader : IDisposable
     {
         public int Handle { get; private set; }
+        public bool IsTransparent { get; private set; }
+        public CullType CullingType { get; private set; } = CullType.Back;
 
         Dictionary<string, Uniform> uniforms = new Dictionary<string, Uniform>();
 
@@ -81,6 +90,33 @@ namespace VoxelNet.Rendering
 
         public void Bind()
         {
+            if (IsTransparent)
+            {
+                GL.Enable(EnableCap.Blend);
+                GL.BlendEquation(BlendEquationMode.FuncAdd);
+                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            }
+            else
+            {
+                GL.Disable(EnableCap.Blend);
+            }
+
+            switch (CullingType)
+            {
+                case CullType.None:
+                    GL.Disable(EnableCap.CullFace);
+                    break;
+                case CullType.Front:
+                    GL.Enable(EnableCap.CullFace);
+                    GL.CullFace(CullFaceMode.Front);
+                    break;
+                case CullType.Back:
+                    GL.Enable(EnableCap.CullFace);
+                    GL.CullFace(CullFaceMode.Back);
+                    break;
+            }
+
+
             foreach (var uniform in uniforms.Values)
             {
                 uniform.Bind();
@@ -161,9 +197,54 @@ namespace VoxelNet.Rendering
                 }
             }
 
+            void CheckForType()
+            {
+                var lines = fragmentSrc.Split('\n');
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("#type"))
+                    {
+                        var types = line.Split(' ');
+                        var type = types[1];
+                        if (type == "transparent")
+                            IsTransparent = true;
+                        else
+                            IsTransparent = false;
+
+                        fragmentSrc = fragmentSrc.Replace(line, "");
+                    }
+                }
+                
+            }
+
+            void CheckForCulling()
+            {
+                var lines = fragmentSrc.Split('\n');
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("#culling"))
+                    {
+                        var types = line.Split(' ');
+                        var type = types[1];
+                        if (type == "front")
+                            CullingType = CullType.Front;
+                        else if(type == "none")
+                            CullingType = CullType.None;
+                        else if (type == "back")
+                            CullingType = CullType.Back;
+
+                        fragmentSrc = fragmentSrc.Replace(line, "");
+                    }
+                }
+
+            }
+
             int vertShader = 0, fragShader = 0;
 
             CheckForIncludes();
+
+            CheckForType();
+            CheckForCulling();
 
             vertShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertShader, vertexSrc);

@@ -117,7 +117,7 @@ namespace VoxelNet.Physics
             {
                 if (World.GetInstance().TryGetChunkAtPosition((int)chunkPosition.X, (int)chunkPosition.Z, out Chunk chunk))
                 {
-                    short id = chunk.GetBlock((int)(posInChunk.X), (int)(posInChunk.Y), (int)(posInChunk.Z));
+                    short id = chunk.GetBlockID((int)(posInChunk.X), (int)(posInChunk.Y), (int)(posInChunk.Z));
                     if (id == 0)
                         return false;
 
@@ -125,7 +125,12 @@ namespace VoxelNet.Physics
                     if (block == null)
                         return false;
 
-                    return true; //block.CollisionShape.IntersectsForcedOffset(this, body, (chunkPosition * Chunk.WIDTH) + posInChunk);
+                    if (block.CollisionShape != null)
+                    {
+                        var blockPos = (chunkPosition * Chunk.WIDTH) + posInChunk;
+                        return block.CollisionShape.IntersectsForcedOffset(this, body, blockPos - direction);
+                    }
+                    return false;
                 }
 
                 return false;

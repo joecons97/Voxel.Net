@@ -14,7 +14,7 @@ namespace VoxelNet.Assets
 {
     public class TexturePack : IImportable
     {
-        const string texturesLocation = "Resources/Pack/Textures/";
+        const string texturesLocation = "Resources/Textures/";
         const string infoLocation = "Resources/Pack/Pack.json";
         const string blocksLocation = "Resources/Pack/Blocks.json";
         public const string DEFAULTPACK = "Resources/Packs/Default/";
@@ -32,9 +32,9 @@ namespace VoxelNet.Assets
             pack[infoLocation].Extract(stream);
             TexturePack texPack = JsonConvert.DeserializeObject<TexturePack>(Encoding.ASCII.GetString(stream.ToArray()));//(File.ReadAllText(path + "/Pack.json"));
 
-            texPack.IconTexture = AssetDatabase.GetAsset<Texture>(texturesLocation + "icon.png");
-            texPack.Blocks = AssetDatabase.GetAsset<Texture>(texturesLocation + "blocks.png");
-            texPack.Crosshair = AssetDatabase.GetAsset<Texture>(texturesLocation + "crosshair.png");
+            texPack.IconTexture = AssetDatabase.GetAsset<Texture>(texturesLocation + "Pack_Icon.png");
+            texPack.Blocks = AssetDatabase.GetAsset<Texture>(texturesLocation + "Blocks.png");
+            texPack.Crosshair = AssetDatabase.GetAsset<Texture>(texturesLocation + "GUI/Crosshair.png");
 
             stream = new MemoryStream();
             pack[blocksLocation].Extract(stream);

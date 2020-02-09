@@ -14,28 +14,68 @@ namespace VoxelNet.Rendering
     public static class Renderer
     {
         public static int DrawCalls { get; set; }
-        public static void Draw(Mesh mesh, Material.Material material)
+
+        static List<QueuedDraw> drawQueue = new List<QueuedDraw>();
+
+        public static void DrawRequest(Mesh mesh, Material.Material material, Matrix4 worldMatrix = default)
         {
-            if (material == null)
-            {
+            if(material == null)
                 material = AssetDatabase.GetAsset<Material.Material>("Resources/Materials/Fallback.mat");
+
+            if(worldMatrix == default)
+                worldMatrix = Matrix4.Identity;
+
+            if (material.Shader.IsTransparent)
+            {
+                drawQueue.Add(new QueuedDraw()
+                {
+                    mesh = mesh,
+                    material = material,
+                    worldMatrix = worldMatrix
+                });
             }
-
-            material.Bind();
-
-            UniformBuffers.BindAll(material.Shader.Handle);
-
-            mesh.VertexArray.Bind();
-            mesh.IndexBuffer.Bind();
-
-            DrawCalls++;
-            GL.DrawElements(PrimitiveType.Triangles, mesh.IndexBuffer.Length, DrawElementsType.UnsignedInt, 0);
-
-            mesh.VertexArray.Unbind();
-            mesh.IndexBuffer.Unbind();
-            material.Unbind();
-            UniformBuffers.UnbindAll();
+            else
+            {
+                drawQueue.Insert(0, new QueuedDraw()
+                {
+                    mesh = mesh,
+                    material = material,
+                    worldMatrix = worldMatrix
+                });
+            }
+            DrawCalls = drawQueue.Count;
         }
 
+        public static void DrawQueue()
+        {
+            for (int i = 0; i < drawQueue.Count; i++)
+            {
+                if (drawQueue[i].worldMatrix != default)
+                    drawQueue[i].material.Shader.SetUniform("u_World", drawQueue[i].worldMatrix);
+
+                drawQueue[i].material.Bind();
+
+                UniformBuffers.BindAll(drawQueue[i].material.Shader.Handle);
+
+                drawQueue[i].mesh.VertexArray.Bind();
+                drawQueue[i].mesh.IndexBuffer.Bind();
+
+                GL.DrawElements(PrimitiveType.Triangles, drawQueue[i].mesh.IndexBuffer.Length, DrawElementsType.UnsignedInt, 0);
+
+                drawQueue[i].mesh.VertexArray.Unbind();
+                drawQueue[i].mesh.IndexBuffer.Unbind();
+                drawQueue[i].material.Unbind();
+                UniformBuffers.UnbindAll();
+            }
+
+            drawQueue.Clear();
+        }
+
+        struct QueuedDraw
+        {
+            public Mesh mesh;
+            public Material.Material material;
+            public Matrix4 worldMatrix;
+        }
     }
 }

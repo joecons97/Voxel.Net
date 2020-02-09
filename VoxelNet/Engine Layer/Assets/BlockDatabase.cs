@@ -11,22 +11,10 @@ namespace VoxelNet.Assets
     {
         static Dictionary<string, Block> blocks = new Dictionary<string, Block>();
 
-        public static void Init()
+        public static void RegisterBlock(Block block)
         {
-            DirtBlock dirt = new DirtBlock();
-            blocks.Add(dirt.Key, dirt);
-
-            GrassBlock grass = new GrassBlock();
-            blocks.Add(grass.Key, grass);
-
-            StoneBlock stone = new StoneBlock();
-            blocks.Add(stone.Key, stone);
-
-            BlockLogOak oakLog = new BlockLogOak();
-            blocks.Add(oakLog.Key, oakLog);
-
-            BlockLeavesOak oakLeaves = new BlockLeavesOak();
-            blocks.Add(oakLeaves.Key, oakLeaves);
+            block.ID = 1 + blocks.Count;
+            blocks.Add(block.Key, block);
         }
 
         public static Block GetBlock(string key)

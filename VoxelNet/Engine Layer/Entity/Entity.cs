@@ -5,6 +5,8 @@ namespace VoxelNet
 {
     public class Entity
     {
+        protected const float UnderWaterDrag = 25;
+
         public string Name;
         public Vector3 Position;
         public Vector3 Rotation;

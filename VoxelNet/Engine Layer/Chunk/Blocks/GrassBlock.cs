@@ -10,7 +10,6 @@ namespace VoxelNet.Blocks
 {
     public class GrassBlock : Block
     {
-        public override int ID => 2;
         public override string Key => "Block_Grass";
         public override GetBlockColor BlockColor => (x,y,z) =>
         {

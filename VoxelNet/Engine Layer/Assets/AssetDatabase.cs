@@ -38,6 +38,27 @@ namespace VoxelNet
             return importable;
         }
 
+        public static bool ContainsAssetOfType<T>(string path, T type) where T : Type
+        {
+            if (!assets.ContainsKey(path))
+                return false;
+
+            if (assets[path].GetType() == type)
+                return true;
+
+            return false;
+        }
+
+        public static bool RegisterAsset<T>(T asset, string path) where T : IImportable
+        {
+            if (assets.ContainsKey(path))
+                return false;
+
+            assets.Add(path, asset);
+
+            return true;
+        }
+
         public static T CreateAsset<T>(string path) where T : IImportable
         {
             var importable = (IImportable) Activator.CreateInstance<T>();

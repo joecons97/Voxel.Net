@@ -8,7 +8,6 @@ namespace VoxelNet.Blocks
 {
     public class StoneBlock : Block
     {
-        public override int ID => 3;
         public override string Key => "Block_Stone";
     }
 }

@@ -65,6 +65,24 @@ namespace TrueCraft.Core.TerrainGen.Noise
             }
         }
 
+        public double Octaves2D(double x, double y, int octaves, float persistence, float lacunarity, float scale)
+        {
+            double finalNoise = 0;
+            double amplitude = 1;
+            double frequency = 1;
+            for (int o = 0; o < octaves; o++)
+            {
+                double noise = Value2D(x * scale * frequency, y * scale * frequency) * amplitude;
+
+                amplitude *= persistence;
+                frequency *= lacunarity;
+
+                finalNoise += noise;
+            }
+
+            return finalNoise;
+        }
+
         public override double Value2D(double X, double Y)
         {
             //Place input coordinates onto grid.

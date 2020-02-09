@@ -3,6 +3,7 @@ using System.Numerics;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
 using VoxelNet.Assets;
+using VoxelNet.Entities;
 
 namespace VoxelNet.Menus
 {
@@ -10,8 +11,7 @@ namespace VoxelNet.Menus
     {
         public override void Show()
         {
-            Program.Window.CursorVisible = true;
-            Program.Window.CursorGrabbed = false;
+            Player.SetMouseVisible(true);
             GL.ClearColor(0,0,0,1);
             base.Show();
         }
@@ -22,10 +22,9 @@ namespace VoxelNet.Menus
             ImGui.SetWindowPos("menu", new Vector2(Program.Window.Width/2f - 128f, (Program.Window.Height / 2f) - 64f));
             if(ImGui.Button("Play", new Vector2(256,64)))
             {
-                var wrld = new World("New World", "New World");
+                var wrld = new World("New World", "Poo Poo");
                 Close();
-                Program.Window.CursorVisible = false;
-                Program.Window.CursorGrabbed = true;
+                Player.SetMouseVisible(false);
                 //Instantiate world...?
             }
 

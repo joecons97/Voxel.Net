@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Ionic.Zip;
+using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
@@ -17,7 +18,8 @@ namespace VoxelNet.Rendering
         public int Width { get; }
         public int Height { get; }
 
-        List<byte> pixels = new List<byte>();
+        List<Color4> pixels = new List<Color4>();
+        List<byte> bytePixels = new List<byte>();
 
         public Texture() { }
 
@@ -35,10 +37,12 @@ namespace VoxelNet.Rendering
 
             foreach (Rgba32 p in tempPixels)
             {
-                pixels.Add(p.R);
-                pixels.Add(p.G);
-                pixels.Add(p.B);
-                pixels.Add(p.A);
+                bytePixels.Add(p.R);
+                bytePixels.Add(p.G);
+                bytePixels.Add(p.B);
+                bytePixels.Add(p.A);
+
+                pixels.Add(new Color4(p.R / 255f, p.G / 255f, p.B / 255f, p.A / 255f));
             }
 
             Handle = GL.GenTexture();
@@ -51,7 +55,7 @@ namespace VoxelNet.Rendering
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, img.Width, img.Height, 
-                0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.ToArray());
+                0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
 
             //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
@@ -67,10 +71,12 @@ namespace VoxelNet.Rendering
 
             foreach (Rgba32 p in tempPixels)
             {
-                pixels.Add(p.R);
-                pixels.Add(p.G);
-                pixels.Add(p.B);
-                pixels.Add(p.A);
+                bytePixels.Add(p.R);
+                bytePixels.Add(p.G);
+                bytePixels.Add(p.B);
+                bytePixels.Add(p.A);
+
+                pixels.Add(new Color4(p.R/255f,p.G / 255f, p.B / 255f, p.A / 255f));
             }
 
             Handle = GL.GenTexture();
@@ -83,7 +89,7 @@ namespace VoxelNet.Rendering
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, img.Width, img.Height,
-                0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels.ToArray());
+                0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
 
             //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
@@ -106,6 +112,13 @@ namespace VoxelNet.Rendering
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
             GL.TextureParameter(Handle, TextureParameterName.TextureMaxLevel, 0);
+        }
+
+        public Color4 GetPixel(int x, int y)
+        {
+            int index = x * (int)Height + y;
+            var pixel = pixels[index];
+            return pixel;
         }
 
         public void SetMinFilter(TextureMinFilter filter)

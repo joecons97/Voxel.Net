@@ -21,6 +21,13 @@ namespace VoxelNet.Decoration
 
         }
 
+        void PlaceLeaf(int x, int y, int z, Chunk chunk)
+        {
+            int blockid = chunk.GetBlockID(x, y, z);
+            if (blockid == 0)
+                chunk.PlaceBlock(x, y, z, GameBlocks.LEAVES_OAK, false);
+        }
+
         public override void DecorateAtBlock(Chunk chunk, int x, int y, int z)
         {
             bool chance = Maths.Chance(treeChance);
@@ -40,7 +47,7 @@ namespace VoxelNet.Decoration
                     int leaves = 2;
                     for (int i = 0; i < height; i++)
                     {
-                        chunk.PlaceBlock(x, y + i + 1, z, 4, false);
+                        chunk.PlaceBlock(x, y + i + 1, z, GameBlocks.LOG_OAK, false);
                     }
 
                     var leavesHeight = height - leaves;
@@ -50,18 +57,17 @@ namespace VoxelNet.Decoration
                         {
                             for (int ly = 0; ly < leaves; ly++)
                             {
-                                if(chunk.GetBlock(x + lx, y + leavesHeight + 1 + ly, z + lz) != 4)
-                                    chunk.PlaceBlock(x + lx, y + leavesHeight + 1 + ly, z + lz, 5, false);
+                                PlaceLeaf(x + lx, y + leavesHeight + 1 + ly, z + lz, chunk);
                             }
                         }
                     }
 
-                    chunk.PlaceBlock(x, y + leavesHeight + 1 + leaves, z, 5, false);
+                    PlaceLeaf(x, y + leavesHeight + 1 + leaves, z, chunk);
 
-                    chunk.PlaceBlock(x + 1, y + leavesHeight + 1 + leaves, z, 5, false);
-                    chunk.PlaceBlock(x - 1, y + leavesHeight + 1 + leaves, z, 5, false);
-                    chunk.PlaceBlock(x, y + leavesHeight + 1 + leaves, z + 1, 5, false);
-                    chunk.PlaceBlock(x, y + leavesHeight + 1 + leaves, z - 1, 5, false);
+                    PlaceLeaf(x + 1, y + leavesHeight + 1 + leaves, z, chunk);
+                    PlaceLeaf(x - 1, y + leavesHeight + 1 + leaves, z, chunk);
+                    PlaceLeaf(x, y + leavesHeight + 1 + leaves, z + 1, chunk);
+                    PlaceLeaf(x, y + leavesHeight + 1 + leaves, z - 1, chunk);
 
                     treePoses.Add(new Vector2(x, z));
                 }

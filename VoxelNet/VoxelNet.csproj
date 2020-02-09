@@ -15,6 +15,24 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>C:\Users\joeco\Desktop\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ProductName>Voxel.Net</ProductName>
+    <PublisherName>Blue Eyes</PublisherName>
+    <AutorunEnabled>true</AutorunEnabled>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,6 +56,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotNetZip, Version=1.13.5.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
@@ -163,20 +187,28 @@
     <Compile Include="Engine Layer\Assets\Asset Types\World.cs" />
     <Compile Include="Engine Layer\Chunk\BlockColors.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\Block.cs" />
-    <Compile Include="Engine Layer\Chunk\Blocks\BlockLogOak.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\OakLogBlock.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\SandBlock.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\GameBlocks.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\BlockState.cs" />
-    <Compile Include="Engine Layer\Chunk\Blocks\BlockLog.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\LogBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\LeavesBlock.cs" />
-    <Compile Include="Engine Layer\Chunk\Blocks\BlockLeavesOak.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\LeavesOakBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\StoneBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\DirtBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\GrassBlock.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\WaterBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Chunk.cs" />
     <Compile Include="Engine Layer\Chunk\Decoration\Decorator.cs" />
     <Compile Include="Engine Layer\Chunk\Decoration\IDecorator.cs" />
     <Compile Include="Engine Layer\Chunk\Decoration\OakDecorator.cs" />
     <Compile Include="Engine Layer\Entity\Entity.cs" />
+    <Compile Include="Engine Layer\Entity\ItemEntity.cs" />
     <Compile Include="Engine Layer\Entity\Player.cs" />
+    <Compile Include="Engine Layer\Inventory System\Inventory.cs" />
+    <Compile Include="Engine Layer\Inventory System\InventorySlot.cs" />
+    <Compile Include="Engine Layer\Item System\BlockItem.cs" />
+    <Compile Include="Engine Layer\Item System\Item.cs" />
     <Compile Include="Engine Layer\Physics\BoundingBox.cs" />
     <Compile Include="Engine Layer\Physics\PhysicSimulation.cs" />
     <Compile Include="Engine Layer\Physics\Raycast.cs" />
@@ -185,6 +217,7 @@
     <Compile Include="Engine Layer\Rendering\Buffers\IndexBuffer.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Material.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\Ubos\DirectionLightUniformBuffer.cs" />
+    <Compile Include="Engine Layer\Rendering\Buffers\Ubos\TimeUniformBuffer.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\Ubos\UniformBuffers.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\UniformBuffer.cs" />
     <Compile Include="Engine Layer\Rendering\Camera.cs" />
@@ -247,6 +280,18 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Engine Layer\Rendering\Model\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

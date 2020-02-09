@@ -65,6 +65,8 @@ namespace VoxelNet.Physics
                     }
                 }
 
+                body.Velocity *= 1 / (1 + body.Drag * deltaTime);//*= MathHelper.Clamp(1f - body.Drag * deltaTime, 0, 1);
+
                 body.Owner.Position += body.Velocity * deltaTime;
             }
         }
