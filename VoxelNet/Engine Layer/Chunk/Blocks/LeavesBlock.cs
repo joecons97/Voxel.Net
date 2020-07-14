@@ -10,6 +10,12 @@ namespace VoxelNet.Blocks
     public class LeavesBlock : Block
     {
         public override bool IsTransparent => true;
-        public override GetBlockColor BlockColor => (x, y, z) => new Color4(117, 192, 93, 255);
+        public override GetBlockColor BlockColor => (x, y, z) =>
+        {
+            float scale = 0.25f;
+            var biome = 1;//(float)(World.GetInstance().BiomeNoise.Value2D(((float)x/Chunk.WIDTH) * scale, ((float)z / Chunk.WIDTH) * scale) + 1f) / 2f;
+
+            return new Color4(0.25f * biome, 0.75f * biome, 0.16f * biome, 1);
+        };
     }
 }

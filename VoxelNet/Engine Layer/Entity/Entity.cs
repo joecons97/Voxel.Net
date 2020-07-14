@@ -11,6 +11,7 @@ namespace VoxelNet
         public Vector3 Position;
         public Vector3 Rotation;
 
+
         public virtual void Begin()
         {
         }
@@ -27,7 +28,12 @@ namespace VoxelNet
         {
         }
 
-        public virtual void GUI()
+        public virtual void Destroyed()
+        {
+
+        }
+
+        public virtual void RenderGUI()
         {
         }
 

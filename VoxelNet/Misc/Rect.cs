@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenTK;
 
 public class Rect
 {
@@ -17,5 +13,11 @@ public class Rect
         Y = y;
         Width = w;
         Height = h;
+    }
+
+    public bool IsPointInside(Vector2 mousePos)
+    {
+        return mousePos.X > X && mousePos.X < X + Width &&
+               mousePos.Y > Y && mousePos.Y < Y + Height;
     }
 }

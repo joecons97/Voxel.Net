@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Ionic.Zip;
 using OpenTK;
+using OpenTK.Graphics.OpenGL4;
 using VoxelNet.Assets;
 
 namespace VoxelNet.Rendering.Material
@@ -68,7 +69,8 @@ namespace VoxelNet.Rendering.Material
                     switch (type)
                     {
                         case "number":
-                            Shader.SetUniform(name, double.Parse(value));
+                            var f = float.Parse(value);
+                            Shader.SetUniform(name, f);
                             break;
                         case "mat4":
                             Matrix4 mat4 = new Matrix4();
@@ -238,6 +240,23 @@ namespace VoxelNet.Rendering.Material
             if (index >= textures.Count) return;
 
             textures[index] = tex;
+        }
+
+        public void SetTexture(int index, int handle)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + index);
+            GL.BindTexture(TextureTarget.Texture2D, handle);
+        }
+
+        public void SetScreenSourceTexture(string srcImage, int handle, int slot = 0)
+        {
+            var uniform = Shader.GetUniform(srcImage);
+
+           // int slot = 1;//uniform.UniformLocation;
+            var slotenum = TextureUnit.Texture0 + slot;
+            GL.ActiveTexture(slotenum);
+            GL.BindTexture(TextureTarget.Texture2D, handle);
+            Shader.SetUniform(srcImage, slot);
         }
 
         public void Bind()

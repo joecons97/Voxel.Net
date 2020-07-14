@@ -9,20 +9,29 @@ namespace VoxelNet
 {
     public static class GameBlocks
     {
-        public static void Init() { }
+        public static void Init()
+        {
+            DIRT = new DirtBlock();
+            GRASS = new GrassBlock();
+            STONE = new StoneBlock();
+            SAND = new SandBlock();
+            WATER = new WaterBlock();
+            LOG_OAK = new OakLogBlock();
+            LEAVES_OAK = new LeavesOakBlock();
+        }
 
-        public static readonly DirtBlock DIRT = new DirtBlock();
+        public static DirtBlock DIRT { get; private set; }
 
-        public static readonly GrassBlock GRASS = new GrassBlock();
+        public static GrassBlock GRASS { get; private set; }
 
-        public static readonly StoneBlock STONE = new StoneBlock();
+        public static StoneBlock STONE { get; private set; }
 
-        public static readonly SandBlock SAND = new SandBlock();
+        public static SandBlock SAND { get; private set; }
 
-        public static readonly WaterBlock WATER = new WaterBlock();
+        public static WaterBlock WATER { get; private set; }
 
-        public static readonly OakLogBlock LOG_OAK = new OakLogBlock();
+        public static OakLogBlock LOG_OAK { get; private set; }
 
-        public static readonly LeavesOakBlock LEAVES_OAK = new LeavesOakBlock();
+        public static LeavesOakBlock LEAVES_OAK { get; private set; }
     }
 }

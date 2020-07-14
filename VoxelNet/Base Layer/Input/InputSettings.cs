@@ -15,6 +15,7 @@ namespace VoxelNet.Input
         public InputSettings()
         {
             Settings.Add(new InputSetting("Jump", new Interaction(Key.Space)));
+            Settings.Add(new InputSetting("Sprint", new Interaction(Key.ShiftLeft)));
             Settings.Add(new InputSetting("Destroy Block", new Interaction(MouseButton.Left)));
             Settings.Add(new InputSetting("Interact", new Interaction(MouseButton.Right)));
             Settings.Add(new InputSetting("Inventory", new Interaction(Key.Tab)));

@@ -27,6 +27,7 @@ namespace VoxelNet.Physics
             for (int i = 0; i < rigidbodies.Count; i++)
             {
                 var body = rigidbodies[i];
+                if (!body.IsActive) continue;
                 var normVelocity = body.Velocity.Normalized();
                 for (int c = 0; c < body.GetCollisionShapes().Length; c++)
                 {

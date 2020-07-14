@@ -157,6 +157,7 @@ void main()
         {
             if (_frameBegun)
             {
+                GL.Disable(EnableCap.FramebufferSrgb);
                 _frameBegun = false;
                 ImGui.Render();
                 RenderImDrawData(ImGui.GetDrawData());

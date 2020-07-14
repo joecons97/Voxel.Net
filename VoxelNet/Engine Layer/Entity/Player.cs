@@ -17,10 +17,12 @@ namespace VoxelNet.Entities
         private Rigidbody rigidbody;
         private Vector3 vel;
         private bool isInWater = false;
+        private bool isSprinting;
 
         private float walkSpeed = 3.5f;
+        private float runSpeed = 6f;
 
-        /*GUI*/
+        /*RenderGUI*/
         private IntPtr inventorySlotHandle;
 
         private static bool controlsEnabled = true;
@@ -90,49 +92,64 @@ namespace VoxelNet.Entities
                 SetMouseVisible(inventory.IsOpen);
             };
 
+            Input.Input.GetSetting("Sprint").KeyDown += () => isSprinting = true;
+            Input.Input.GetSetting("Sprint").KeyUp += () => isSprinting = false;
+
             inventorySlotHandle = (IntPtr)AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/Inventory_Slot.png").Handle;
         }
 
         void HandleInput()
         {
-            if (!controlsEnabled)
-                return;
-
             vel = Vector3.Zero;
-            KeyboardState kbdState = Keyboard.GetState();
 
-            if (kbdState.IsKeyDown(Key.S))
-                vel += -GetForwardVector() * walkSpeed;
-            else if (kbdState.IsKeyDown(Key.W))
-                vel += GetForwardVector() * walkSpeed;
-
-            if (kbdState.IsKeyDown(Key.A))
-                vel += -GetRightVector() * walkSpeed;
-            else if (kbdState.IsKeyDown(Key.D))
-                vel += GetRightVector() * walkSpeed;
-
-            if (isInWater)
+            if (controlsEnabled)
             {
-                if(kbdState.IsKeyDown(Key.Space))
-                    rigidbody.AddForce(new Vector3(0, 1, 0) * 4000);
+                KeyboardState kbdState = Keyboard.GetState();
+
+                var finalSpeed = walkSpeed;
+
+                if (isSprinting)
+                    finalSpeed = runSpeed;
+
+                if (kbdState.IsKeyDown(Key.S))
+                    vel += -GetForwardVector() * finalSpeed;
+                else if (kbdState.IsKeyDown(Key.W))
+                    vel += GetForwardVector() * finalSpeed;
+
+                if (kbdState.IsKeyDown(Key.A))
+                    vel += -GetRightVector() * finalSpeed;
+                else if (kbdState.IsKeyDown(Key.D))
+                    vel += GetRightVector() * finalSpeed;
+
+                if (isInWater)
+                {
+                    if (kbdState.IsKeyDown(Key.Space))
+                        rigidbody.AddForce(new Vector3(0, 1, 0) * 4000);
+                }
+
+                currentWorld.WorldCamera.Position = Position + new Vector3(0, 1.7f, 0);
+
+                float x = Input.Input.GetMouseDelta().X / 20f;
+                float y = Input.Input.GetMouseDelta().Y / 20f;
+
+                Rotation = new Vector3(0, Rotation.Y + x, 0);
+                currentWorld.WorldCamera.Rotation = new Vector3(currentWorld.WorldCamera.Rotation.X + y, Rotation.Y, 0);
             }
 
             rigidbody.Velocity = new Vector3(vel.X, rigidbody.Velocity.Y, vel.Z);
-
-            currentWorld.WorldCamera.Position = Position + new Vector3(0, 1.7f, 0);
-
-            float x = Input.Input.GetMouseDelta().X / 20f;
-            float y = Input.Input.GetMouseDelta().Y / 20f;
-
-            Rotation = new Vector3(0, Rotation.Y + x, 0);
-            currentWorld.WorldCamera.Rotation = new Vector3(currentWorld.WorldCamera.Rotation.X + y, Rotation.Y, 0);
         }
 
         public override void Update()
         {
             if (!hasHadInitialSet && currentWorld.TryGetChunkAtPosition((int)GetChunk().X, (int)GetChunk().Y, out Chunk c))
             {
-                Position.Y = c.GetHeightAtBlock((int)GetPositionInChunk().X, (int)GetPositionInChunk().Z) + 1;
+                Position.Y = c.GetHeightAtBlock((int)GetPositionInChunk().X, (int)GetPositionInChunk().Z) + 5;
+                if(Raycast.CastVoxel(currentWorld.WorldCamera.Position + new Vector3(0, 2000,0), new Vector3(0,-1,0), 5000, out RayVoxelOut hit))
+                {
+                    var chunkWp = (hit.ChunkPosition * Chunk.WIDTH);
+                    Position.Y = chunkWp.Y + 1;
+                    Debug.Log("Hit block for y pos " + Position.Y);
+                }
                 hasHadInitialSet = true;
 
                 rigidbody = new Rigidbody(this, 70, new BoundingBox(-0.25f, 0.25f, 0, 2, -0.25f, 0.25f));
@@ -151,40 +168,13 @@ namespace VoxelNet.Entities
 
         }
 
-        public override void GUI()
+        public override void RenderGUI()
         {
-            /*Debug info*/
-            {
-                ImGui.Begin("debug",
-                    ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.AlwaysAutoResize);
+            var rect = new Rect(8, 8, 256, 32);
+            GUI.Label($"{(int)Time.FramesPerSecond}fps", rect);
 
-                ImGui.SetWindowPos("debug", new System.Numerics.Vector2(0, 0));
-                ImGui.Text($"{1 / Time.DeltaTime}fps" + $" {Time.DeltaTime}ms");
-                ImGui.Text($"Draw calls: {Renderer.DrawCalls}");
-
-                ImGui.Text($"World Pos:  {currentWorld.WorldCamera.Position.ToString()}");
-                ImGui.Text($"Chunk:  {currentWorld.WorldCamera.Position.ToChunkPosition().ToString()}");
-                ImGui.Text($"Pos In Chunk:  {currentWorld.WorldCamera.Position.ToChunkSpace().ToString()}");
-                ImGui.Text($"Velocity:  {rigidbody?.Velocity}");
-
-                ImGui.End();
-            }
-
-            /*Crosshair*/
-            {
-                ImGui.Begin("crosshair",
-                    ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.AlwaysAutoResize);
-
-                int size = 32;
-                ImGui.Image((IntPtr) currentWorld.TexturePack.Crosshair.Handle, System.Numerics.Vector2.One * size);
-
-                ImGui.SetWindowPos("crosshair",
-                    new System.Numerics.Vector2(((float) Program.Window.Width / 2f) - size / 2f,
-                        ((float) Program.Window.Height / 2f) - size / 2f));
-
-                ImGui.End();
-            }
-
+            GUI.Image(currentWorld.TexturePack.Crosshair, new Rect((Program.Window.Width / 2) - 16, (Program.Window.Height / 2) - 16, 32, 32));
+               
             /*Toolbar*/
             {
                 ImGui.Begin("Toolbar", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.AlwaysUseWindowPadding | ImGuiWindowFlags.NoMove);
@@ -208,6 +198,9 @@ namespace VoxelNet.Entities
 
         public static void SetMouseVisible(bool visible)
         {
+            if (mouseHidden != visible)
+                return;
+
             mouseHidden = !visible;
             Program.Window.CursorVisible = visible;
             Program.Window.CursorGrabbed = !visible;

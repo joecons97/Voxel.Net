@@ -9,7 +9,8 @@ namespace VoxelNet.Physics
 {
     public class Rigidbody
     {
-        public Entity Owner { get; }
+        public Entity Owner { get; private set; }
+        public bool IsActive { get; set; } = true;
         public float Mass { get; set; } = 1;
         public float Drag { get; set; } = 0;
         public Vector3 Velocity { get; set; }
@@ -25,6 +26,11 @@ namespace VoxelNet.Physics
             collisionShapes = colShapes;
 
             PhysicSimulation.AddRigidbody(this);
+        }
+
+        public void ClearOwner()
+        {
+            Owner = null;
         }
 
         public Shape[] GetCollisionShapes()

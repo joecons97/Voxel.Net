@@ -19,6 +19,11 @@ namespace VoxelNet.Physics
             return false;
         }
 
+        public virtual bool IntersectsForcedOffset(Vector3 offset, Vector3 position)
+        {
+            return false;
+        }
+
         public virtual bool IntersectsWorld(Rigidbody body)
         {
             return false;

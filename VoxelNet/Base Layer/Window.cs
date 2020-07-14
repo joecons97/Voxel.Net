@@ -11,6 +11,7 @@ using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
 using VoxelNet.Menus;
 using VoxelNet.Physics;
+using VoxelNet.PostProcessing;
 using Vector2 = System.Numerics.Vector2;
 
 namespace VoxelNet
@@ -27,16 +28,9 @@ namespace VoxelNet
 
         protected override void OnLoad(EventArgs e)
         {
-            #if !DEBUG
-                WindowState = WindowState.Fullscreen;
-            #endif
-
             GameBlocks.Init();
-            //Debug.Log(GameBlocks.DIRT.Key);
             AssetDatabase.SetPack(AssetDatabase.DEFAULTPACK);
-            
-            TargetUpdateFrequency = Program.Settings.FPS;
-            TargetRenderFrequency = Program.Settings.FPS;
+
             VSync = VSyncMode.Off;
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
@@ -44,11 +38,16 @@ namespace VoxelNet
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(.39f, .58f, .92f, 1.0f);
 
+            PostProcessingEffects.RegisterEffect(new Bloom());
+            PostProcessingEffects.RegisterEffect(new ACESTonemapEffect());
+
             guiController = new ImGuiController(Width, Height);
 
             AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
 
             new TestMenu().Show();
+
+            Program.Settings.UpdateAll();
 
             base.OnLoad(e);
         }
@@ -62,6 +61,8 @@ namespace VoxelNet
             guiController?.Dispose();
 
             UniformBuffers.Dispose();
+
+            PostProcessingEffects.Dispose();
 
             base.OnUnload(e);
         }
@@ -85,6 +86,8 @@ namespace VoxelNet
             Time.GameTime += (float)e.Time;
             Time.DeltaTime = (float)e.Time;
 
+            Time.UpdateFrameRate(1f / Time.DeltaTime);
+
             UniformBuffers.TimeBuffer.Update(new TimeUniformBuffer(){DeltaTime = Time.DeltaTime, Time = Time.GameTime});
 
             base.OnUpdateFrame(e);
@@ -100,7 +103,9 @@ namespace VoxelNet
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             guiController.Update(this, (float)e.Time);
-            
+            GUI.NewFrame();
+
+            Renderer.ClippedCount = 0;
             Renderer.DrawCalls = 0;
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -110,14 +115,20 @@ namespace VoxelNet
             GL.Enable(EnableCap.DepthTest);
 
             World.GetInstance()?.Render();
-            World.GetInstance()?.GUI();
+
+            PostProcessingEffects.BeginPostProcessing();
 
             Renderer.DrawQueue();
 
+            PostProcessingEffects.EndPostProcessing();
+
+            PostProcessingEffects.RenderEffects();
+
+            World.GetInstance()?.RenderGUI();
             Menu.GUIAll();
 
             guiController.Render();
-            
+
             Context.SwapBuffers();
 
             base.OnRenderFrame(e);
@@ -125,8 +136,8 @@ namespace VoxelNet
 
         protected override void OnResize(EventArgs e)
         {
-            GL.Viewport(0,0,Width, Height);
-            guiController.WindowResized(Width,Height);
+            GL.Viewport(ClientRectangle);
+            guiController.WindowResized(ClientSize.Width, ClientSize.Height);
             base.OnResize(e);
         }
     }

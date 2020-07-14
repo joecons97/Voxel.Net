@@ -11,15 +11,19 @@ namespace VoxelNet
 {
     public abstract class Item
     {
-        public abstract string Name { get; }
-        public virtual string IconLocation { get; } = "Resources/Textures/Items/Def_Item.png";
-        public abstract string ID { get; }
+        public virtual string Name { get; protected set; }
+        public virtual string IconLocation { get; protected set; } = "Resources/Textures/Items/Def_Item.png";
+        public virtual string ID { get; protected set; }
         public abstract int Key { get; }
-
-        public Texture Icon { get; }
-        public Mesh Mesh { get; }
+        public Texture Icon { get; private set; }
+        public Mesh Mesh { get; private set; }
 
         public Item()
+        {
+            
+        }
+
+        protected void GenerateGraphics()
         {
             Icon = AssetDatabase.GetAsset<Texture>(IconLocation);
             if (Icon != null)
@@ -54,15 +58,15 @@ namespace VoxelNet
 
             for (int x = 0; x < w; x++)
             {
-                for (int y = 0; y < h; y++)
+                for (int y = h - 1; y >= 0; y--)
                 {
                     var col = Icon.GetPixel(x, y);
                     if (col.A == 0) continue;
 
-                    var uvTl = new Vector2((float)x / w, (float)y / h);
-                    var uvTr = new Vector2((float)(x + 1) / w, (float)y / h);
-                    var uvBl = new Vector2((float)x / w, (float)(y + 1) / h);
-                    var uvBr = new Vector2((float)(x + 1) / w, (float)(y + 1) / h);
+                    var uvTl = new Vector2((float)x / w, (float)(y - 1) / h);
+                    var uvTr = new Vector2((float)(x + 1) / w, (float)(y - 1) / h);
+                    var uvBl = new Vector2((float)x / w, (float)y / h);
+                    var uvBr = new Vector2((float)(x + 1) / w, (float)y / h);
 
                     Vector3 tl = new Vector3(x * wDiff, y * hDiff, 0);
                     if (!verts.Contains(tl))
@@ -291,7 +295,7 @@ namespace VoxelNet
 
             for (var index = 0; index < verts.Count; index++)
             {
-                verts[index] += new Vector3(-.5f,0.5f, 0);
+                verts[index] += new Vector3(-.5f,-1, 0);
             }
 
             var container = new VertexNormalContainer(verts.ToArray(), uvs.ToArray(), normals.ToArray());

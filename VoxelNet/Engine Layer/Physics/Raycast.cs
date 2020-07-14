@@ -36,25 +36,30 @@ namespace VoxelNet.Physics
             while (distTravelled < distance)
             {
                 var chunkPos = curPos.ToChunkPosition();
-                var pos = curPos.ToChunkSpace();
+                var pos = curPos.ToChunkSpaceFloored();
 
                 if(world.TryGetChunkAtPosition((int)chunkPos.X, (int)chunkPos.Z, out Chunk chunk))
                 {
-                    var possibleBlock = chunk.GetBlockID((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y), (int)Math.Floor(pos.Z));
-                    if (possibleBlock != 0)
+                    var possibleBlock = BlockDatabase.GetBlock(chunk.GetBlockID((int)(pos.X), (int)(pos.Y), (int)(pos.Z)));
+
+                    if (possibleBlock?.CollisionShape != null)
                     {
-                        op.BlockID = possibleBlock;
-                        op.BlockPosition = new Vector3((int)Math.Floor(pos.X), (int)Math.Floor(pos.Y), (int)Math.Floor(pos.Z));
-                        op.ChunkPosition = new Vector2((int)chunkPos.X, (int)chunkPos.Z);
+                        var blockPos = (chunkPos * Chunk.WIDTH) + pos;
+                        if (possibleBlock.CollisionShape.IntersectsForcedOffset(blockPos, curPos))
+                        {
+                            op.BlockID = (short) possibleBlock.ID;
+                            op.BlockPosition = new Vector3((int)(pos.X), (int)(pos.Y),(int)(pos.Z));
+                            op.ChunkPosition = new Vector2((int) chunkPos.X, (int) chunkPos.Z);
 
-                        var placeChunk = lastPos.ToChunkPosition();
-                        var placePos = lastPos.ToChunkSpace();
+                            var placeChunk = lastPos.ToChunkPosition();
+                            var placePos = lastPos.ToChunkSpaceFloored();
 
-                        op.PlacementPosition = new Vector3((int)Math.Floor(placePos.X), (int)Math.Floor(placePos.Y), (int)Math.Floor(placePos.Z));
-                        op.PlacementChunk = new Vector2((int)placeChunk.X, (int)placeChunk.Z);
+                            op.PlacementPosition = new Vector3((int)(placePos.X),(int)(placePos.Y), (int)(placePos.Z));
+                            op.PlacementChunk = new Vector2((int) placeChunk.X, (int) placeChunk.Z);
 
-                        output = op;
-                        return true;
+                            output = op;
+                            return true;
+                        }
                     }
                 }
 

@@ -62,7 +62,7 @@ namespace VoxelNet
 
         public virtual void GUI()
         {
-            if (ImGui.IsMouseReleased(0))
+            /*if (ImGui.IsMouseReleased(0))
             {
                 if (dragFrom != -1 && dragTo != -1)
                 {
@@ -94,8 +94,10 @@ namespace VoxelNet
                 src_flags |= ImGuiDragDropFlags.SourceNoHoldToOpenOthers;
 
                 ImGui.PushID($"{inventoryId} - {x},{y}");
-                ImGui.Button(slots[index].ItemID.ToString(), SysVector2.One * 32);
-                //ImGui.ImageButton(SlotImgHandle, SysVector2.One * 32, SysVector2.Zero, SysVector2.One, 0);
+                ImGui.BeginGroup();
+                ImGui.ImageButton(SlotImgHandle, SysVector2.One * 32, SysVector2.Zero, SysVector2.One, 0);
+               // ImGui.Button(slots[index].ItemID.ToString(), SysVector2.One * 24);
+                ImGui.EndGroup();
                 ImGui.PopID();
 
                 if (ImGui.BeginDragDropSource(src_flags))
@@ -106,8 +108,8 @@ namespace VoxelNet
                         IntPtr parameter = new IntPtr(&index);
                         ImGui.SetDragDropPayload("ITEM", parameter, sizeof(int), ImGuiCond.Once);
                     }
-                    ImGui.Button(slots[index].ItemID.ToString(), SysVector2.One * 32);
-                    //ImGui.ImageButton(SlotImgHandle, SysVector2.One * 32, SysVector2.Zero, SysVector2.One, 0);
+                    ImGui.ImageButton(SlotImgHandle, SysVector2.One * 32, SysVector2.Zero, SysVector2.One, 0);
+                  //  ImGui.Button(slots[index].ItemID.ToString(), SysVector2.One * 24);
                     ImGui.EndDragDropSource();
                 }
                 if (ImGui.BeginDragDropTarget())
@@ -131,6 +133,7 @@ namespace VoxelNet
                 }
                 ImGui.SameLine();
             }
+        */
         }
     }
 }

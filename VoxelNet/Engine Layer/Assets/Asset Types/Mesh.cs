@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Ionic.Zip;
 using OpenTK;
 using VoxelNet.Assets;
+using VoxelNet.Physics;
 
 namespace VoxelNet.Rendering
 {
@@ -15,6 +16,8 @@ namespace VoxelNet.Rendering
         public IndexBuffer IndexBuffer {get; private set; }
         public VertexBuffer VertexBuffer { get; private set; }
         public VertexArray VertexArray { get; private set; }
+
+        public BoundingBox Bounds { get; private set; }
 
         //Material...
         public Mesh() { }
@@ -30,6 +33,8 @@ namespace VoxelNet.Rendering
             VertexArray = new VertexArray(VertexBuffer);
 
             IndexBuffer = new IndexBuffer(indices);
+
+            Bounds = verticesContainer.GetBoundingBox();
         }
 
         public void Dispose()

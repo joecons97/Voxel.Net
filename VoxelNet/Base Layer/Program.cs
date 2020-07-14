@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using VoxelNet;
 using VoxelNet.Input;
 
@@ -14,25 +15,25 @@ namespace VoxelNet
         [STAThread]
         static void Main()
         {
-            LoadSettings();
 
-            using (Window = new Window(Settings.WindowWidth, Settings.WindowHeight, PROGRAMTITLE))
+            try
             {
-                Window.Run();
+                LoadSettings();
+                using (Window = new Window(Settings.WindowWidth, Settings.WindowHeight, PROGRAMTITLE))
+                {
+                    Window.Run();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message + " " + ex.StackTrace, "Fatal Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         static void LoadSettings()
         {
             //TODO Load from file
-            Settings = new Settings()
-            {
-                FPS = 90,
-                WindowWidth = 1280,
-                WindowHeight = 720,
-                FieldOfView = 65,
-                Input = new InputSettings()
-            };
+            Settings = Settings.Load();
         }
     }
 }

@@ -9,6 +9,7 @@ namespace VoxelNet.Inventory_System
     public class InventorySlot
     {
         public short ItemID { get; }
+        public short StackSize { get; set; } = 1;
 
         public InventorySlot(short id)
         {

@@ -16,10 +16,18 @@ namespace VoxelNet.Rendering
         Back
     }
 
+    public enum BlendType
+    {
+        None,
+        OneMinus
+    }
+
     public class Shader : IDisposable
     {
         public int Handle { get; private set; }
         public bool IsTransparent { get; private set; }
+        public BlendType Blending { get; private set; }
+
         public CullType CullingType { get; private set; } = CullType.Back;
 
         Dictionary<string, Uniform> uniforms = new Dictionary<string, Uniform>();
@@ -88,13 +96,31 @@ namespace VoxelNet.Rendering
             }
         }
 
+        public Uniform GetUniform(string name)
+        {
+            if (ContainsUniform(name))
+            {
+                return uniforms[name];
+            }
+
+            return null;
+        }
+
+        public bool ContainsUniform(string name)
+        {
+            return uniforms.ContainsKey(name);
+        }
+
         public void Bind()
         {
             if (IsTransparent)
             {
-                GL.Enable(EnableCap.Blend);
-                GL.BlendEquation(BlendEquationMode.FuncAdd);
-                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+                if (Blending != BlendType.None)
+                {
+                    GL.Enable(EnableCap.Blend);
+                    GL.BlendEquation(BlendEquationMode.FuncAdd);
+                    GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+                }
             }
             else
             {
@@ -116,12 +142,12 @@ namespace VoxelNet.Rendering
                     break;
             }
 
+            GL.UseProgram(Handle);
 
             foreach (var uniform in uniforms.Values)
             {
                 uniform.Bind();
             }
-            GL.UseProgram(Handle);
         }
 
         public void Unbind()
@@ -197,12 +223,12 @@ namespace VoxelNet.Rendering
                 }
             }
 
-            void CheckForType()
+            void CheckForQueue()
             {
                 var lines = fragmentSrc.Split('\n');
                 foreach (var line in lines)
                 {
-                    if (line.StartsWith("#type"))
+                    if (line.StartsWith("#queue"))
                     {
                         var types = line.Split(' ');
                         var type = types[1];
@@ -215,6 +241,26 @@ namespace VoxelNet.Rendering
                     }
                 }
                 
+            }
+
+            void CheckForBlending()
+            {
+                var lines = fragmentSrc.Split('\n');
+                foreach (var line in lines)
+                {
+                    if (line.StartsWith("#blend"))
+                    {
+                        var types = line.Split(' ');
+                        var type = types[1];
+                        if (type == "none")
+                            Blending = BlendType.None;
+                        else if (type == "oneminus")
+                            Blending = BlendType.OneMinus;
+
+                        fragmentSrc = fragmentSrc.Replace(line, "");
+                    }
+                }
+
             }
 
             void CheckForCulling()
@@ -243,7 +289,8 @@ namespace VoxelNet.Rendering
 
             CheckForIncludes();
 
-            CheckForType();
+            CheckForQueue();
+            CheckForBlending();
             CheckForCulling();
 
             vertShader = GL.CreateShader(ShaderType.VertexShader);

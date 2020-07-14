@@ -33,8 +33,10 @@ namespace VoxelNet.Assets
         List<Entity> loadedEntities = new List<Entity>();
         List<Chunk> loadedChunks = new List<Chunk>();
 
+        List<Entity> entitiesToDestroy = new List<Entity>();
+
         LinkedList<Chunk> chunksToUpdate = new LinkedList<Chunk>();
-        private int worldSize = 6;
+        private int worldSize = 9;
 
         private static World instance;
         
@@ -47,7 +49,7 @@ namespace VoxelNet.Assets
 
         [JsonIgnore]
         public string Path =>
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + $"\\Voxel.Net\\{Name}\\{Name}.world";
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + $"\\Blue Eyes\\Voxel.Net\\Worlds\\{Name}\\{Name}.world";
 
         public static World GetInstance()
         {
@@ -96,9 +98,9 @@ namespace VoxelNet.Assets
             Randomizer = new Random(Seed.GetHashCode());
             WorldCamera = new Camera();
 
-            Skybox = new Skybox(AssetDatabase.GetAsset<Material>("Resources/Materials/Sky.mat"));
+            Skybox = new Skybox(AssetDatabase.GetAsset<Material>("Resources/Materials/World/Sky.mat"));
 
-            lightAngle = 60;
+            lightAngle = 5;
             lightBufferData = new LightingUniformBufferData();
 
             foreach (var entity in loadedEntities)
@@ -163,23 +165,40 @@ namespace VoxelNet.Assets
             lightBufferData.SunDirection = new Vector4(Maths.GetForwardFromRotation(new Vector3(lightAngle, 0, 0)), 1);
 
             float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0));
-            t = (float)Math.Pow(t, .25f) * 1.5f;
+            t = (float)Math.Pow(t, .25f) * 1.75f;
 
             lightBufferData.SunStrength = t;
 
             if (float.IsNaN(t))
                 t = .0f;
 
-            lightBufferData.AmbientColour = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/1.5f, Color4.DarkSlateGray.ToVector4(), t);
+            Vector4 col = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/5f, Color4.DarkSlateGray.ToVector4(), t) / 5;
+            lightBufferData.AmbientColour = new Vector4(col.X, col.Y, col.Z,1);
 
             UpdateView();
+            ClearUpEntities();
         }
 
-        public void GUI()
+        void ClearUpEntities()
+        {
+            for (var i = 0; i < entitiesToDestroy.ToArray().Length; i++)
+            {
+                if (loadedEntities.Contains(entitiesToDestroy[i]))
+                { 
+                    int index = loadedEntities.IndexOf(entitiesToDestroy[i]);
+                    loadedEntities[index].Destroyed();
+                    loadedEntities[index] = null;
+                    loadedEntities.RemoveAt(index);
+                    entitiesToDestroy.RemoveAt(i);
+                }
+            }
+        }
+
+        public void RenderGUI()
         {
             foreach (var entity in loadedEntities)
             {
-                entity.GUI();
+                entity.RenderGUI();
             }
 
             Inventory.GUIAll();
@@ -242,9 +261,15 @@ namespace VoxelNet.Assets
                         newChunks.Any(v => (int)v.X == (int)loadedChunks[i].Position.X && (int)v.Y == (int)loadedChunks[i].Position.Y))
                         continue;
 
+                    if (chunksToUpdate.Contains(loadedChunks[i]))
+                        chunksToUpdate.Remove(loadedChunks[i]);
+                        
                     loadedChunks[i].Dispose();
                     loadedChunks.Remove(loadedChunks[i]);
+
                 }
+
+                GC.Collect();
 
                 chunksToKeep.Clear();
                 newChunks.Clear();
@@ -258,7 +283,6 @@ namespace VoxelNet.Assets
         {
             UniformBuffers.DirectionLightBuffer.Update(lightBufferData);
             WorldCamera.Update();
-            Skybox.Render();
             foreach (var entity in loadedEntities)
             {
                 entity.Render();
@@ -267,6 +291,7 @@ namespace VoxelNet.Assets
             {
                 loadedChunk.Render();
             }
+            Skybox.Render();
         }
 
         public IImportable Import(string path, ZipFile pack)
@@ -281,6 +306,11 @@ namespace VoxelNet.Assets
         {
             loadedEntities.Add(entity);
             entity.Begin();
+        }
+
+        public void DestroyEntity(Entity entity)
+        {
+            entitiesToDestroy.Add(entity);
         }
 
         public void Export()

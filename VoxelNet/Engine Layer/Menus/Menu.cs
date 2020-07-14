@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using OpenTK.Graphics.OpenGL4;
 
 namespace VoxelNet
 {
@@ -12,11 +14,11 @@ namespace VoxelNet
             for(int i = 0; i < openMenus.Count; i++)
 			{
 				if (openMenus[i] != null)
-					openMenus[i].GUI();
+					openMenus[i].OnGUI();
 			}
 		}
 
-        public virtual void GUI()
+        public virtual void OnGUI()
 		{
 
         }

@@ -101,6 +101,7 @@ namespace VoxelNet.Assets
 
                 bl.TopFace = new Block.Face(new Rect(block.top_face.X, block.top_face.Y, block.top_face.X + oneSlotX, block.top_face.Y + oneSlotY),
                     new Rect(block.top_face_mask.X, block.top_face_mask.Y, block.top_face_mask.X + oneSlotX, block.top_face_mask.Y + oneSlotY));
+
                 bl.BottomFace = new Block.Face(new Rect(block.bottom_face.X, block.bottom_face.Y, block.bottom_face.X + oneSlotX, block.bottom_face.Y + oneSlotY),
                     new Rect(block.bottom_face_mask.X, block.bottom_face_mask.Y, block.bottom_face_mask.X + oneSlotX, block.bottom_face_mask.Y + oneSlotY));
 

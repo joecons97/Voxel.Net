@@ -25,7 +25,42 @@ namespace VoxelNet.Rendering.Material
 
         public void Bind()
         {
-            SetValue(Value);
+            if (Value == null) return;
+
+            var numType = GetNumericType(Value);
+            if (Value is Double d)
+            {
+                float f = (float)d;
+                GL.ProgramUniform1(Shader.Handle, UniformLocation, f);
+            }
+            else if (Value is float f)
+            {
+                GL.ProgramUniform1(Shader.Handle, UniformLocation, f);
+            }
+            else if(numType == TypeCode.Int32)
+            {
+                int i = (int) Value;
+                GL.ProgramUniform1(Shader.Handle, UniformLocation, i);
+            }
+            else
+            {
+                if (Value is Vector2 vec2)
+                {
+                    GL.ProgramUniform2(Shader.Handle, UniformLocation, vec2.X, vec2.Y);
+                }
+                else if (Value is Vector3 vec3)
+                {
+                    GL.ProgramUniform3(Shader.Handle, UniformLocation, vec3.X, vec3.Y, vec3.Z);
+                }
+                else if (Value is Vector4 vec4)
+                {
+                    GL.ProgramUniform4(Shader.Handle, UniformLocation, vec4.X, vec4.Y, vec4.Z, vec4.W);
+                }
+                else if (Value is Matrix4 mat4)
+                {
+                    GL.ProgramUniformMatrix4(Shader.Handle, UniformLocation, false, ref mat4);
+                }
+            }
         }
 
         public void SetValue(object value)
@@ -37,52 +72,18 @@ namespace VoxelNet.Rendering.Material
                 UniformLocation = Shader.GetUniformLocation(Name);
 
             Value = value;
-
-            if(IsNumericType(value))
-            {
-                double d = Convert.ToDouble(value);
-                GL.ProgramUniform1(Shader.Handle, UniformLocation, d);
-            }
-            else
-            {
-                if (value is Vector2 vec2)
-                {
-                    GL.ProgramUniform2(Shader.Handle, UniformLocation, vec2.X, vec2.Y);
-                }
-                else if(value is Vector3 vec3)
-                {
-                    GL.ProgramUniform3(Shader.Handle, UniformLocation, vec3.X, vec3.Y, vec3.Z);
-                }
-                else if (value is Vector4 vec4)
-                {
-                    GL.ProgramUniform4(Shader.Handle, UniformLocation, vec4.X, vec4.Y, vec4.Z, vec4.W);
-                }
-                else if (value is Matrix4 mat4)
-                {
-                    GL.ProgramUniformMatrix4(Shader.Handle, UniformLocation, false, ref mat4);
-                }
-            }
         }
 
-        public bool IsNumericType(object o)
+        public bool IsNumber(object o)
         {
-            switch (Type.GetTypeCode(o.GetType()))
-            {
-                case TypeCode.Byte:
-                case TypeCode.SByte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Single:
-                    return true;
-                default:
-                    return false;
-            }
+            var type = o.GetType();
+            return false;
+        }
+        
+
+        public TypeCode GetNumericType(object o)
+        {
+            return Type.GetTypeCode(o.GetType());
         }
     }
 }

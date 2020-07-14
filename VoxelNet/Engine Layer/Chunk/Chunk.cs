@@ -104,8 +104,16 @@ namespace VoxelNet
                 {
                     float NoiseX = ((float) x / (float) WIDTH) + (Position.X);
                     float NoiseY = ((float) y / (float) WIDTH) + (Position.Y);
-                    heightmap[x, y] = (float) ((World.GetInstance().TerrainNoise
-                        .Octaves2D(NoiseX, NoiseY, 8, .4f, 2, noiseScale) + 1) / 2) * 255;
+                    float mainNoise = (float)((World.GetInstance().TerrainNoise
+                                                .Octaves2D(NoiseX, NoiseY, 8, .4f, 2, noiseScale) + 1) / 2);
+
+                    float ocean = (float)((World.GetInstance().TerrainNoise
+                                               .Octaves2D(NoiseX, NoiseY, 1, .4f, 2, noiseScale * 0.125f) + 1) / 2) * 6;
+
+                    ocean -= 2;
+                    ocean = (float)Math.Pow(MathHelper.Clamp(ocean, 0, 1) + (mainNoise/10f), 0.8f);
+
+                    heightmap[x, y] = Math.Min(mainNoise, ocean) * 255f;
                 }
             }
         }
@@ -194,46 +202,46 @@ namespace VoxelNet
 
                         workingBlock = BlockDatabase.GetBlock(id);
 
-                         if (workingBlock.ID == GameBlocks.WATER.ID)
-                         {
-                             if (ShouldDrawBlockFacing(x, y, z - 1, workingBlock.ID))
-                                 AddBackFaceWater(x, y, z);
+                        if (workingBlock.ID == GameBlocks.WATER.ID)
+                        {
+                            if (ShouldDrawBlockFacing(x, y, z - 1, workingBlock.ID))
+                                AddBackFaceWater(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x, y, z + 1, workingBlock.ID))
-                                 AddFrontFaceWater(x, y, z);
+                            if (ShouldDrawBlockFacing(x, y, z + 1, workingBlock.ID))
+                                AddFrontFaceWater(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x - 1, y, z, workingBlock.ID))
-                                 AddLeftFaceWater(x, y, z);
+                            if (ShouldDrawBlockFacing(x - 1, y, z, workingBlock.ID))
+                                AddLeftFaceWater(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x + 1, y, z, workingBlock.ID))
-                                 AddRightFaceWater(x, y, z);
+                            if (ShouldDrawBlockFacing(x + 1, y, z, workingBlock.ID))
+                                AddRightFaceWater(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x, y + 1, z, workingBlock.ID))
-                                 AddTopFaceWater(x, y, z);
-                                     
-                             if (ShouldDrawBlockFacing(x, y - 1, z, workingBlock.ID))
-                                 AddBottomFaceWater(x, y, z);
-                         }
-                         else
-                         {
-                             if (ShouldDrawBlockFacing(x, y, z - 1, workingBlock.ID))
-                                 AddBackFace(x, y, z);
+                            if (ShouldDrawBlockFacing(x, y + 1, z, workingBlock.ID))
+                                AddTopFaceWater(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x, y, z + 1, workingBlock.ID))
-                                 AddFrontFace(x, y, z);
+                            if (ShouldDrawBlockFacing(x, y - 1, z, workingBlock.ID))
+                                AddBottomFaceWater(x, y, z);
+                        }
+                        else
+                        {
+                            if (ShouldDrawBlockFacing(x, y, z - 1, workingBlock.ID))
+                                AddBackFace(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x - 1, y, z, workingBlock.ID))
-                                 AddLeftFace(x, y, z);
+                            if (ShouldDrawBlockFacing(x, y, z + 1, workingBlock.ID))
+                                AddFrontFace(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x + 1, y, z, workingBlock.ID))
-                                 AddRightFace(x, y, z);
+                            if (ShouldDrawBlockFacing(x - 1, y, z, workingBlock.ID))
+                                AddLeftFace(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x, y + 1, z, workingBlock.ID))
-                                 AddTopFace(x, y, z);
+                            if (ShouldDrawBlockFacing(x + 1, y, z, workingBlock.ID))
+                                AddRightFace(x, y, z);
 
-                             if (ShouldDrawBlockFacing(x, y - 1, z, workingBlock.ID))
-                                 AddBottomFace(x, y, z);
-                         }
+                            if (ShouldDrawBlockFacing(x, y + 1, z, workingBlock.ID))
+                                AddTopFace(x, y, z);
+
+                            if (ShouldDrawBlockFacing(x, y - 1, z, workingBlock.ID))
+                                AddBottomFace(x, y, z);
+                        }
                     }
                 }
             }
@@ -638,7 +646,7 @@ namespace VoxelNet
             VertexNormalContainer WaterContainer =
                 new VertexNormalContainer(verticesWater.ToArray(), uvsWater.ToArray(), normalsWater.ToArray());
 
-            waterMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/Water.mat");
+            waterMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/World/Water.mat");
             waterMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
 
             waterMesh = new Mesh(WaterContainer, indicesWater.ToArray());
@@ -646,11 +654,10 @@ namespace VoxelNet
             VertexNrmUv2ColContainer container =
                 new VertexNrmUv2ColContainer(vertices.ToArray(), uvs.ToArray(), normals.ToArray(), uv2.ToArray(), col.ToArray());
 
-            material = AssetDatabase.GetAsset<Material>("Resources/Materials/Blocks.mat");
+            material = AssetDatabase.GetAsset<Material>("Resources/Materials/World/Blocks.mat");
             material.SetTexture(0, World.GetInstance().TexturePack.Blocks);
 
             mesh = new Mesh(container, indices.ToArray());
-
         }
 
         public bool ShouldDrawBlockFacing(int x, int y, int z, int workingBlockID)
@@ -786,7 +793,20 @@ namespace VoxelNet
 
         public void Dispose()
         {
+            if (RightNeighbour != null)
+                RightNeighbour.LeftNeighbour = null;
+
+            if (LeftNeighbour != null)
+                LeftNeighbour.RightNeighbour = null;
+
+            if (BackNeighbour != null)
+                BackNeighbour.FrontNeighbour = null;
+
+            if (FrontNeighbour != null)
+                FrontNeighbour.BackNeighbour = null;
+
             mesh?.Dispose();
+            waterMesh?.Dispose();
         }
     }
 }

@@ -21,7 +21,9 @@ namespace VoxelNet.Input
             Name = name;
             Main = main;
         }
-        
+
+        public InputSetting() { }
+
     }
     public class Interaction
     {
@@ -41,6 +43,8 @@ namespace VoxelNet.Input
             MouseButton = input;
             Modifiers = modifiers;
         }
+
+        public Interaction() { }
     }
 
 }

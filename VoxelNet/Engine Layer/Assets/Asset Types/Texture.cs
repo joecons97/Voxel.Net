@@ -27,7 +27,7 @@ namespace VoxelNet.Rendering
         /// Use AssetData.GetAsset instead!
         /// </summary>
         /// <param name="file"></param>
-        public Texture(string file)
+        public Texture(string file, bool srgb = true)
         {
             Image<Rgba32> img = Image.Load(File.ReadAllBytes(file));
             Width = img.Width;
@@ -54,14 +54,14 @@ namespace VoxelNet.Rendering
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, img.Width, img.Height, 
+            GL.TexImage2D(TextureTarget.Texture2D, 0, srgb ? PixelInternalFormat.Srgb8Alpha8 : PixelInternalFormat.Rgba8, img.Width, img.Height, 
                 0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
 
             //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
-        public Texture(MemoryStream file)
+        public Texture(MemoryStream file, bool srgb = true)
         {
             Image<Rgba32> img = Image.Load(file.GetBuffer());
             Width = img.Width;
@@ -88,13 +88,30 @@ namespace VoxelNet.Rendering
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, img.Width, img.Height,
+            GL.TexImage2D(TextureTarget.Texture2D, 0, srgb ? PixelInternalFormat.Srgb8Alpha8 : PixelInternalFormat.Rgba8, img.Width, img.Height,
                 0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
 
             //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
+
+        public Texture(int width, int height)
+        {
+            Handle = GL.GenTexture();
+
+            GL.BindTexture(TextureTarget.Texture2D, Handle);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0,PixelInternalFormat.Alpha, width, height,
+                0, PixelFormat.Alpha, PixelType.UnsignedByte, IntPtr.Zero);
+        }
+
         public Texture(IntPtr data, int width, int height)
         {
             int tex = 0;
@@ -133,19 +150,21 @@ namespace VoxelNet.Rendering
 
         public IImportable Import(string path, ZipFile pack)
         {
+            bool srgb = !path.Contains("/RenderGUI/");
+
             if (pack.ContainsEntry(path))
             {
                 var entry = pack[path];
                 MemoryStream outputStream = new MemoryStream();
                 entry.Extract(outputStream);
-                Texture texture = new Texture(outputStream);
+                Texture texture = new Texture(outputStream, srgb);
                 Debug.Log("Loaded texture from pack");
                 return texture;
             }
             else
             {
                 Debug.Log("Loaded texture from file");
-                Texture texture = new Texture(path);
+                Texture texture = new Texture(path, srgb);
                 return texture;
             }
         }

@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\SharpFont.4.0.1\build\SharpFont.props" Condition="Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" />
+  <Import Project="..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props" Condition="Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" />
   <Import Project="..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -80,6 +82,9 @@
     </Reference>
     <Reference Include="OpenTK, Version=3.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.1.0\lib\net20\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpFont, Version=4.0.1.200, Culture=neutral, PublicKeyToken=48add4c483071cdf, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpFont.4.0.1\lib\net45\SharpFont.dll</HintPath>
     </Reference>
     <Reference Include="SixLabors.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\SixLabors.Core.1.0.0-beta0008\lib\netstandard2.0\SixLabors.Core.dll</HintPath>
@@ -179,7 +184,9 @@
     <Compile Include="Base Layer\Program.cs" />
     <Compile Include="Base Layer\Time.cs" />
     <Compile Include="Base Layer\Window.cs" />
+    <Compile Include="Engine Layer\Assets\Asset Types\Font.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\TexturePack.cs" />
+    <Compile Include="Engine Layer\Assets\Asset Types\TypeFace.cs" />
     <Compile Include="Engine Layer\Assets\AssetDatabase.cs" />
     <Compile Include="Engine Layer\Assets\BlockDatabase.cs" />
     <Compile Include="Engine Layer\Assets\IExportable.cs" />
@@ -205,15 +212,19 @@
     <Compile Include="Engine Layer\Entity\Entity.cs" />
     <Compile Include="Engine Layer\Entity\ItemEntity.cs" />
     <Compile Include="Engine Layer\Entity\Player.cs" />
+    <Compile Include="Engine Layer\GUI\GUI.cs" />
+    <Compile Include="Engine Layer\GUI\GUIStyle.cs" />
     <Compile Include="Engine Layer\Inventory System\Inventory.cs" />
     <Compile Include="Engine Layer\Inventory System\InventorySlot.cs" />
     <Compile Include="Engine Layer\Item System\BlockItem.cs" />
     <Compile Include="Engine Layer\Item System\Item.cs" />
+    <Compile Include="Engine Layer\Menus\OptionsMenu.cs" />
     <Compile Include="Engine Layer\Physics\BoundingBox.cs" />
     <Compile Include="Engine Layer\Physics\PhysicSimulation.cs" />
     <Compile Include="Engine Layer\Physics\Raycast.cs" />
     <Compile Include="Engine Layer\Physics\Rigidbody.cs" />
     <Compile Include="Engine Layer\Physics\Shape.cs" />
+    <Compile Include="Engine Layer\Rendering\Buffers\FrameBufferObject.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\IndexBuffer.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Material.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\Ubos\DirectionLightUniformBuffer.cs" />
@@ -221,10 +232,17 @@
     <Compile Include="Engine Layer\Rendering\Buffers\Ubos\UniformBuffers.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\UniformBuffer.cs" />
     <Compile Include="Engine Layer\Rendering\Camera.cs" />
+    <Compile Include="Engine Layer\Rendering\Frustum.cs" />
     <Compile Include="Engine Layer\Rendering\ImGuiController.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Skybox.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Uniform.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Mesh.cs" />
+    <Compile Include="Engine Layer\Rendering\Plane.cs" />
+    <Compile Include="Engine Layer\Rendering\PostProcessing\ACESTonemapEffect.cs" />
+    <Compile Include="Engine Layer\Rendering\PostProcessing\BlitEffect.cs" />
+    <Compile Include="Engine Layer\Rendering\PostProcessing\Bloom.cs" />
+    <Compile Include="Engine Layer\Rendering\PostProcessing\ContrastEffect.cs" />
+    <Compile Include="Engine Layer\Rendering\PostProcessing\PostProcessingEffects.cs" />
     <Compile Include="Engine Layer\Rendering\Renderer.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Shader.cs" />
     <Compile Include="Engine Layer\Rendering\Buffers\VertexArray.cs" />
@@ -258,6 +276,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="Build.bat" />
+    <None Include="Build.proj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -269,11 +289,51 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="Resources\Default.vnp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <Compile Include="Engine Layer\Menus\Menu.cs" />
     <Compile Include="Engine Layer\Menus\TestMenu.cs" />
+    <None Include="Resources\Resources\Fonts\Minecraft.ttf" />
+    <None Include="Resources\Resources\Fonts\OpenSans-Regular.ttf" />
+    <None Include="Resources\Resources\Materials\Post Processing\BlurPPE.mat" />
+    <None Include="Resources\Resources\Materials\Post Processing\CutoffPPE.mat" />
+    <None Include="Resources\Resources\Materials\Post Processing\BloomPPE.mat" />
+    <None Include="Resources\Resources\Materials\Post Processing\ACESPPE.mat" />
+    <None Include="Resources\Resources\Materials\Post Processing\Blit.mat" />
+    <None Include="Resources\Resources\Materials\World\Blocks.mat" />
+    <None Include="Resources\Resources\Materials\Post Processing\ContrastPPE.mat" />
+    <None Include="Resources\Resources\Materials\Fallback.mat" />
+    <None Include="Resources\Resources\Materials\FBO.mat" />
+    <None Include="Resources\Resources\Materials\GUI\Text.mat" />
+    <None Include="Resources\Resources\Materials\GUI\GUI.mat" />
+    <None Include="Resources\Resources\Materials\World\Sky.mat" />
+    <None Include="Resources\Resources\Materials\TestMaterial.mat" />
+    <None Include="Resources\Resources\Materials\World\Water.mat" />
+    <None Include="Resources\Resources\Models\InvertedCube.obj" />
+    <None Include="Resources\Resources\Models\Tests\HiSphere.obj" />
+    <None Include="Resources\Resources\Models\Tests\LoSphere.obj" />
+    <None Include="Resources\Resources\Models\Tests\sponza.obj" />
+    <None Include="Resources\Resources\Models\Tests\Tank.obj" />
+    <None Include="Resources\Resources\Models\Tests\Teapot.obj" />
+    <None Include="Resources\Resources\Pack\Blocks.json" />
+    <None Include="Resources\Resources\Pack\Pack.json" />
+    <None Include="Resources\Resources\Shaders\Basic.shader" />
+    <None Include="Resources\Resources\Shaders\Camera.ubo" />
+    <None Include="Resources\Resources\Shaders\FBO.shader" />
+    <None Include="Resources\Resources\Shaders\GUI\Text.shader" />
+    <None Include="Resources\Resources\Shaders\GUI\GUI.shader" />
+    <None Include="Resources\Resources\Shaders\Lighting.ubo" />
+    <None Include="Resources\Resources\Shaders\OpaqueBlock.shader" />
+    <None Include="Resources\Resources\Shaders\PostProcessing\Blur.shader" />
+    <None Include="Resources\Resources\Shaders\PostProcessing\Cutoff.shader" />
+    <None Include="Resources\Resources\Shaders\PostProcessing\Blit.shader" />
+    <None Include="Resources\Resources\Shaders\PostProcessing\Bloom.shader" />
+    <None Include="Resources\Resources\Shaders\PostProcessing\ACES.shader" />
+    <None Include="Resources\Resources\Shaders\PostProcessing\ContrastPPE.shader" />
+    <None Include="Resources\Resources\Shaders\SkyProc.shader" />
+    <None Include="Resources\Resources\Shaders\Sky\Atmos.glsl" />
+    <None Include="Resources\Resources\Shaders\Time.ubo" />
+    <None Include="Resources\Resources\Shaders\TransparentBlock.shader" />
+    <None Include="Resources\Resources\Shaders\Voxel.glsl" />
+    <None Include="Resources\Resources\Shaders\Water.shader" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -293,6 +353,18 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Resources\Textures\Blocks.png" />
+    <Content Include="Resources\Resources\Textures\bums.txt" />
+    <Content Include="Resources\Resources\Textures\FallBack.png" />
+    <Content Include="Resources\Resources\Textures\GUI\btn_active.png" />
+    <Content Include="Resources\Resources\Textures\GUI\btn_hover.png" />
+    <Content Include="Resources\Resources\Textures\GUI\btn_normal.png" />
+    <Content Include="Resources\Resources\Textures\GUI\Crosshair.png" />
+    <Content Include="Resources\Resources\Textures\GUI\Inventory_Slot.png" />
+    <Content Include="Resources\Resources\Textures\Items\Def_Item.png" />
+    <Content Include="Resources\Resources\Textures\Pack_Icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -300,6 +372,24 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props'))" />
     <Error Condition="!Exists('..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets'))" />
+    <Error Condition="!Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props'))" />
+    <Error Condition="!Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.4.0.1\build\SharpFont.props'))" />
   </Target>
   <Import Project="..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets" Condition="Exists('..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets')" />
+  <PropertyGroup>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+  <Target Name="PostBuildEvent">
+    <Message Text="PRINT OutputPath = $(OutputPath)" Importance="high" />
+    <Message Text="PRINT ProjectDir $(ProjectDir)" Importance="high" />
+    <CreateItem Include="$(ProjectDir)Resources\**\*.*">
+      <Output ItemName="ZipFiles" TaskParameter="Include" />
+    </CreateItem>
+    <Zip Files="@(ZipFiles)" WorkingDirectory="$(ProjectDir)Resources" ZipFileName="$(OutputPath)Resources\Default.vnp" />
+    <Message Text="PRINT ZIP @(ZipFiles)" Importance="high" />
+  </Target>
 </Project>

@@ -11,9 +11,9 @@ namespace VoxelNet.Physics
 {
     public class BoundingBox : Shape
     {
-        public Vector3 Min { get; }
+        public Vector3 Min { get; set; }
 
-        public Vector3 Max { get; }
+        public Vector3 Max { get; set; }
 
         public Vector3 Size
         {
@@ -24,6 +24,16 @@ namespace VoxelNet.Physics
         {
             Min = new Vector3(minX, minY, minZ);
             Max = new Vector3(maxX, maxY, maxZ);
+        }
+
+        public BoundingBox Transform(Vector3 translation, Vector3 scale)
+        {
+            return new BoundingBox(Min.X + translation.X * scale.X,
+                                    Max.X + translation.X * scale.X,
+                                    Min.Y + translation.Y * scale.Y,
+                                    Max.Y + translation.Y * scale.Y,
+                                    Min.Z + translation.Z * scale.Z,
+                                    Max.Z + translation.Z * scale.Z);
         }
 
         public override bool Intersects(Shape shape, Rigidbody body)
@@ -44,6 +54,16 @@ namespace VoxelNet.Physics
             }
 
             return false;
+        }
+
+        public override bool IntersectsForcedOffset(Vector3 offset, Vector3 position)
+        {
+            return (offset.X + Min.X < position.X &&
+                    offset.X + Max.X > position.X &&
+                    offset.Y + Min.Y < position.Y &&
+                    offset.Y + Max.Y > position.Y &&
+                    offset.Z + Min.Z < position.Z &&
+                    offset.Z + Max.Z > position.Z);
         }
 
         public override bool IntersectsWorld(Rigidbody body)

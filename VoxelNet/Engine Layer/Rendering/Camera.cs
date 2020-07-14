@@ -24,20 +24,25 @@ namespace VoxelNet.Rendering
         public Matrix4 ViewMatrix { get; private set; }
         public Matrix4 ProjectionMatrix { get; private set; }
 
-        public float NearPlane { get; } = 0.05f;
-        public float FarPlane { get; } = 5000;
+        public float NearPlane { get; } = 0.1f;
+        public float FarPlane { get; } = 900f;
+
+        public Frustum Frustum { get; } = new Frustum(Matrix4.Identity);
 
         private CameraUniformBuffer bufferData = new CameraUniformBuffer();
 
         public void Update()
         {
             ViewMatrix = Matrix4.LookAt(Position, Position + GetForward(), GetUp());
-            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Program.Settings.FieldOfView),
+            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(
+                MathHelper.DegreesToRadians(Program.Settings.FieldOfView),
                 (float) Program.Settings.WindowWidth / (float) Program.Settings.WindowHeight, NearPlane, FarPlane);
+
+            Frustum.UpdateMatrix(ViewMatrix * ProjectionMatrix);
 
             bufferData.ProjectionMat = ProjectionMatrix;
             bufferData.ViewMat = ViewMatrix;
-            bufferData.Position = new Vector4(Position,1);
+            bufferData.Position = new Vector4(Position, 1);
 
             UniformBuffers.WorldCameraBuffer.Update(bufferData);
         }

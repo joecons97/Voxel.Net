@@ -23,6 +23,8 @@ namespace VoxelNet.Rendering
                 elements.Add(position.Y);
                 elements.Add(position.Z);
 
+                RecalculateBounds(position);
+
                 elements.Add(uvs[index].X);
                 elements.Add(uvs[index].Y);
 

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Numerics;
-using ImGuiNET;
-using OpenTK.Graphics.OpenGL4;
 using VoxelNet.Assets;
 using VoxelNet.Entities;
 
@@ -9,31 +6,44 @@ namespace VoxelNet.Menus
 {
     public class TestMenu : Menu
     {
+        private GUIStyle titleStyle = (GUIStyle)GUI.LabelStyle.Clone();
+
+        OptionsMenu options = new OptionsMenu();
+
         public override void Show()
         {
             Player.SetMouseVisible(true);
-            GL.ClearColor(0,0,0,1);
+
+            titleStyle.HorizontalAlignment = HorizontalAlignment.Middle;
+            titleStyle.VerticalAlignment = VerticalAlignment.Top;
+            titleStyle.FontSize = 48;
+
+            options.PreviousMenu = this;
+
             base.Show();
         }
 
-        public override void GUI()
+        public override void OnGUI()
         {
-            ImGui.Begin("menu", ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.AlwaysAutoResize);
-            ImGui.SetWindowPos("menu", new Vector2(Program.Window.Width/2f - 128f, (Program.Window.Height / 2f) - 64f));
-            if(ImGui.Button("Play", new Vector2(256,64)))
+            GUI.Label("VOXEL .NET", new Rect(0, 256f / (1280f/Program.Window.Height), Program.Window.Width, 72), titleStyle);
+
+            if (GUI.Button("New World", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f - 27, 198 * 2, 18 * 2)))
             {
-                var wrld = new World("New World", "Poo Poo");
+                var wrld = new World("New World", new Random().Next(1,999999).ToString());
                 Close();
                 Player.SetMouseVisible(false);
-                //Instantiate world...?
             }
 
-            if(ImGui.Button("Quit", new Vector2(256, 64)))
+            if (GUI.Button("Options", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f + 27, 198 * 2, 18 * 2)))
             {
-                //Does this actually end the program process?
+                options.Show();
+                Close();
+            }
+
+            if (GUI.Button("Quit", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f + 81, 198 * 2, 18 * 2)))
+            {
                 Program.Window.Close();
             }
-            ImGui.End();
         }
     }
 }

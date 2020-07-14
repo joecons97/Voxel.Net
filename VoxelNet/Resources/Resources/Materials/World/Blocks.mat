@@ -1,0 +1,7 @@
+﻿//Valid material type: number, mat4, vec2, vec3, vec4
+
+shader Resources/Shaders/OpaqueBlock.shader
+
+texture0 Resources/Textures/FallBack.png
+
+uniform number u_ColorMap 0

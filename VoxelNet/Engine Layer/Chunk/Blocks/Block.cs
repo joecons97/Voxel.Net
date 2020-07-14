@@ -32,8 +32,7 @@ namespace VoxelNet.Blocks
 
         public virtual void OnBreak(Vector3 WorldPosition, Vector2 ChunkPosition)
         {
-            ItemEntity ent = new ItemEntity(new BlockItem());
-            ent.Position = WorldPosition + new Vector3(.5f,0,.5f);
+            World.GetInstance().AddEntity(new ItemEntity(new BlockItem(this)) { Position = WorldPosition + new Vector3(.5f, 0, .5f)});
         }
 
         public virtual void OnPlace(Vector3 WorldPosition, Vector2 ChunkPosition)
