@@ -38,6 +38,8 @@ namespace VoxelNet
         public Texture AtlasTexture { get; private set; }
         public float FontSize { get; } = FONT_SIZE;
 
+        public float LineHeight { get; private set; }
+
         private Face fntFace;
 
         private Dictionary<char, Character> characters;
@@ -68,7 +70,7 @@ namespace VoxelNet
             fntFace = new Face(fntLibrary, fontData, 0);
             fntFace.SetPixelSizes(0, FONT_SIZE);
 
-            for (byte i = 0; i < 128; i++)
+            for (uint i = 0; i < 512; i++)
             {
                 fntFace.LoadChar(i, LoadFlags.Render, LoadTarget.Normal);
                 if (roww + fntFace.Glyph.Bitmap.Width + 1 >= MAX_SIZE)
@@ -97,13 +99,13 @@ namespace VoxelNet
 
             characters = new Dictionary<char, Character>();
 
-            for (byte i = 32; i < 128; i++)
+            for (uint i = 32; i < 512; i++)
             {
                 fntFace.LoadChar(i, LoadFlags.Render, LoadTarget.Normal);
 
                 if (ox + fntFace.Glyph.Bitmap.Width + 1 >= MAX_SIZE)
                 {
-                    oy -= rowh;
+                    oy += rowh;
                     rowh = 0;
                     ox = 0;
                 }
@@ -112,7 +114,7 @@ namespace VoxelNet
                 var chara = new Character
                 {
                     AdvanceX = fntFace.Glyph.Advance.X.Value >> 6,
-                    AdvanceY = fntFace.Glyph.Advance.X.Value >> 6,
+                    AdvanceY = fntFace.Glyph.Advance.Y.Value >> 6,
                     BitmapWidth = fntFace.Glyph.Bitmap.Width,
                     BitmapHeight = fntFace.Glyph.Bitmap.Rows,
                     BitmapLeft = fntFace.Glyph.BitmapLeft,
@@ -123,8 +125,9 @@ namespace VoxelNet
 
                 rowh = Math.Max(rowh, fntFace.Glyph.Bitmap.Rows);
                 ox += fntFace.Glyph.Bitmap.Width + 1;
-
                 characters.Add((char)i, chara);
+                if(fntFace.Glyph.Bitmap.Rows > LineHeight)
+                    LineHeight = fntFace.Glyph.Bitmap.Rows;
             }
 
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 4);

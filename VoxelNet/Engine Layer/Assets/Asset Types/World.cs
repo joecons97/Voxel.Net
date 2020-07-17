@@ -10,7 +10,6 @@ using TrueCraft.Core.TerrainGen.Noise;
 using VoxelNet.Buffers;
 using VoxelNet.Buffers.Ubos;
 using VoxelNet.Misc;
-using VoxelNet.Physics;
 using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
 using VoxelNet.Entities;

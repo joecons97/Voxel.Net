@@ -43,7 +43,7 @@ namespace VoxelNet.Decoration
                 if (treePoses.Count == 0 || treePoses.Any(v => Vector2.Distance(v, new Vector2(x, z)) > treeDists))
                 {
                     chunk.PlaceBlock(x, y, z, 1, false);
-                    var height = World.GetInstance().Randomizer.Next(3, 6);
+                    var height = World.GetInstance().Randomizer.Next(5, 8);
                     int leaves = 2;
                     for (int i = 0; i < height; i++)
                     {
@@ -57,17 +57,27 @@ namespace VoxelNet.Decoration
                         {
                             for (int ly = 0; ly < leaves; ly++)
                             {
-                                PlaceLeaf(x + lx, y + leavesHeight + 1 + ly, z + lz, chunk);
+                                PlaceLeaf(x + lx, y + leavesHeight + ly, z + lz, chunk);
                             }
                         }
                     }
 
-                    PlaceLeaf(x, y + leavesHeight + 1 + leaves, z, chunk);
+                    leaves--;
 
-                    PlaceLeaf(x + 1, y + leavesHeight + 1 + leaves, z, chunk);
-                    PlaceLeaf(x - 1, y + leavesHeight + 1 + leaves, z, chunk);
-                    PlaceLeaf(x, y + leavesHeight + 1 + leaves, z + 1, chunk);
-                    PlaceLeaf(x, y + leavesHeight + 1 + leaves, z - 1, chunk);
+                    for (int lx = -leaves; lx <= leaves; lx++)
+                    {
+                        for (int lz = -leaves; lz <= leaves; lz++)
+                        {
+                            PlaceLeaf(x + lx, y + leavesHeight + 2, z + lz, chunk);
+                        }
+                    }
+
+                    PlaceLeaf(x, y + leavesHeight + 2 + leaves, z, chunk);
+
+                    PlaceLeaf(x + 1, y + leavesHeight + 2 + leaves, z, chunk);
+                    PlaceLeaf(x - 1, y + leavesHeight + 2 + leaves, z, chunk);
+                    PlaceLeaf(x, y + leavesHeight + 2 + leaves, z + 1, chunk);
+                    PlaceLeaf(x, y + leavesHeight + 2 + leaves, z - 1, chunk);
 
                     treePoses.Add(new Vector2(x, z));
                 }

@@ -291,8 +291,9 @@
     </Compile>
     <Compile Include="Engine Layer\Menus\Menu.cs" />
     <Compile Include="Engine Layer\Menus\TestMenu.cs" />
-    <None Include="Resources\Resources\Fonts\Minecraft.ttf" />
+    <None Include="Resources\Resources\Fonts\MUCHACHOS -Regular.otf" />
     <None Include="Resources\Resources\Fonts\OpenSans-Regular.ttf" />
+    <None Include="Resources\Resources\Fonts\SHERWOOD.TTF" />
     <None Include="Resources\Resources\Materials\Post Processing\BlurPPE.mat" />
     <None Include="Resources\Resources\Materials\Post Processing\CutoffPPE.mat" />
     <None Include="Resources\Resources\Materials\Post Processing\BloomPPE.mat" />

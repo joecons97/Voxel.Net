@@ -10,13 +10,15 @@ namespace VoxelNet.Menus
 
         OptionsMenu options = new OptionsMenu();
 
+        private string str = "";
+
         public override void Show()
         {
             Player.SetMouseVisible(true);
 
             titleStyle.HorizontalAlignment = HorizontalAlignment.Middle;
-            titleStyle.VerticalAlignment = VerticalAlignment.Top;
-            titleStyle.FontSize = 48;
+            titleStyle.VerticalAlignment = VerticalAlignment.Middle;
+            titleStyle.FontSize = 92;
 
             options.PreviousMenu = this;
 

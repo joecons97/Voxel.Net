@@ -29,8 +29,8 @@ namespace VoxelNet.Menus
         public override void Show()
         {
             titleStyle.HorizontalAlignment = HorizontalAlignment.Middle;
-            titleStyle.VerticalAlignment = VerticalAlignment.Top;
-            titleStyle.FontSize = 48;
+            titleStyle.VerticalAlignment = VerticalAlignment.Middle;
+            titleStyle.FontSize = 92;
 
             fullscreenVal = Program.Settings.Fullscreen;
 
@@ -43,13 +43,15 @@ namespace VoxelNet.Menus
 
             var cur = possibleDisplayResolutions[selectedRes];
 
-            if (GUI.Button($"Size: {cur.Width}x{cur.Height} - {cur.RefreshRate}hz", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f - 27, 198 * 2, 18 * 2)))
+            if (GUI.Button($"Size: {cur.Width} X {cur.Height} - {cur.RefreshRate}hz", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f - 27, 198 * 2, 18 * 2)))
             {
                 if (++selectedRes >= possibleDisplayResolutions.Count)
                     selectedRes = 0;
             }
 
-            if (GUI.Button($"Fullscreen: {fullscreenVal}", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f + 27, 198 * 2, 18 * 2)))
+            string fcString = fullscreenVal ? "On" : "Off";
+
+            if (GUI.Button($"Fullscreen: {fcString}", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f + 27, 198 * 2, 18 * 2)))
             {
                 fullscreenVal = !fullscreenVal;
             }

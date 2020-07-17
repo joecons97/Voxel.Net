@@ -171,7 +171,7 @@ namespace VoxelNet.Entities
         public override void RenderGUI()
         {
             var rect = new Rect(8, 8, 256, 32);
-            GUI.Label($"{(int)Time.FramesPerSecond}fps", rect);
+            GUI.Label($"{(int)Time.FramesPerSecond}fps\n", rect);
 
             GUI.Image(currentWorld.TexturePack.Crosshair, new Rect((Program.Window.Width / 2) - 16, (Program.Window.Height / 2) - 16, 32, 32));
                

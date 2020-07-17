@@ -127,6 +127,8 @@ namespace VoxelNet
             World.GetInstance()?.RenderGUI();
             Menu.GUIAll();
 
+            Input.Input.PostRenderUpdate();
+
             guiController.Render();
 
             Context.SwapBuffers();

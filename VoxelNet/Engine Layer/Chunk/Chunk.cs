@@ -108,12 +108,12 @@ namespace VoxelNet
                                                 .Octaves2D(NoiseX, NoiseY, 8, .4f, 2, noiseScale) + 1) / 2);
 
                     float ocean = (float)((World.GetInstance().TerrainNoise
-                                               .Octaves2D(NoiseX, NoiseY, 1, .4f, 2, noiseScale * 0.125f) + 1) / 2) * 6;
+                                               .Octaves2D(NoiseX, NoiseY, 8, .4f, 2, noiseScale * 0.125f) + 1) / 2) * 6;
 
                     ocean -= 2;
-                    ocean = (float)Math.Pow(MathHelper.Clamp(ocean, 0, 1) + (mainNoise/10f), 0.8f);
+                    ocean = (float)Math.Pow(MathHelper.Clamp(ocean, 0, 1) + (mainNoise/10f), 0.6f);
 
-                    heightmap[x, y] = Math.Min(mainNoise, ocean) * 255f;
+                    heightmap[x, y] = Math.Min(mainNoise + 0.2f, ocean) * 255f;
                 }
             }
         }
@@ -667,12 +667,18 @@ namespace VoxelNet
             if (block == 0)
                 return true;
 
-            if (BlockDatabase.GetBlock(block).IsTransparent)
+            var theBlock = BlockDatabase.GetBlock(block);
+
+            if (theBlock.IsTransparent)
             {
+                //Remove above return for faster trees (possible setting)
                 if (block != workingBlockID)
                     return true;
-                else
+
+                if(theBlock.TransparencyCullsSelf)
                     return false;
+                
+                return true;
             }
 
             return false;

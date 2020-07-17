@@ -14,6 +14,9 @@ namespace VoxelNet.Input
 
         private static MouseState currentMouseState, previousMouseState;
 
+        private static KeyboardKeyEventArgs lastKeyDown;
+        private static char lastKeyPress;
+
         static Input()
         {
 
@@ -27,6 +30,8 @@ namespace VoxelNet.Input
                 {
                     input.KeyDown?.Invoke();
                 }
+
+                lastKeyDown = args;
             };
             Program.Window.KeyUp += (sender, args) =>
             {
@@ -52,6 +57,19 @@ namespace VoxelNet.Input
                     input.KeyUp?.Invoke();
                 }
             };
+
+            Program.Window.KeyPress += (sender, args) => { lastKeyPress = args.KeyChar; };
+        }
+
+        public static KeyboardKeyEventArgs GetLastKeyDown()
+        {
+            var theKey = lastKeyDown;
+            return theKey;
+        }
+        public static char GetLastKeyPress()
+        {
+            var theKey = lastKeyPress;
+            return theKey;
         }
 
         public static InputSetting GetSetting(string input)
@@ -72,6 +90,12 @@ namespace VoxelNet.Input
             }
 
             previousMouseState = currentMouseState;
+        }
+
+        public static void PostRenderUpdate()
+        {
+            lastKeyPress = ' ';
+            lastKeyDown = null;
         }
 
         public static Vector2 GetMouseDelta()

@@ -13,6 +13,7 @@ namespace VoxelNet
     {
         public override string Key => "Block_Water";
         public override bool IsTransparent => true;
+        public override bool TransparencyCullsSelf => true;
         public override GetBlockColor BlockColor { get; set; } = (i, i1, i2) => Color4.Blue;
         public override Shape CollisionShape => null;
     }
