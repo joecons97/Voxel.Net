@@ -13,6 +13,11 @@ namespace VoxelNet.Assets
 
         public static void RegisterBlock(Block block)
         {
+            if (blocks.ContainsKey(block.Key))
+            {
+                Debug.Log("Block with key: " + block.Key + " already exists! Cancelling this addition", DebugLevel.Warning);
+                return;
+            }
             block.ID = 1 + blocks.Count;
             blocks.Add(block.Key, block);
         }

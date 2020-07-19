@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenTK;
 using VoxelNet.Assets;
 using VoxelNet.Entities;
@@ -19,9 +20,10 @@ namespace VoxelNet.Menus
 
         public OptionsMenu()
         {
-            possibleDisplayResolutions = DisplayDevice.GetDisplay(DisplayIndex.Default).AvailableResolutions;
             var cur = DisplayDevice.GetDisplay(DisplayIndex.Default).SelectResolution(
                 Program.Settings.WindowWidth, Program.Settings.WindowHeight, Program.Settings.BitsPerPixel, Program.Settings.RefreshRate);
+
+            possibleDisplayResolutions = DisplayDevice.GetDisplay(DisplayIndex.Default).AvailableResolutions.Where(x => x.BitsPerPixel == cur.BitsPerPixel).ToList();
 
             selectedRes = possibleDisplayResolutions.IndexOf(cur);
         }

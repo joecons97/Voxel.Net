@@ -4,6 +4,7 @@ using ImGuiNET;
 using OpenTK;
 using OpenTK.Input;
 using VoxelNet.Assets;
+using VoxelNet.Containers;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
 using Vector2 = System.Numerics.Vector2;
@@ -28,15 +29,13 @@ namespace VoxelNet.Entities
         private static bool controlsEnabled = true;
         private static bool mouseHidden = true;
 
-        private Inventory inventory;
+        Container test = new Container();
 
         public override void Begin()
         {
             Name = "Player";
             currentWorld = World.GetInstance();
             hasHadInitialSet = false;
-
-            inventory = new Inventory();
 
             Input.Input.GetSetting("Jump").KeyDown += () =>
             {
@@ -87,9 +86,12 @@ namespace VoxelNet.Entities
 
             Input.Input.GetSetting("Inventory").KeyDown += () =>
             {
-                inventory.SetIsOpen(!inventory.IsOpen);
-                SetControlsActive(!inventory.IsOpen);
-                SetMouseVisible(inventory.IsOpen);
+                if(test.IsOpen)
+                    test.Close();
+                else
+                    test.Open();
+
+                SetMouseVisible(test.IsOpen);
             };
 
             Input.Input.GetSetting("Sprint").KeyDown += () => isSprinting = true;

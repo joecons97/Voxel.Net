@@ -60,5 +60,17 @@ namespace VoxelNet
 
             return new Color4(r,g,b,a);
         }
+
+        public static int GetSeedNum(this string str)
+        {
+            int num = 0;
+            for (int i = 0; i < str.Length; i++)
+            {
+                int charNum = (int) str[i];
+                num += charNum;
+            }
+
+            return num;
+        }
     }
 }

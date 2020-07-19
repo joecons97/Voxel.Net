@@ -7,6 +7,7 @@ using OpenTK.Input;
 using VoxelNet.Assets;
 using VoxelNet.Buffers;
 using VoxelNet.Buffers.Ubos;
+using VoxelNet.Containers;
 using VoxelNet.Rendering;
 using VoxelNet.Rendering.Material;
 using VoxelNet.Menus;
@@ -28,8 +29,10 @@ namespace VoxelNet
 
         protected override void OnLoad(EventArgs e)
         {
-            GameBlocks.Init();
             AssetDatabase.SetPack(AssetDatabase.DEFAULTPACK);
+
+            GameBlocks.Init();
+            GameItems.Init();
 
             VSync = VSyncMode.Off;
             GL.Enable(EnableCap.CullFace);
@@ -125,7 +128,8 @@ namespace VoxelNet
             PostProcessingEffects.RenderEffects();
 
             World.GetInstance()?.RenderGUI();
-            Menu.GUIAll();
+            ContainerRenderer.RenderGUI();
+            Menu.RenderGUI();
 
             Input.Input.PostRenderUpdate();
 

@@ -38,7 +38,7 @@ namespace VoxelNet
             var goToPos = World.GetInstance().WorldCamera.Position - Vector3.UnitY * 1;
 
             var dist = Vector3.Distance(Position, goToPos);
-            if (dist < 2 )
+            if (dist < 2)
             {
                 rigidbody.IsActive = false;
                 var dir = ((goToPos) - Position).Normalized();

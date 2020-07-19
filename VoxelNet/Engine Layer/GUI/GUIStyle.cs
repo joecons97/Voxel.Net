@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK;
 using OpenTK.Graphics;
 using VoxelNet.Rendering;
 
@@ -15,8 +16,11 @@ namespace VoxelNet
         public GUIStyleOption Active { get; set; } = new GUIStyleOption();
         public Font Font { get; set; }
         public float FontSize { get; set; }
+        public float SlicedBorderSize { get; set; }
         public VerticalAlignment VerticalAlignment { get; set; }
         public HorizontalAlignment HorizontalAlignment { get; set; }
+
+        public Vector2 AlignmentOffset { get; set; } = new Vector2(0,0);
 
         public object Clone()
         {
@@ -28,7 +32,9 @@ namespace VoxelNet
                 Font = Font,
                 FontSize = FontSize,
                 VerticalAlignment = VerticalAlignment,
-                HorizontalAlignment = HorizontalAlignment
+                HorizontalAlignment = HorizontalAlignment,
+                AlignmentOffset = AlignmentOffset,
+                SlicedBorderSize = SlicedBorderSize
             };
         }
     }

@@ -188,6 +188,7 @@
     <Compile Include="Engine Layer\Assets\Asset Types\TexturePack.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\TypeFace.cs" />
     <Compile Include="Engine Layer\Assets\AssetDatabase.cs" />
+    <Compile Include="Engine Layer\Assets\ItemDatabase.cs" />
     <Compile Include="Engine Layer\Assets\BlockDatabase.cs" />
     <Compile Include="Engine Layer\Assets\IExportable.cs" />
     <Compile Include="Engine Layer\Assets\IImportable.cs" />
@@ -209,15 +210,18 @@
     <Compile Include="Engine Layer\Chunk\Decoration\Decorator.cs" />
     <Compile Include="Engine Layer\Chunk\Decoration\IDecorator.cs" />
     <Compile Include="Engine Layer\Chunk\Decoration\OakDecorator.cs" />
+    <Compile Include="Engine Layer\Containers\Container.cs" />
+    <Compile Include="Engine Layer\Containers\ContainerRenderer.cs" />
+    <Compile Include="Engine Layer\Containers\ItemStack.cs" />
     <Compile Include="Engine Layer\Entity\Entity.cs" />
     <Compile Include="Engine Layer\Entity\ItemEntity.cs" />
     <Compile Include="Engine Layer\Entity\Player.cs" />
     <Compile Include="Engine Layer\GUI\GUI.cs" />
     <Compile Include="Engine Layer\GUI\GUIStyle.cs" />
-    <Compile Include="Engine Layer\Inventory System\Inventory.cs" />
-    <Compile Include="Engine Layer\Inventory System\InventorySlot.cs" />
     <Compile Include="Engine Layer\Item System\BlockItem.cs" />
+    <Compile Include="Engine Layer\Item System\GameItems.cs" />
     <Compile Include="Engine Layer\Item System\Item.cs" />
+    <Compile Include="Engine Layer\Menus\NewWorldMenu.cs" />
     <Compile Include="Engine Layer\Menus\OptionsMenu.cs" />
     <Compile Include="Engine Layer\Physics\BoundingBox.cs" />
     <Compile Include="Engine Layer\Physics\PhysicSimulation.cs" />
@@ -294,6 +298,7 @@
     <None Include="Resources\Resources\Fonts\MUCHACHOS -Regular.otf" />
     <None Include="Resources\Resources\Fonts\OpenSans-Regular.ttf" />
     <None Include="Resources\Resources\Fonts\SHERWOOD.TTF" />
+    <None Include="Resources\Resources\Materials\GUI\GUI_Sliced.mat" />
     <None Include="Resources\Resources\Materials\Post Processing\BlurPPE.mat" />
     <None Include="Resources\Resources\Materials\Post Processing\CutoffPPE.mat" />
     <None Include="Resources\Resources\Materials\Post Processing\BloomPPE.mat" />
@@ -319,6 +324,7 @@
     <None Include="Resources\Resources\Shaders\Basic.shader" />
     <None Include="Resources\Resources\Shaders\Camera.ubo" />
     <None Include="Resources\Resources\Shaders\FBO.shader" />
+    <None Include="Resources\Resources\Shaders\GUI\GUI_Sliced.shader" />
     <None Include="Resources\Resources\Shaders\GUI\Text.shader" />
     <None Include="Resources\Resources\Shaders\GUI\GUI.shader" />
     <None Include="Resources\Resources\Shaders\Lighting.ubo" />

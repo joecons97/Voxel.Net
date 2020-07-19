@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK;
 using OpenTK.Graphics;
 using VoxelNet.Assets;
 
@@ -18,5 +19,10 @@ namespace VoxelNet.Blocks
 
             return new Color4(0.25f * biome, 0.75f * biome, 0.16f * biome,1);
         };
-}
+
+        public override void OnBreak(Vector3 WorldPosition, Vector2 ChunkPosition)
+        {
+            World.GetInstance().AddEntity(new ItemEntity(GameItems.DIRT) { Position = WorldPosition + new Vector3(.5f, 0, .5f) });
+        }
+    }
 }

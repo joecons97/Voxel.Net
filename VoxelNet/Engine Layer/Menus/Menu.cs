@@ -9,7 +9,7 @@ namespace VoxelNet
     {
 		static List<Menu> openMenus = new List<Menu>();
 
-        public static void GUIAll()
+        public static void RenderGUI()
 		{
             for(int i = 0; i < openMenus.Count; i++)
 			{

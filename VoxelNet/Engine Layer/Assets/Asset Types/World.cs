@@ -92,9 +92,9 @@ namespace VoxelNet.Assets
         public void Begin()
         {
             TexturePack = AssetDatabase.GetAsset<TexturePack>("");
-            TerrainNoise = new OpenSimplex(Seed.GetHashCode());
-            BiomeNoise = new CellNoise(Seed.GetHashCode());
-            Randomizer = new Random(Seed.GetHashCode());
+            TerrainNoise = new OpenSimplex(Seed.GetSeedNum());
+            BiomeNoise = new CellNoise(Seed.GetSeedNum());
+            Randomizer = new Random(Seed.GetSeedNum());
             WorldCamera = new Camera();
 
             Skybox = new Skybox(AssetDatabase.GetAsset<Material>("Resources/Materials/World/Sky.mat"));
@@ -199,8 +199,6 @@ namespace VoxelNet.Assets
             {
                 entity.RenderGUI();
             }
-
-            Inventory.GUIAll();
         }
 
         void UpdateView()

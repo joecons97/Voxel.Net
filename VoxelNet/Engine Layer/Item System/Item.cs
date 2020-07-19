@@ -13,10 +13,12 @@ namespace VoxelNet
     {
         public virtual string Name { get; protected set; }
         public virtual string IconLocation { get; protected set; } = "Resources/Textures/Items/Def_Item.png";
-        public virtual string ID { get; protected set; }
-        public abstract int Key { get; }
+        public int ID { get; set; }
+        public abstract string Key { get; }
         public Texture Icon { get; private set; }
         public Mesh Mesh { get; private set; }
+
+        public int MaxStackSize { get; protected set; } = 64;
 
         public Item()
         {

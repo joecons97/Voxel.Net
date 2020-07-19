@@ -14,10 +14,12 @@ namespace VoxelNet
     public static class GUI
     {
         static Material material;
+        static Material materialSliced;
         static Material textMaterial;
 
         public static GUIStyle LabelStyle { get; }
         public static GUIStyle ButtonStyle { get; }
+        public static GUIStyle TextBoxStyle { get; }
         public static Vector2 MousePosition { get; private set; }
 
         private static string lastId = "";
@@ -30,29 +32,64 @@ namespace VoxelNet
         static GUI()
         {
             material = AssetDatabase.GetAsset<Material>("Resources/Materials/GUI/GUI.mat");
+            materialSliced = AssetDatabase.GetAsset<Material>("Resources/Materials/GUI/GUI_Sliced.mat");
             textMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/GUI/Text.mat");
 
-            LabelStyle = new GUIStyle() { FontSize = 48, Font = AssetDatabase.GetAsset<Font>("Resources/Fonts/SHERWOOD.ttf"),
-                HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top };
+            LabelStyle = new GUIStyle()
+            {
+                FontSize = 48, Font = AssetDatabase.GetAsset<Font>("Resources/Fonts/SHERWOOD.ttf"),
+                HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top
+            };
 
-            ButtonStyle = new GUIStyle() { FontSize = 48, Font = AssetDatabase.GetAsset<Font>("Resources/Fonts/SHERWOOD.ttf"),
-                HorizontalAlignment = HorizontalAlignment.Middle, VerticalAlignment = VerticalAlignment.Middle};
-            
+            ButtonStyle = new GUIStyle()
+            {
+                FontSize = 48, Font = AssetDatabase.GetAsset<Font>("Resources/Fonts/SHERWOOD.ttf"),
+                HorizontalAlignment = HorizontalAlignment.Middle, VerticalAlignment = VerticalAlignment.Middle,
+                SlicedBorderSize = 1f
+            };
+
             ButtonStyle.Normal = new GUIStyleOption()
             {
                 Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/btn_normal.png"),
                 TextColor = Color4.White
-            }; 
+            };
             ButtonStyle.Hover = new GUIStyleOption()
             {
                 Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/btn_hover.png"),
-                TextColor = Color4.Black
+                TextColor = Color4.White
             };
             ButtonStyle.Active = new GUIStyleOption()
             {
-                Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/btn_active.png"),
+                Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/btn_hover.png"),
                 TextColor = Color4.White
             };
+
+            TextBoxStyle = new GUIStyle()
+            {
+                FontSize = 48,
+                Font = AssetDatabase.GetAsset<Font>("Resources/Fonts/SHERWOOD.ttf"),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Middle, 
+                AlignmentOffset = new Vector2(12, 0),
+                SlicedBorderSize = 1f
+            };
+
+            TextBoxStyle.Normal = new GUIStyleOption()
+            {
+                Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/txt_normal.png"),
+                TextColor = Color4.White
+            };
+            TextBoxStyle.Hover = new GUIStyleOption()
+            {
+                Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/txt_hover.png"),
+                TextColor = Color4.White
+            };
+            TextBoxStyle.Active = new GUIStyleOption()
+            {
+                Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/txt_hover.png"),
+                TextColor = Color4.White
+            };
+
 
             Program.Window.MouseMove += (sender, args) =>
             {
@@ -97,19 +134,19 @@ namespace VoxelNet
             {
                 if (Mouse.GetState().IsButtonDown(MouseButton.Left))
                 {
-                    GenerateImage(style.Active.Background, size, false, true);
+                    GenerateImage(style.Active.Background, size, false, true, style.SlicedBorderSize);
                     GenerateTextAndRender(text, size, style, false, true);
                     lastClickedId = id;
                 }
                 else
                 {
-                    GenerateImage(style.Hover.Background, size, true, false);
+                    GenerateImage(style.Hover.Background, size, true, false, style.SlicedBorderSize);
                     GenerateTextAndRender(text, size, style, true, false);
                 }
             }
             else
             {
-                GenerateImage(style.Normal.Background, size, false, false);
+                GenerateImage(style.Normal.Background, size, false, false, style.SlicedBorderSize);
                 GenerateTextAndRender(text, size, style, false, false);
             }
 
@@ -138,15 +175,27 @@ namespace VoxelNet
 
         public static void Image(Texture image, Rect size)
         {
-            GenerateImage(image, size, false, false);
+            GenerateImage(image, size, false, false, 0);
             elementCount++;
         }
-        public static void Textbox(ref string text, float maxLength, Rect size)
+
+        public static void Image(Texture image, Rect size, float sliceSize)
         {
-            Textbox(ref text, maxLength, size, ButtonStyle);
+            GenerateImage(image, size, false, false, sliceSize);
+            elementCount++;
         }
 
-        public static void Textbox(ref string text, float maxLength, Rect size, GUIStyle style)
+        public static void Textbox(ref string text, float maxLength, Rect size)
+        {
+            Textbox(ref text, maxLength, size, TextBoxStyle);
+        }
+
+        public static void Textbox(ref string text,string placeHolder, float maxLength, Rect size)
+        {
+            Textbox(ref text, maxLength, size, TextBoxStyle, placeHolder);
+        }
+
+        public static void Textbox(ref string text, float maxLength, Rect size, GUIStyle style, string placeholder = "")
         {
             string id = (elementCount + 1).ToString();
             PushID(id);
@@ -221,37 +270,50 @@ namespace VoxelNet
                     }
                 }
 
-                theText = text.Insert(textCarrot, "^");
+                theText = text.Insert(textCarrot, "_");
             }
+
+            Color4 startingColour = style.Normal.TextColor;
+            if (string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(placeholder) && lastClickedId != id)
+            {
+                style.Normal.TextColor = Color4.Gray;
+                style.Hover.TextColor = Color4.Gray;
+                style.Active.TextColor = Color4.Gray;
+                theText = placeholder;
+            }
+
             if (size.IsPointInside(MousePosition))
             {
                 if (Mouse.GetState().IsButtonDown(MouseButton.Left))
                 {
-                    GenerateImage(style.Active.Background, size, false, true);
+                    GenerateImage(style.Active.Background, size, false, true, style.SlicedBorderSize);
                     GenerateTextAndRender(theText, size, style, false, true);
                     lastClickedId = id;
                 }
                 else
                 {
-                    GenerateImage(style.Hover.Background, size, true, false);
+                    GenerateImage(style.Hover.Background, size, true, false, style.SlicedBorderSize);
                     GenerateTextAndRender(theText, size, style, true, false);
                 }
             }
             else if (lastClickedId == id)
             {
-                GenerateImage(style.Active.Background, size, false, true);
+                GenerateImage(style.Active.Background, size, false, true, style.SlicedBorderSize);
                 GenerateTextAndRender(theText, size, style, false, true);
             }
             else
             {
-                GenerateImage(style.Normal.Background, size, false, false);
+                GenerateImage(style.Normal.Background, size, false, false, style.SlicedBorderSize);
                 GenerateTextAndRender(theText, size, style, false, false);
             }
 
+            style.Normal.TextColor = startingColour;
+            style.Hover.TextColor = startingColour;
+            style.Active.TextColor = startingColour;
             elementCount++;
         }
 
-        static void GenerateImage(Texture image, Rect size, bool isHovered, bool isActive)
+        static void GenerateImage(Texture image, Rect size, bool isHovered, bool isActive, float sliceSize)
         {
             float x = ((size.X / Program.Window.Width) * 2) - 1;
             float y = (((Program.Window.Height - size.Y) / Program.Window.Height)*2)-1;
@@ -282,8 +344,19 @@ namespace VoxelNet
 
             GL.Disable(EnableCap.DepthTest);
             Mesh mesh = new Mesh(new VertexContainer(vertices.ToArray(), uvs.ToArray()), indices.ToArray());
-            material.SetTexture(0, image);
-            Renderer.DrawNow(mesh, material);
+            if (sliceSize > 0)
+            {
+                materialSliced.SetTexture(0, image);
+                materialSliced.SetUniform("u_BorderSize", sliceSize);
+                materialSliced.SetUniform("u_Dimensions", new Vector2(size.Width, size.Height));
+                Renderer.DrawNow(mesh, materialSliced);
+            }
+            else
+            {
+                material.SetTexture(0, image);
+                Renderer.DrawNow(mesh, material);
+            }
+
             mesh.Dispose();
             GL.Enable(EnableCap.DepthTest);
         }
@@ -312,13 +385,9 @@ namespace VoxelNet
 
             float scaleY = ((fontScale / winHeight));// * 2) - 1;
 
-            float maxTextHeight = 0;
-
             for (int i = 0; i < text.Length; i++)
             {
                 var character = style.Font.RequestCharacter((char)text[i]);
-                if (character.BitmapHeight > maxTextHeight)
-                    maxTextHeight = character.BitmapHeight;
 
                 if (text[curLine] == '\n')
                 {
@@ -356,7 +425,7 @@ namespace VoxelNet
                     float top = ((character.BitmapTop) * scaleY);
 
                     float xPos = charOffset + (GetXAlignment(index)/winWidth);
-                    float yPos = y - lineOffset - (h - top) - (scaleY * maxTextHeight) - (GetYAlignment() / winHeight);
+                    float yPos = y - lineOffset - (h - top) - (scaleY * style.Font.FontSize) - (GetYAlignment() / winHeight);
                     float xPosEnd = xPos + w;
                     float yPosEnd = yPos + h;
 
@@ -396,11 +465,11 @@ namespace VoxelNet
                 switch (style.HorizontalAlignment)
                 {
                     case HorizontalAlignment.Left:
-                        return 0;
+                        return style.AlignmentOffset.X;
                     case HorizontalAlignment.Middle:
-                        return ((rectWidth * 2f) - (width * fontScale))/2f;
+                        return style.AlignmentOffset.X + ((rectWidth * 2f) - (width * fontScale))/2f;
                     case HorizontalAlignment.Right:
-                        return ((rectWidth * 2f) - (width * fontScale));
+                        return style.AlignmentOffset.X + ((rectWidth * 2f) - (width * fontScale));
                 }
 
                 return 0;
@@ -414,11 +483,11 @@ namespace VoxelNet
                 switch (style.VerticalAlignment)
                 {
                     case VerticalAlignment.Top:
-                        return 0;
+                        return style.AlignmentOffset.Y;
                     case VerticalAlignment.Middle:
-                        return ((rectHeight - height) + style.FontSize)/2f;
+                        return style.AlignmentOffset.Y + ((rectHeight - height) + style.Font.FontSize/2f)/2f;
                     case VerticalAlignment.Bottom:
-                        return (rectHeight - height) + style.FontSize;
+                        return style.AlignmentOffset.Y + (rectHeight - height) + (style.Font.FontSize/2f)/2f;
                 }
 
                 return 0;
@@ -428,178 +497,14 @@ namespace VoxelNet
             Mesh mesh = new Mesh(new VertexContainer(vertices.ToArray(), uvs.ToArray()), indices.ToArray());
             textMaterial.SetTexture(0, style.Font.AtlasTexture);
             if (isActive)
-                textMaterial.Shader.SetUniform("u_Color", style.Active.TextColor.ToVector4());
+                textMaterial.SetUniform("u_Color", style.Active.TextColor.ToVector4());
             else if (isHovered)
-                textMaterial.Shader.SetUniform("u_Color", style.Hover.TextColor.ToVector4());
+                textMaterial.SetUniform("u_Color", style.Hover.TextColor.ToVector4());
             else
-                textMaterial.Shader.SetUniform("u_Color", style.Normal.TextColor.ToVector4());
+                textMaterial.SetUniform("u_Color", style.Normal.TextColor.ToVector4());
             Renderer.DrawNow(mesh, textMaterial);
             mesh.Dispose();
             GL.Enable(EnableCap.DepthTest);
-            {
-                /*
-    
-                float scale = style.FontSize / style.Font.FontSize;
-    
-                float sx = (2f/(float) Program.Window.Width)* scale;
-                float sy = (2f/(float) Program.Window.Height)* scale;
-    
-                float x = ((size.X / (float)Program.Window.Width) * 2) - 1;
-                float startingX = x;
-                float rectWidth = startingX + ((size.Width / (float)Program.Window.Width) * 2);
-    
-                float y = ((size.Y / (float)Program.Window.Height) * 2) - 1;
-                y = -y;
-                float startingY = y;
-                float rectHeight = (startingY - ((size.Height * 2) / Program.Window.Height));
-    
-                //Calculate lines
-                int curLine = 0;
-                List<string> lines = new List<string>();
-                List<float> linesWidth = new List<float>();
-                linesWidth.Add(0);
-                lines.Add("");
-    
-                float maxHeight = 0;
-    
-                for (int i = 0; i < text.Length; i++)
-                {
-                    var character = style.Font.RequestCharacter((char)text[i]);
-    
-                    if (character.BitmapHeight > maxHeight)
-                        maxHeight = character.BitmapHeight * sx;
-    
-                    float w = character.BitmapWidth * sx;
-                    float h = character.BitmapHeight * sy;
-    
-                    float linesCount = (lines.Count * 2) - 1;
-    
-                    if (linesCount <= rectHeight + h)
-                        break;
-    
-                    //new line
-                    float lineStart = (linesWidth[curLine] * 2) - 1;
-                    if ((char)text[i] == '\n' || lineStart + character.AdvanceX * sx >= rectWidth - w)
-                    {
-                        if (text[i] != '\n')
-                        {
-                            lines.Add(text[i].ToString());
-                            linesWidth.Add(character.AdvanceX * sx);
-                        }
-                        else
-                        {
-                            lines.Add("");
-                            linesWidth.Add(0);
-                        }
-                        curLine++;
-                    }
-                    else
-                    {
-                        linesWidth[curLine] += character.AdvanceX * sx;
-                        lines[curLine] += (char) text[i];
-                    }
-                }
-    
-                float yOff = GetYOffset();
-                for (int i = 0; i < lines.Count; i++)
-                {
-                    float xOff = GetXOffset(i);
-                    for (int j = 0; j < lines[i].Length; j++)
-                    {
-                        var character = style.Font.RequestCharacter((char)lines[i][j]);
-                        float w = character.BitmapWidth * sx;
-                        float h = character.BitmapHeight * sy;
-    
-                        float hDiff = (character.BitmapHeight - character.BitmapTop) * sy;
-    
-                        float x2 = x + xOff;
-                        float y2 = y + yOff;
-                        float x3 = x2 + w;
-                        float y3 = y2 + h;
-    
-                        y2 = y2 - (maxHeight * 2) - hDiff;
-                        y3 = y3 - (maxHeight * 2) - hDiff;
-    
-                        x += character.AdvanceX * sx;
-    
-                        if (w == 0 || h == 0)
-                            continue;
-    
-                        vertices.Add(new Vector3(x2, y2, 0));
-                        vertices.Add(new Vector3(x3, y2, 0));
-                        vertices.Add(new Vector3(x2, y3, 0));
-                        vertices.Add(new Vector3(x3, y3, 0));
-    
-                        uvs.Add(new Vector2(character.TexCoordX, character.TexCoordY + character.BitmapHeight / style.Font.GetAtlasHeight()));
-                        uvs.Add(new Vector2(character.TexCoordX + character.BitmapWidth / style.Font.GetAtlasWidth(), character.TexCoordY + character.BitmapHeight / style.Font.GetAtlasHeight()));
-                        uvs.Add(new Vector2(character.TexCoordX, character.TexCoordY));
-                        uvs.Add(new Vector2(character.TexCoordX + character.BitmapWidth / style.Font.GetAtlasWidth(), character.TexCoordY));
-    
-                        indices.Add(indexCount + 0);
-                        indices.Add(indexCount + 1);
-                        indices.Add(indexCount + 2);
-    
-                        indices.Add(indexCount + 3);
-                        indices.Add(indexCount + 2);
-                        indices.Add(indexCount + 1);
-    
-                        indexCount += 4;
-                    }
-                    y -= style.Font.LineHeight * sy;
-                    x = startingX;
-                }
-    
-                float GetXOffset(int line)
-                {
-                    float lineWidth;
-                    float difference;
-                    switch (style.HorizontalAlignment)
-                    {
-                        case HorizontalAlignment.Left:
-                            return 0;// (defGuiResolution.X / Program.Window.Width) - 1;
-                        case HorizontalAlignment.Middle:
-                            lineWidth = linesWidth[line];
-                            difference = (rectWidth - startingX) - lineWidth;
-    
-                            return difference / 2;
-                        case HorizontalAlignment.Right:
-                            lineWidth = linesWidth[line];
-                            difference = (rectWidth - startingX) - lineWidth;
-    
-                            return difference;
-                    }
-    
-                    return 0;
-                }
-    
-                float GetYOffset()
-                {
-                    float height = style.FontSize * lines.Count;
-                    float difference;
-                    float resOffset = (defGuiResolution.Y / Program.Window.Height) - 1;
-    
-                    switch (style.VerticalAlignment)
-                    {
-                        case VerticalAlignment.Top:
-                            return 0;
-    
-                        case VerticalAlignment.Middle:
-                            return ((rectHeight - startingY) + height * (sy/scale))/2f;//((size.Height - height) * sy)/2;
-                        case VerticalAlignment.Bottom:
-                            //height = lines.Count * style.Font.FontSize * sy;
-                            //difference = -(rectHeight - startingY) - height;
-    
-                            return -(rectHeight - height) *(sy / scale);
-                    }
-    
-                    return 0;
-                }
-    
-                
-                */
-            }
-
-
         }
     }
 }

@@ -226,6 +226,7 @@ namespace VoxelNet.Rendering.Material
                 }
             }
         }
+
         public void Dispose()
         {
             for (int i = 0; i < textures.Count; i++)
@@ -233,6 +234,11 @@ namespace VoxelNet.Rendering.Material
                 textures[i].Dispose();
             }
             Shader?.Dispose();
+        }
+
+        public void SetUniform(string name, object value)
+        {
+            Shader.SetUniform(name, value);
         }
 
         public void SetTexture(int index, Texture tex)

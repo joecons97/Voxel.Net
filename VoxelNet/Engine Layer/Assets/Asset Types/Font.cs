@@ -37,7 +37,6 @@ namespace VoxelNet
 
         public Texture AtlasTexture { get; private set; }
         public float FontSize { get; } = FONT_SIZE;
-
         public float LineHeight { get; private set; }
 
         private Face fntFace;
