@@ -7,11 +7,11 @@ using OpenTK;
 
 namespace VoxelNet.Rendering
 {
-    public class VertexBlockContainerContainer : VertexContainer
+    public class VertexBlockContainer : VertexContainer
     {
-        public override int[] ElementCount => new[] {3, 2, 3, 2, 4};//, 1};
+        public override int[] ElementCount => new[] {3, 2, 3, 2, 4, 1};
 
-        public VertexBlockContainerContainer(Vector3[] positions, Vector2[] uvs, Vector3[] normals, Vector2[] uv2, Vector4[] col)//, float[] lighting)
+        public VertexBlockContainer(Vector3[] positions, Vector2[] uvs, Vector3[] normals, Vector2[] uv2, Vector4[] col, float[] lighting)
         {
             if (positions.Length != uvs.Length)
                 Debug.Assert("Vertex position array is not of the same length as vertex UV array!");
@@ -40,7 +40,7 @@ namespace VoxelNet.Rendering
                 elements.Add(col[index].Z);
                 elements.Add(col[index].W);
 
-                //elements.Add(lighting[index]);
+                elements.Add(lighting[index]);
 
                 index++;
             }

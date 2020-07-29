@@ -249,7 +249,7 @@
     <Compile Include="Engine Layer\Rendering\Buffers\VertexBuffer.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Texture.cs" />
     <Compile Include="Engine Layer\Rendering\Vertex\VertexContainer.cs" />
-    <Compile Include="Engine Layer\Rendering\Vertex\VertexBlockContainerContainer.cs" />
+    <Compile Include="Engine Layer\Rendering\Vertex\VertexBlockContainer.cs" />
     <Compile Include="Engine Layer\Rendering\Vertex\VertexNormalContainer.cs" />
     <Compile Include="Engine Layer\Rendering\DrawElementsCmd.cs" />
     <Compile Include="Misc\Extensions.cs" />

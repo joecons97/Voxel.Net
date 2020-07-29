@@ -69,7 +69,7 @@ void main()
 	//if (v_Light < 0.95)
 	//	sunColour =	vec4(1);
 
-	vec4 pxLight = (sunColour*1);// v_Light);
+	vec4 pxLight = (sunColour*v_Light);
 
 	if (v_TexCoord2 != vec2(-1, -1))
 	{

@@ -18,75 +18,27 @@ namespace VoxelNet
     {
         public class BlockState
         {
-            public const float LIGHTUNIT = 0.0625f;
+            public const float LIGHTUNIT = 1f/16f;
 
-            //public Chunk owner;
             public short id;
-            //public byte x;
-            //public byte y;
-            //public byte z;
-            //private byte lightStrength;
-
-            //BlockState[] neighbours = new BlockState[6];
+            public byte x;
+            public byte y;
+            public byte z;
+            private byte lightStrength = 15;
 
             public BlockState(byte x, byte y, byte z, Chunk chunk)
             {
-                //this.x = x;
-                //this.y = y;
-                //this.z = z;
-                //this.owner = chunk;
+                this.x = x;
+                this.y = y;
+                this.z = z;
             }
-
-            /*public BlockState GetNeighbour(int neighbour)
-            {
-                if (neighbours[neighbour] == null)
-                {
-                    var offset = owner.faceCheckOffsets[neighbour];
-                    var X = (int) (offset.X + x);
-                    var Y = (int)(offset.Y + y);
-                    var Z = (int)(offset.Z + z);
-                    neighbours[neighbour] = owner.GetBlockState(X, Y, Z);
-                }
-
-                return neighbours[neighbour];
-            }
-            */
 
             public byte LightStrength
             {
                 get { return lightStrength;}
                 set
                 {
-                    float oldVal = lightStrength;
                     lightStrength = value;
-
-                    /*if (lightStrength < oldVal)
-                    {
-                        List<int> neighbousToDarken = new List<int>();
-                        for (int p = 0; p < 6; p++)
-                        {
-                            if(GetNeighbour(p) != null)
-                            {
-                                if (GetNeighbour(p).LightStrength < oldVal - LIGHTUNIT)
-                                {
-                                    neighbousToDarken.Add(p);
-                                }
-                                else
-                                {
-                                    owner.PropagateBlockState(GetNeighbour(p));
-                                }
-                            }
-                        }
-
-                        for (int i = 0; i < neighbousToDarken.Count; i++)
-                        {
-                            GetNeighbour(i).LightStrength = 0;
-                        }
-
-                    }
-                    else if(lightStrength > LIGHTUNIT)
-                        owner.PropagateBlockState(this);
-                    */
                 }
             }
         }
@@ -137,8 +89,8 @@ namespace VoxelNet
         };
 
         #region MeshData
-        private VertexBlockContainerContainer blockContainer;
-        VertexNormalContainer waterContainer;
+        private VertexBlockContainer blockContainer;
+        private VertexNormalContainer waterContainer;
 
         private uint[] indices;
         private uint[] indicesWater;
@@ -246,15 +198,15 @@ namespace VoxelNet
 
                 if (isObstructed)
                 {
-                    state.LightStrength = 0;
+                    state.LightStrength = 1;
                 }
                 else if (state.id != 0 && !BlockDatabase.GetBlock(state.id).IsTransparent)
                 {
-                    state.LightStrength = 0;
+                    state.LightStrength = 1;
                     isObstructed = true;
                 }
                 else
-                    state.LightStrength = 1;
+                    state.LightStrength = 15;
             }
         }
 
@@ -635,7 +587,6 @@ namespace VoxelNet
                 indexCount += 4;
             }
 
-
             void AddFrontFaceWater(int x, int y, int z)
             {
                 verticesWater.Add(new Vector3(1 + x, 1 + y, 1 + z));
@@ -804,12 +755,13 @@ namespace VoxelNet
                 indexCountWater += 4;
             }
 
-            blockContainer = new VertexBlockContainerContainer(vertices.ToArray(), uvs.ToArray(), normals.ToArray(), uv2.ToArray(), col.ToArray());
+            blockContainer = new VertexBlockContainer(vertices.ToArray(), uvs.ToArray(), normals.ToArray(), uv2.ToArray(), col.ToArray(), light.ToArray());
             vertices.Clear();
             uvs.Clear();
             normals.Clear();
             uv2.Clear();
             col.Clear();
+            light.Clear();
 
             waterContainer = new VertexNormalContainer(verticesWater.ToArray(), uvsWater.ToArray(), normalsWater.ToArray());
             verticesWater.Clear();
@@ -975,10 +927,10 @@ namespace VoxelNet
             if (y < 0 || y > HEIGHT - 1)
                 return 0;
 
-            return Blocks[x, y, z].LightStrength;
+            return BlockState.LIGHTUNIT*(float)Blocks[x, y, z].LightStrength;
         }
 
-        public void SetBlockLight(int x, int y, int z, float light)
+        public void SetBlockLight(int x, int y, int z, byte light)
         {
             if (x <= -1)
             {
@@ -1001,7 +953,7 @@ namespace VoxelNet
                     FrontNeighbour.SetBlockLight(x, y, z - WIDTH, light);
             }
             else if (!(y < 0 || y > HEIGHT - 1) && Blocks[x, y, z] != null)
-                Blocks[x, y, z].LightStrength = 1;
+                Blocks[x, y, z].LightStrength = light;
         }
 
         public void PlaceBlock(int x, int y, int z, Block block, bool updateChunk = true)
@@ -1038,6 +990,18 @@ namespace VoxelNet
                 if (updateChunk)
                 {
                     World.GetInstance().RequestChunkUpdate(this);
+
+                    if (x == 0 && LeftNeighbour != null)
+                        World.GetInstance().RequestChunkUpdate(LeftNeighbour, true);
+
+                    if (x == WIDTH - 1 && RightNeighbour != null)
+                        World.GetInstance().RequestChunkUpdate(RightNeighbour, true);
+
+                    if (z == 0 && BackNeighbour != null)
+                        World.GetInstance().RequestChunkUpdate(BackNeighbour, true);
+
+                    if (z == WIDTH - 1 && FrontNeighbour != null)
+                        World.GetInstance().RequestChunkUpdate(FrontNeighbour, true);
                 }
             }
         }

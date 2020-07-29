@@ -15,6 +15,7 @@ namespace VoxelNet.Blocks
         public virtual string Key { get; set; } = "NULL";
         public int ID { get; set; } = -1;
         public virtual GetBlockColor BlockColor { get; set; } = (x, y, z) => Color4.White;
+        public virtual byte Opacity { get; set; } = 15;
         public virtual bool IsTransparent { get; set; } = false; 
         public virtual bool TransparencyCullsSelf { get; set; } = false;
         public virtual Shape CollisionShape { get; set; } = new BoundingBox(0,1,0,1,0,1);

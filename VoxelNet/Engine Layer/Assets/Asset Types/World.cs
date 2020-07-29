@@ -115,22 +115,29 @@ namespace VoxelNet.Assets
             ThreadStart chunkThreadStart = ChunkThread;
             Thread chunkThread = new Thread(chunkThreadStart) {Name = "Chunk Generation Thread"};
             chunkThread.Start();
-            //Check for custom texture pack
         }
 
         void ChunkThread()
         {
             while (Program.IsRunning)
             {
-                if (chunksToUpdate.First != null)
+                try
                 {
-                    Chunk chunk = chunksToUpdate.First.Value;
-                    chunksToUpdate.Remove(chunk);
-                    lock (chunk)
+                    if (chunksToUpdate.First != null)
                     {
-                        chunk.CalculateNaturalLight();
-                        chunk.GenerateMesh();
+                        Chunk chunk = chunksToUpdate.First.Value;
+                        chunksToUpdate.Remove(chunk);
+                        lock (chunk)
+                        {
+                            chunk.CalculateNaturalLight();
+                            chunk.GenerateMesh();
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log("There was an error in the chunk thread - probably an sync error", DebugLevel.Error);
+                    Debug.Log(ex.Message + ": " + ex.Source + " - " + ex.StackTrace, DebugLevel.Error);
                 }
             }
         }

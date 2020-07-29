@@ -187,12 +187,14 @@ namespace VoxelNet.Entities
 
         public override void RenderGUI()
         {
-            var rect = new Rect(8, 8, 512, 32);
+            var rect = new Rect(8, 8, 1024, 32);
             GUI.Label($"{(int)Time.FramesPerSecond}fps", rect);
             rect.Y += 32f;
             GUI.Label($"Clipped: {Renderer.ClippedCount}", rect);
             rect.Y += 32f;
             GUI.Label($"Chunks loaded: {World.GetInstance().GetLoadedChunks().Length}", rect);
+            rect.Y += 32f;
+            GUI.Label($"Loc in chunk: {GetPositionInChunk()}", rect);
 
             GUI.Image(currentWorld.TexturePack.Crosshair, new Rect((Program.Window.Width / 2) - 16, (Program.Window.Height / 2) - 16, 32, 32));
             inventory.RenderToolBar();
