@@ -96,6 +96,14 @@ namespace VoxelNet.Rendering
             }
         }
 
+        public void BindUniform(string name)
+        {
+            if (uniforms.TryGetValue(name, out Uniform uniform))
+            {
+                uniform.Bind();
+            }
+        }
+
         public Uniform GetUniform(string name)
         {
             if (ContainsUniform(name))

@@ -33,6 +33,8 @@ namespace VoxelNet.Containers
 
         public Vector2 LocationInContainer { get; set; }
 
+        public Container PreviousParent { get; set; }
+
         public ItemStack() { }
         public ItemStack(Item item, Vector2 location)
         {

@@ -14,7 +14,7 @@ namespace VoxelNet
             DIRT = new BlockItem(GameBlocks.DIRT);
             GRASS = new BlockItem(GameBlocks.GRASS);
             STONE = new BlockItem(GameBlocks.STONE);
-            SAND = new BlockItem(GameBlocks.STONE);
+            SAND = new BlockItem(GameBlocks.SAND);
             LOG_OAK = new BlockItem(GameBlocks.LOG_OAK);
         }
 

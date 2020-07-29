@@ -12,7 +12,7 @@ namespace VoxelNet.PostProcessing
         FrameBufferObject fbo = new FrameBufferObject((int)((float)Program.Window.Width / 4), (int)((float)Program.Window.Height / 4), FBOType.DepthRenderBuffer);
 
         public int BlurIterations { get; set; } = 5;
-        public float BrightnessCutoff { get; set; } = 1.2f;
+        public float BrightnessCutoff { get; set; } = .8f;
         public float BloomStrength { get; set; } = .009f;
 
         public override void Render(FrameBufferObject src)

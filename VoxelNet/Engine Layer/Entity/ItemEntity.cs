@@ -1,6 +1,7 @@
 ﻿using System;
 using OpenTK;
 using VoxelNet.Assets;
+using VoxelNet.Entities;
 using VoxelNet.Misc;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
@@ -47,6 +48,7 @@ namespace VoxelNet
                 if (dist < 0.5f)
                 {
                     //Add to inventory
+                    World.GetInstance().GetPlayer().GetInventory().AddItem(item);
                     World.GetInstance().DestroyEntity(this);
                 }
             }

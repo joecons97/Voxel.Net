@@ -27,7 +27,7 @@ namespace VoxelNet.Rendering
         /// Use AssetData.GetAsset instead!
         /// </summary>
         /// <param name="file"></param>
-        public Texture(string file, bool srgb = true)
+        public Texture(string file, bool srgb = true, bool mips = true)
         {
             Image<Rgba32> img = Image.Load(File.ReadAllBytes(file));
             Width = img.Width;
@@ -48,20 +48,21 @@ namespace VoxelNet.Rendering
             Handle = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, Handle);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, srgb ? PixelInternalFormat.Srgb8Alpha8 : PixelInternalFormat.Rgba8, img.Width, img.Height, 
                 0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
 
-            //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            if(mips)
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
-        public Texture(MemoryStream file, bool srgb = true)
+        public Texture(MemoryStream file, bool srgb = true, bool mips = true)
         {
             Image<Rgba32> img = Image.Load(file.GetBuffer());
             Width = img.Width;
@@ -82,16 +83,17 @@ namespace VoxelNet.Rendering
             Handle = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, Handle);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, srgb ? PixelInternalFormat.Srgb8Alpha8 : PixelInternalFormat.Rgba8, img.Width, img.Height,
                 0, PixelFormat.Rgba, PixelType.UnsignedByte, bytePixels.ToArray());
 
-            //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            if (mips)
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
@@ -102,8 +104,8 @@ namespace VoxelNet.Rendering
 
             GL.BindTexture(TextureTarget.Texture2D, Handle);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
@@ -157,14 +159,14 @@ namespace VoxelNet.Rendering
                 var entry = pack[path];
                 MemoryStream outputStream = new MemoryStream();
                 entry.Extract(outputStream);
-                Texture texture = new Texture(outputStream, srgb);
+                Texture texture = new Texture(outputStream, srgb, srgb);
                 Debug.Log("Loaded texture from pack");
                 return texture;
             }
             else
             {
                 Debug.Log("Loaded texture from file");
-                Texture texture = new Texture(path, srgb);
+                Texture texture = new Texture(path, srgb, srgb);
                 return texture;
             }
         }

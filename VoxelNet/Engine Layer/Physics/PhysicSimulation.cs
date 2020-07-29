@@ -9,6 +9,7 @@ namespace VoxelNet.Physics
 {
     public static class PhysicSimulation
     {
+        public static float FixedTimeStep = 0.02f;
         public static Vector3 Gravity = new Vector3(0, -25, 0);
         private static List<Rigidbody> rigidbodies = new List<Rigidbody>();
 
@@ -22,7 +23,7 @@ namespace VoxelNet.Physics
             rigidbodies.Remove(body);
         }
 
-        public static void Simulate(float deltaTime)
+        public static void Simulate()
         {
             for (int i = 0; i < rigidbodies.Count; i++)
             {
@@ -31,7 +32,7 @@ namespace VoxelNet.Physics
                 var normVelocity = body.Velocity.Normalized();
                 for (int c = 0; c < body.GetCollisionShapes().Length; c++)
                 {
-                    body.Velocity += Gravity * deltaTime;
+                    body.Velocity += Gravity * FixedTimeStep;
 
                     if (body.Velocity.X != 0)
                     {
@@ -66,9 +67,9 @@ namespace VoxelNet.Physics
                     }
                 }
 
-                body.Velocity *= 1 / (1 + body.Drag * deltaTime);//*= MathHelper.Clamp(1f - body.Drag * deltaTime, 0, 1);
+                body.Velocity *= 1 / (1 + body.Drag * FixedTimeStep);//*= MathHelper.Clamp(1f - body.Drag * deltaTime, 0, 1);
 
-                body.Owner.Position += body.Velocity * deltaTime;
+                body.Owner.Position += body.Velocity * FixedTimeStep;
             }
         }
     }

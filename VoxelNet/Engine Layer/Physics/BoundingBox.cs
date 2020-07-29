@@ -45,12 +45,12 @@ namespace VoxelNet.Physics
         {
             if (shape is BoundingBox box)
             {
-                return (offset.X + Min.X < body.Owner.Position.X + box.Max.X &&
-                        offset.X + Max.X > body.Owner.Position.X + box.Min.X &&
-                        offset.Y + Min.Y < body.Owner.Position.Y + box.Max.Y &&
-                        offset.Y + Max.Y > body.Owner.Position.Y + box.Min.Y &&
-                        offset.Z + Min.Z < body.Owner.Position.Z + box.Max.Z &&
-                        offset.Z + Max.Z > body.Owner.Position.Z + box.Min.Z);
+                return (offset.X + Min.X <= body.Owner.Position.X + box.Max.X &&
+                        offset.X + Max.X >= body.Owner.Position.X + box.Min.X &&
+                        offset.Y + Min.Y <= body.Owner.Position.Y + box.Max.Y &&
+                        offset.Y + Max.Y >= body.Owner.Position.Y + box.Min.Y &&
+                        offset.Z + Min.Z <= body.Owner.Position.Z + box.Max.Z &&
+                        offset.Z + Max.Z >= body.Owner.Position.Z + box.Min.Z);
             }
 
             return false;
@@ -58,12 +58,12 @@ namespace VoxelNet.Physics
 
         public override bool IntersectsForcedOffset(Vector3 offset, Vector3 position)
         {
-            return (offset.X + Min.X < position.X &&
-                    offset.X + Max.X > position.X &&
-                    offset.Y + Min.Y < position.Y &&
-                    offset.Y + Max.Y > position.Y &&
-                    offset.Z + Min.Z < position.Z &&
-                    offset.Z + Max.Z > position.Z);
+            return (offset.X + Min.X <= position.X &&
+                    offset.X + Max.X >= position.X &&
+                    offset.Y + Min.Y <= position.Y &&
+                    offset.Y + Max.Y >= position.Y &&
+                    offset.Z + Min.Z <= position.Z &&
+                    offset.Z + Max.Z >= position.Z);
         }
 
         public override bool IntersectsWorld(Rigidbody body)

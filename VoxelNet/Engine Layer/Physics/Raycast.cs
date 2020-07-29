@@ -22,7 +22,7 @@ namespace VoxelNet.Physics
 
     public static class Raycast
     {
-        private const float stepSize = 0.1f;
+        private const float stepSize = 0.125f;
 
         public static bool CastVoxel(Vector3 position, Vector3 direction, float distance, out RayVoxelOut output)
         {
@@ -45,6 +45,7 @@ namespace VoxelNet.Physics
                     if (possibleBlock?.CollisionShape != null)
                     {
                         var blockPos = (chunkPos * Chunk.WIDTH) + pos;
+                        //var flooredCurPos = new Vector3((float)Math.Floor(curPos.X), (float)Math.Floor(curPos.Y), (float)Math.Floor(curPos.Z));
                         if (possibleBlock.CollisionShape.IntersectsForcedOffset(blockPos, curPos))
                         {
                             op.BlockID = (short) possibleBlock.ID;

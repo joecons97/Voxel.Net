@@ -25,6 +25,11 @@ namespace VoxelNet
             
         }
 
+        public virtual void OnInteract(Vector3 position, Chunk chunk)
+        {
+
+        }
+
         protected void GenerateGraphics()
         {
             Icon = AssetDatabase.GetAsset<Texture>(IconLocation);

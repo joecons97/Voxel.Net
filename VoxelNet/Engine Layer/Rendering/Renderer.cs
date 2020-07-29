@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using VoxelNet.Assets;
 using VoxelNet.Buffers;
-using VoxelNet.Physics;
 
 namespace VoxelNet.Rendering
 {
@@ -17,20 +12,18 @@ namespace VoxelNet.Rendering
         public static int DrawCalls { get; set; }
         public static int ClippedCount { get; set; }
 
-        static List<QueuedDraw> drawQueue = new List<QueuedDraw>();
+        static OrderedDictionary drawQueue = new OrderedDictionary();
 
         static FrameBufferObject fbo = new FrameBufferObject(Program.Window.Width, Program.Window.Height, FBOType.DepthTexture);
         public static FrameBufferObject FrameBuffer { get; private set; }= new FrameBufferObject(Program.Window.Width, Program.Window.Height, FBOType.DepthTexture);
 
-        static Vector3[] meshPoses = new[] { new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0) };
-        static Vector2[] meshUvs = new[] { new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0), new Vector2(1, 1) };
+        static Vector3[] meshPoses = { new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, -1, 0), new Vector3(1, 1, 0) };
+        static Vector2[] meshUvs = { new Vector2(0, 0), new Vector2(0, 1), new Vector2(1, 0), new Vector2(1, 1) };
 
         public static Mesh BlitMesh = new Mesh(new VertexContainer(meshPoses, meshUvs), new uint[] { 1, 2, 0, 3, 2, 1 });
 
         private static Material.Material FBOMaterial =
             AssetDatabase.GetAsset<Material.Material>("Resources/Materials/FBO.mat");
-
-        private static FrameBufferObject pass1Fbo = null;
 
         static Renderer()
         {
@@ -58,22 +51,44 @@ namespace VoxelNet.Rendering
             if (material == null)
                 material = AssetDatabase.GetAsset<Material.Material>("Resources/Materials/Fallback.mat");
 
-            if (material.Shader.IsTransparent)
+            if (drawQueue.Contains(material.Name))
             {
-                drawQueue.Add(new QueuedDraw()
+                var batch = (BatchDraw)drawQueue[material.Name];
+                batch.draws.Add(new QueuedDraw()
                 {
                     mesh = mesh,
-                    material = material,
                     worldMatrix = worldMatrix
+                });
+
+            }
+            else if (material.Shader.IsTransparent)
+            {
+                drawQueue.Add(material.Name, new BatchDraw()
+                {
+                    draws = new List<QueuedDraw>()
+                    {
+                        new QueuedDraw()
+                        {
+                            mesh = mesh,
+                            worldMatrix = worldMatrix
+                        }
+                    },
+                    material = material,
                 });
             }
             else
             {
-                drawQueue.Insert(0, new QueuedDraw()
+                drawQueue.Insert(0, material.Name, new BatchDraw()
                 {
-                    mesh = mesh,
+                    draws = new List<QueuedDraw>()
+                    {
+                        new QueuedDraw()
+                        {
+                            mesh = mesh,
+                            worldMatrix = worldMatrix
+                        }
+                    },
                     material = material,
-                    worldMatrix = worldMatrix
                 });
             }
             DrawCalls = drawQueue.Count;
@@ -90,10 +105,8 @@ namespace VoxelNet.Rendering
             if (worldMatrix != default)
                 material.Shader.SetUniform("u_World", worldMatrix);
 
-            material.Bind();
-
             UniformBuffers.BindAll(material.Shader.Handle);
-
+            material.Bind();
             mesh.VertexArray.Bind();
             mesh.IndexBuffer.Bind();
 
@@ -108,32 +121,24 @@ namespace VoxelNet.Rendering
         public static void DrawQueue()
         {
             FrameBuffer.Bind();
-
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
             FrameBuffer.Unbind();
 
             fbo.Bind();
-
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
             fbo.Unbind();
 
             for (int i = 0; i < drawQueue.Count; i++)
             {
                 bool isLast = i == drawQueue.Count - 1;
-                bool isSecondToLast = i == drawQueue.Count - 2;
-                bool renderToFBO = true;
                 bool drawFBO = false;
 
-                /*if(isLast || isSecondToLast)
-                {
-                    drawFBO = true;
-                }
-                else*/
+                var call = (BatchDraw) drawQueue[i];
+
                 if (!isLast)
                 {
-                    if (!drawQueue[i].material.Shader.IsTransparent && drawQueue[i + 1].material.Shader.IsTransparent)
+                    var callPlusOne = (BatchDraw)drawQueue[i + 1];
+                    if (!call.material.Shader.IsTransparent && callPlusOne.material.Shader.IsTransparent)
                     {
                         drawFBO = true;
                     }
@@ -141,47 +146,60 @@ namespace VoxelNet.Rendering
                 else
                     drawFBO = true;
 
-                if (drawQueue[i].worldMatrix != default)
-                    drawQueue[i].material.Shader.SetUniform("u_World", drawQueue[i].worldMatrix);
-
                 //Try to set this...
-                drawQueue[i].material.Bind();
+                call.material.Bind();
+                UniformBuffers.BindAll(call.material.Shader.Handle);
 
-                UniformBuffers.BindAll(drawQueue[i].material.Shader.Handle);
-
-                drawQueue[i].mesh.VertexArray.Bind();
-                drawQueue[i].mesh.IndexBuffer.Bind();
-
-                if (drawQueue[i].material.Shader.IsTransparent)
+                for (int j = 0; j < call.draws.Count; j++)
                 {
-                    if (drawQueue[i].material.Shader.ContainsUniform("u_Src"))
+                    if (call.draws[j].worldMatrix != default)
                     {
-                        drawQueue[i].material
-                            .SetScreenSourceTexture("u_Src", fbo.ColorHandle,
-                                1); //.Shader.SetUniform("u_Src", FrameBuffer.ColorHandle);
+                        call.material.Shader.SetUniform("u_World", call.draws[j].worldMatrix);
+                        call.material.Shader.BindUniform("u_World");
                     }
 
-                    if (drawQueue[i].material.Shader.ContainsUniform("u_Depth"))
-                    {
-                        drawQueue[i].material
-                            .SetScreenSourceTexture("u_Depth", fbo.DepthHandle,
-                                2); //.Shader.SetUniform("u_Src", FrameBuffer.ColorHandle);
-                    }
-                }
+                    call.draws[j].mesh.VertexArray.Bind();
+                    call.draws[j].mesh.IndexBuffer.Bind();
 
-                if (renderToFBO)
-                {
+                    if (call.material.Shader.IsTransparent)
+                    {
+                        if (call.material.Shader.ContainsUniform("u_Src"))
+                        {
+                            call.material.SetScreenSourceTexture("u_Src", fbo.ColorHandle, 1);
+                            call.material.Shader.BindUniform("u_Src");
+                        }
+
+                        if (call.material.Shader.ContainsUniform("u_Depth"))
+                        {
+                            call.material.SetScreenSourceTexture("u_Depth", fbo.DepthHandle, 2);
+                            call.material.Shader.BindUniform("u_Depth");
+                        }
+                    }
+
                     FrameBuffer.Bind();
+
+                    try
+                    {
+                        var length = call.draws[j].mesh.IndexBuffer.Length;
+                        GL.DrawElements(PrimitiveType.Triangles, length,
+                            DrawElementsType.UnsignedInt, 0);
+                    }
+                    catch
+                    {
+                        Debug.Log("Error when trying to render an object");
+                    }
+
+                    call.draws[j].mesh.VertexArray.Unbind();
+                    call.draws[j].mesh.IndexBuffer.Unbind();
+                    FrameBuffer.Unbind();
                 }
+                call.draws.Clear();
 
-                GL.DrawElements(PrimitiveType.Triangles, drawQueue[i].mesh.IndexBuffer.Length, DrawElementsType.UnsignedInt, 0);
-
-                drawQueue[i].mesh.VertexArray.Unbind();
-                drawQueue[i].mesh.IndexBuffer.Unbind();
-                drawQueue[i].material.Unbind();
-                UniformBuffers.UnbindAll();
-
-                FrameBuffer.Unbind();
+                if (isLast)
+                {
+                    UniformBuffers.UnbindAll();
+                    call.material.Unbind();
+                }
 
                 if (drawFBO)
                 {
@@ -206,10 +224,15 @@ namespace VoxelNet.Rendering
             drawQueue.Clear();
         }
 
+        struct BatchDraw
+        {
+            public List<QueuedDraw> draws;
+            public Material.Material material;
+        }
+
         struct QueuedDraw
         {
             public Mesh mesh;
-            public Material.Material material;
             public Matrix4 worldMatrix;
         }
     }

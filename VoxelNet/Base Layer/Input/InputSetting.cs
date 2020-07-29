@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using OpenTK.Input;
 
 namespace VoxelNet.Input
@@ -13,7 +14,9 @@ namespace VoxelNet.Input
         public Interaction Main;
         public Interaction Alt;
 
+        [JsonIgnore]
         public Action KeyDown;
+        [JsonIgnore]
         public Action KeyUp;
 
         public InputSetting(string name, Interaction main)

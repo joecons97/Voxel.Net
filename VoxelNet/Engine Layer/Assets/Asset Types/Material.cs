@@ -13,7 +13,9 @@ namespace VoxelNet.Rendering.Material
 {
     public class Material : IImportable, IDisposable
     {
+        public string Name { get; private set; }
         public Shader Shader { get; private set; }
+        public bool UseMultiDraw { get; private set; }
 
         List<Texture> textures = new List<Texture>();
 
@@ -23,8 +25,9 @@ namespace VoxelNet.Rendering.Material
         /// Use AssetData.GetAsset instead!
         /// </summary>
         /// <param name="file"></param>
-        public Material(string file)
+        public Material(string file, string matName)
         {
+            Name = matName;
             var lines = File.ReadAllLines(file);
 
             string shader = "";
@@ -48,6 +51,11 @@ namespace VoxelNet.Rendering.Material
                 {
                     var split = line.Split(' ');
                     uniforms.Add(split);
+                }
+                else if (line.StartsWith("useMultiDraw"))
+                {
+                    var split = line.Split(' ')[1];
+                    UseMultiDraw = split == "true";
                 }
             }
 
@@ -126,8 +134,9 @@ namespace VoxelNet.Rendering.Material
                 }
             }
         }
-        public Material(string[] lines)
+        public Material(string[] lines, string matName)
         {
+            Name = matName;
             string shader = "";
             List<string[]> uniforms = new List<string[]>();
 
@@ -149,6 +158,11 @@ namespace VoxelNet.Rendering.Material
                 {
                     var split = line.Split(' ');
                     uniforms.Add(split);
+                }
+                else if (line.StartsWith("useMultiDraw"))
+                {
+                    var split = line.Split(' ')[1];
+                    UseMultiDraw = split == "true";
                 }
             }
 
@@ -293,11 +307,11 @@ namespace VoxelNet.Rendering.Material
                     lines[i] = lines[i].Trim('\r');
                 }
                 Debug.Log("Loaded material from pack");
-                return new Material(lines);
+                return new Material(lines, Path.GetFileName(path));
             }
 
             Debug.Log("Loaded material from file");
-            return new Material(path);
+            return new Material(path, Path.GetFileName(path));
         }
     }
 }

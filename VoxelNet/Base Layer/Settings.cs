@@ -38,7 +38,6 @@ namespace VoxelNet
             RefreshRate = res.RefreshRate;
             BitsPerPixel = res.BitsPerPixel;
 
-            Program.Window.WindowState = Fullscreen ? OpenTK.WindowState.Fullscreen : OpenTK.WindowState.Normal;
             Program.Window.ClientSize = new System.Drawing.Size(WindowWidth, WindowHeight);
             Program.Window.ClientRectangle = new System.Drawing.Rectangle(0, 0, WindowWidth, WindowHeight);
 
@@ -46,6 +45,8 @@ namespace VoxelNet
                 DisplayDevice.GetDisplay(DisplayIndex.Default).ChangeResolution(res);
             else
                 DisplayDevice.GetDisplay(DisplayIndex.Default).RestoreResolution();
+
+            Program.Window.WindowState = Fullscreen ? OpenTK.WindowState.Fullscreen : OpenTK.WindowState.Normal;
 
             Save();
         }

@@ -1,6 +1,6 @@
 #define PI 3.141592
-#define iSteps 16
-#define jSteps 8
+#define iSteps 2
+#define jSteps 1
 
 vec2 rsi(vec3 r0, vec3 rd, float sr) {
     // ray-sphere intersection that assumes

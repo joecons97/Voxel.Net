@@ -40,7 +40,7 @@ namespace VoxelNet
         {
             var chunkPos = ToChunkPosition(vec) * Chunk.WIDTH;
 
-            return vec - chunkPos;
+            return (vec - chunkPos);
         }
 
         public static Vector3 ToChunkSpaceFloored(this Vector3 vec)

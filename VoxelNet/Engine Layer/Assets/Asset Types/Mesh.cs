@@ -13,11 +13,14 @@ namespace VoxelNet.Rendering
 {
     public class Mesh : IImportable, IDisposable
     {
-        public IndexBuffer IndexBuffer {get; private set; }
-        public VertexBuffer VertexBuffer { get; private set; }
-        public VertexArray VertexArray { get; private set; }
+        public IndexBuffer IndexBuffer {get; }
+        public VertexBuffer VertexBuffer { get; }
+        public VertexArray VertexArray { get; }
 
-        public BoundingBox Bounds { get; private set; }
+        public VertexContainer VertexContainer { get; }
+        public uint[] Indices { get; }
+
+        public BoundingBox Bounds { get; }
 
         //Material...
         public Mesh() { }
@@ -35,6 +38,9 @@ namespace VoxelNet.Rendering
             IndexBuffer = new IndexBuffer(indices);
 
             Bounds = verticesContainer.GetBoundingBox();
+
+            VertexContainer = verticesContainer;
+            Indices = indices;
         }
 
         public void Dispose()

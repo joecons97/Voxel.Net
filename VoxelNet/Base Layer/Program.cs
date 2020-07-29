@@ -12,20 +12,25 @@ namespace VoxelNet
         public static Settings Settings;
         public static Window Window { get; private set; }
 
+        public static bool IsRunning;
+
         [STAThread]
         static void Main()
         {
 
             try
             {
+                IsRunning = true;
                 LoadSettings();
                 using (Window = new Window(Settings.WindowWidth, Settings.WindowHeight, PROGRAMTITLE))
                 {
                     Window.Run();
                 }
+                IsRunning = false;
             }
             catch(Exception ex)
             {
+                IsRunning = false;
                 MessageBox.Show(ex.Message + " " + ex.StackTrace, "Fatal Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

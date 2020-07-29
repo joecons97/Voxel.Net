@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Ionic.Zip;
 using Newtonsoft.Json;
 using OpenTK;
@@ -28,6 +29,8 @@ namespace VoxelNet.Assets
         public OpenSimplex TerrainNoise { get; private set; }
         public CellNoise BiomeNoise { get; private set; }
         public float WaterHeight { get; }
+
+        private Player player;
 
         List<Entity> loadedEntities = new List<Entity>();
         List<Chunk> loadedChunks = new List<Chunk>();
@@ -79,7 +82,9 @@ namespace VoxelNet.Assets
             Seed = seed;
             WaterHeight = 30;
 
-            loadedEntities.Add(new Player());
+            player = new Player();
+
+            loadedEntities.Add(player);
 
             Begin();
         }
@@ -107,12 +112,43 @@ namespace VoxelNet.Assets
                 entity.Begin();
             }
 
+            ThreadStart chunkThreadStart = ChunkThread;
+            Thread chunkThread = new Thread(chunkThreadStart) {Name = "Chunk Generation Thread"};
+            chunkThread.Start();
             //Check for custom texture pack
         }
 
-        public void RequestChunkUpdate(Chunk chunk)
+        void ChunkThread()
         {
-            chunksToUpdate.AddFirst(chunk);
+            while (Program.IsRunning)
+            {
+                if (chunksToUpdate.First != null)
+                {
+                    Chunk chunk = chunksToUpdate.First.Value;
+                    chunksToUpdate.Remove(chunk);
+                    lock (chunk)
+                    {
+                        chunk.CalculateNaturalLight();
+                        chunk.GenerateMesh();
+                    }
+                }
+            }
+        }
+
+        public void RequestChunkUpdate(Chunk chunk, bool threaded = true)
+        {
+            //lock (chunksToUpdate)
+            //{
+                if (threaded && !chunksToUpdate.Contains(chunk))
+                {
+                    chunksToUpdate.AddFirst(chunk);
+                }
+                else
+                {
+                    chunk.CalculateNaturalLight();
+                    chunk.GenerateMesh();
+                }
+            //}
         }
 
         public bool TryGetChunkAtPosition(int x, int y, out Chunk chunk)
@@ -132,28 +168,12 @@ namespace VoxelNet.Assets
         {
             if (TexturePack == null) return;
 
-            if (chunksToUpdate.Count > 0)
+            for (var index = 0; index < loadedEntities.Count; index++)
             {
-                if (chunksToUpdate.First.Value.AreAllNeighboursSet)
-                {
-                    Chunk chunk = chunksToUpdate.First.Value;
-                    chunksToUpdate.RemoveFirst();
-                    chunk.GenerateMesh();
-                }
-                else
-                {
-                    Chunk chunk = chunksToUpdate.First.Value;
-                    chunksToUpdate.RemoveFirst();
-                    chunksToUpdate.AddLast(chunk);
-                }
+                loadedEntities[index].Update();
             }
 
-            foreach (var entity in loadedEntities)
-            {
-                entity.Update();
-            }
-
-            float dayInMins = 10f;
+            float dayInMins = 60f;
 
             lightAngle += Time.DeltaTime * (6f/dayInMins);
 
@@ -168,11 +188,11 @@ namespace VoxelNet.Assets
 
             lightBufferData.SunStrength = t;
 
-            if (float.IsNaN(t))
-                t = .0f;
+            //if (float.IsNaN(t))
+            //    t = .0f;
 
             Vector4 col = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/5f, Color4.DarkSlateGray.ToVector4(), t) / 5;
-            lightBufferData.AmbientColour = new Vector4(col.X, col.Y, col.Z,1);
+            lightBufferData.AmbientColour = col;
 
             UpdateView();
             ClearUpEntities();
@@ -188,9 +208,10 @@ namespace VoxelNet.Assets
                     loadedEntities[index].Destroyed();
                     loadedEntities[index] = null;
                     loadedEntities.RemoveAt(index);
-                    entitiesToDestroy.RemoveAt(i);
                 }
             }
+
+            entitiesToDestroy.Clear();
         }
 
         public void RenderGUI()
@@ -203,8 +224,8 @@ namespace VoxelNet.Assets
 
         void UpdateView()
         {
-            int roundedX = (int)Math.Ceiling(WorldCamera.Position.X / 16) * 16;
-            int roundedZ = (int)Math.Ceiling(WorldCamera.Position.Z / 16) * 16;
+            int roundedX = (int) Math.Floor(WorldCamera.Position.X / 16);//Math.Ceiling(WorldCamera.Position.X / 16) * 16;
+            int roundedZ = (int) Math.Floor(WorldCamera.Position.Z / 16);//Math.Ceiling(WorldCamera.Position.Z / 16) * 16;
 
             if (roundedX != (int)lastPlayerPos.X || roundedZ != (int)lastPlayerPos.Y)
             {
@@ -212,8 +233,8 @@ namespace VoxelNet.Assets
                 {
                     for (int z = -worldSize - 1; z < worldSize; z++)
                     {
-                        int wantedX = x + (roundedX / 16);
-                        int wantedZ = z + (roundedZ / 16);
+                        int wantedX = x + (roundedX);
+                        int wantedZ = z + (roundedZ);
 
                         if (TryGetChunkAtPosition(wantedX, wantedZ, out Chunk oChunk))
                         {
@@ -225,30 +246,48 @@ namespace VoxelNet.Assets
                         newChunks.Add(c.Position);
                         c.GenerateHeightMap();
                         c.FillBlocks();
+
                         if (TryGetChunkAtPosition(wantedX - 1, wantedZ, out oChunk))
                         {
                             c.LeftNeighbour = oChunk;
                             oChunk.RightNeighbour = c;
-                        }
 
+                            if (oChunk.AreAllNeighboursSet)
+                            {
+                                RequestChunkUpdate(oChunk, true);
+                            }
+                        }
                         if (TryGetChunkAtPosition(wantedX + 1, wantedZ, out oChunk))
                         {
                             c.RightNeighbour = oChunk;
                             oChunk.LeftNeighbour = c;
+
+                            if (oChunk.AreAllNeighboursSet)
+                            {
+                                RequestChunkUpdate(oChunk, true);
+                            }
                         }
                         if (TryGetChunkAtPosition(wantedX, wantedZ - 1, out oChunk))
                         {
                             c.BackNeighbour = oChunk;
                             oChunk.FrontNeighbour = c;
-                        }
 
+                            if (oChunk.AreAllNeighboursSet)
+                            {
+                                RequestChunkUpdate(oChunk, true);
+                            }
+                        }
                         if (TryGetChunkAtPosition(wantedX, wantedZ + 1, out oChunk))
                         {
                             c.FrontNeighbour = oChunk;
                             oChunk.BackNeighbour = c;
+
+                            if (oChunk.AreAllNeighboursSet)
+                            {
+                                RequestChunkUpdate(oChunk, true);
+                            }
                         }
                         loadedChunks.Add(c);
-                        RequestChunkUpdate(c);
                     }
                 }
 
@@ -260,34 +299,37 @@ namespace VoxelNet.Assets
 
                     if (chunksToUpdate.Contains(loadedChunks[i]))
                         chunksToUpdate.Remove(loadedChunks[i]);
-                        
-                    loadedChunks[i].Dispose();
-                    loadedChunks.Remove(loadedChunks[i]);
 
+                    var chunk = loadedChunks[i];
+                    loadedChunks.Remove(chunk);
+                    chunk.Dispose();
                 }
-
-                GC.Collect();
 
                 chunksToKeep.Clear();
                 newChunks.Clear();
                 lastPlayerPos = new Vector2(roundedX, roundedZ);
             }
+        }
 
-            
+        public Player GetPlayer()
+        {
+            return player;
         }
 
         public void Render()
         {
             UniformBuffers.DirectionLightBuffer.Update(lightBufferData);
             WorldCamera.Update();
-            foreach (var entity in loadedEntities)
+            for (var index = 0; index < loadedEntities.Count; index++)
             {
-                entity.Render();
+                loadedEntities[index].Render();
             }
-            foreach (var loadedChunk in loadedChunks)
+
+            for (var index = 0; index < loadedChunks.Count; index++)
             {
-                loadedChunk.Render();
+                loadedChunks[index].Render();
             }
+
             Skybox.Render();
         }
 
@@ -329,6 +371,8 @@ namespace VoxelNet.Assets
             {
                 loadedChunk.Dispose();
             }
+            Chunk.ChunkMaterial?.Dispose();
+            Chunk.ChunkWaterMaterial?.Dispose();
             TexturePack?.Dispose();
             Skybox.Dispose();
         }

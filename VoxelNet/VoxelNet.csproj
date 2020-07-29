@@ -69,9 +69,6 @@
     <Reference Include="DotNetZip, Version=1.13.5.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
       <HintPath>..\packages\DotNetZip.1.13.5\lib\net40\DotNetZip.dll</HintPath>
     </Reference>
-    <Reference Include="ImGui.NET, Version=1.72.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ImGui.NET.1.72.0\lib\netstandard2.0\ImGui.NET.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.0.1\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
       <Private>True</Private>
@@ -198,7 +195,6 @@
     <Compile Include="Engine Layer\Chunk\Blocks\OakLogBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\SandBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\GameBlocks.cs" />
-    <Compile Include="Engine Layer\Chunk\Blocks\BlockState.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\LogBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\LeavesBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\LeavesOakBlock.cs" />
@@ -213,6 +209,7 @@
     <Compile Include="Engine Layer\Containers\Container.cs" />
     <Compile Include="Engine Layer\Containers\ContainerRenderer.cs" />
     <Compile Include="Engine Layer\Containers\ItemStack.cs" />
+    <Compile Include="Engine Layer\Containers\PlayerInventory.cs" />
     <Compile Include="Engine Layer\Entity\Entity.cs" />
     <Compile Include="Engine Layer\Entity\ItemEntity.cs" />
     <Compile Include="Engine Layer\Entity\Player.cs" />
@@ -237,7 +234,6 @@
     <Compile Include="Engine Layer\Rendering\Buffers\UniformBuffer.cs" />
     <Compile Include="Engine Layer\Rendering\Camera.cs" />
     <Compile Include="Engine Layer\Rendering\Frustum.cs" />
-    <Compile Include="Engine Layer\Rendering\ImGuiController.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Skybox.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Uniform.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Mesh.cs" />
@@ -253,8 +249,9 @@
     <Compile Include="Engine Layer\Rendering\Buffers\VertexBuffer.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Texture.cs" />
     <Compile Include="Engine Layer\Rendering\Vertex\VertexContainer.cs" />
-    <Compile Include="Engine Layer\Rendering\Vertex\VertexNrmUv2ColContainer.cs" />
+    <Compile Include="Engine Layer\Rendering\Vertex\VertexBlockContainerContainer.cs" />
     <Compile Include="Engine Layer\Rendering\Vertex\VertexNormalContainer.cs" />
+    <Compile Include="Engine Layer\Rendering\DrawElementsCmd.cs" />
     <Compile Include="Misc\Extensions.cs" />
     <Compile Include="Misc\External\Noise.cs" />
     <Compile Include="Misc\External\Noise\CellNoise.cs" />
@@ -378,11 +375,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.Toolset.3.1.0\build\Microsoft.Net.Compilers.Toolset.props'))" />
-    <Error Condition="!Exists('..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets'))" />
     <Error Condition="!Exists('..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.Dependencies.2.6\build\SharpFont.Dependencies.props'))" />
     <Error Condition="!Exists('..\packages\SharpFont.4.0.1\build\SharpFont.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SharpFont.4.0.1\build\SharpFont.props'))" />
   </Target>
-  <Import Project="..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets" Condition="Exists('..\packages\ImGui.NET.1.72.0\build\net40\ImGui.NET.targets')" />
   <PropertyGroup>
   </PropertyGroup>
   <PropertyGroup>

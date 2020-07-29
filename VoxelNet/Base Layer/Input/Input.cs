@@ -19,7 +19,6 @@ namespace VoxelNet.Input
 
         static Input()
         {
-
             Program.Window.KeyDown += (sender, args) =>
             {
                 if (args.IsRepeat)

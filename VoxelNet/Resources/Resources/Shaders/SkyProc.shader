@@ -60,7 +60,9 @@ void main()
     float frac = sunI/moonI;
 
     vec3 skyScatter = atmosphere(rayDir, vec3(0, 6372e3, 0), lightDir, sunI, 6371e3, 6471e3, vec3(5.5e-6, 13.0e-6, 22.4e-6), 21e-6, 8e3, 1.2e3, 0.758);
-    vec3 moonScatter = atmosphere(rayDir, vec3(0, 6372e3, 0), -lightDir, moonI, 6371e3, 6471e3, vec3(5.5e-6, 13.0e-6, 22.4e-6), 21e-6, 8e3, 1.2e3, 0.758);
+    //vec3 moonScatter = atmosphere(rayDir, vec3(0, 6372e3, 0), -lightDir, moonI, 6371e3, 6471e3, vec3(5.5e-6, 13.0e-6, 22.4e-6), 21e-6, 8e3, 1.2e3, 0.758); 
+    //vec3 skyScatter = vec3(0, 0, 1);
+    vec3 moonScatter = vec3(0, 0, 0);
     //skyScatter = 1.0 - exp(-1.0 * skyScatter);
 
     vec3 sun = vec3(MieScatter(-Lighting.SunDirection.rgb, U_SunSize, 50)) * (Lighting.SunColour.rgb);

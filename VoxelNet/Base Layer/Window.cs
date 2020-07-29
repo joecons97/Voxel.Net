@@ -1,5 +1,4 @@
 ﻿using System;
-using ImGuiNet.OpenTK;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -19,10 +18,6 @@ namespace VoxelNet
 {
     public class Window : GameWindow
     {
-        //private World world;
-
-        private ImGuiController guiController;
-
         public Window(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
         }
@@ -37,14 +32,13 @@ namespace VoxelNet
             VSync = VSyncMode.Off;
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
+            GL.Enable(EnableCap.FramebufferSrgb);
 
             GL.Enable(EnableCap.DepthTest);
             GL.ClearColor(.39f, .58f, .92f, 1.0f);
 
             PostProcessingEffects.RegisterEffect(new Bloom());
             PostProcessingEffects.RegisterEffect(new ACESTonemapEffect());
-
-            guiController = new ImGuiController(Width, Height);
 
             AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
 
@@ -61,8 +55,6 @@ namespace VoxelNet
 
             AssetDatabase.Dispose();
 
-            guiController?.Dispose();
-
             UniformBuffers.Dispose();
 
             PostProcessingEffects.Dispose();
@@ -72,58 +64,40 @@ namespace VoxelNet
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            Time.GameTime += (float)e.Time;
+            Time.DeltaTime = (float)e.Time;
+
+            Time.UpdateFrameRate(1f / Time.DeltaTime);
+
             if (Focused)
             {
                 Input.Input.Update();
 
                 KeyboardState kbdState = Keyboard.GetState();
 
-                if (kbdState.IsKeyDown(Key.Escape))
+                if (kbdState.IsKeyDown(Key.F4) && kbdState.IsKeyDown(Key.AltLeft))
                     Exit();
 
                 World.GetInstance()?.Update();
 
-                PhysicSimulation.Simulate(Time.DeltaTime);
+                PhysicSimulation.Simulate();
             }
-
-            Time.GameTime += (float)e.Time;
-            Time.DeltaTime = (float)e.Time;
-
-            Time.UpdateFrameRate(1f / Time.DeltaTime);
 
             UniformBuffers.TimeBuffer.Update(new TimeUniformBuffer(){DeltaTime = Time.DeltaTime, Time = Time.GameTime});
 
             base.OnUpdateFrame(e);
         }
 
-        protected override void OnKeyPress(KeyPressEventArgs e)
-        {
-            guiController.PressChar(e.KeyChar);
-
-            base.OnKeyPress(e);
-        }
-
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            guiController.Update(this, (float)e.Time);
             GUI.NewFrame();
 
             Renderer.ClippedCount = 0;
             Renderer.DrawCalls = 0;
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
-
-            GL.Enable(EnableCap.DepthTest);
 
             World.GetInstance()?.Render();
 
-            PostProcessingEffects.BeginPostProcessing();
-
             Renderer.DrawQueue();
-
-            PostProcessingEffects.EndPostProcessing();
 
             PostProcessingEffects.RenderEffects();
 
@@ -133,8 +107,6 @@ namespace VoxelNet
 
             Input.Input.PostRenderUpdate();
 
-            guiController.Render();
-
             Context.SwapBuffers();
 
             base.OnRenderFrame(e);
@@ -143,7 +115,6 @@ namespace VoxelNet
         protected override void OnResize(EventArgs e)
         {
             GL.Viewport(ClientRectangle);
-            guiController.WindowResized(ClientSize.Width, ClientSize.Height);
             base.OnResize(e);
         }
     }

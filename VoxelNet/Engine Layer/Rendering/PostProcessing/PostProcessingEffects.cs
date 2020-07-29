@@ -30,27 +30,15 @@ namespace VoxelNet.PostProcessing
         {
             if (effects.Count == 0)
                 return;
-
-        }
-
-        public static void EndPostProcessing()
-        {
-            if (effects.Count == 0)
-                return;
-
-            if (effects.Count == 1)
-                GL.Enable(EnableCap.FramebufferSrgb);
-            else
-                GL.Disable(EnableCap.FramebufferSrgb);
-
-            effects[0].PreRender(effects.Count == 1);
-            effects[0].Render(Renderer.FrameBuffer);
-            effects[0].PostRender(effects.Count == 1);
         }
 
         public static void RenderEffects()
         {
             if (effects.Count == 0) return;
+
+            effects[0].PreRender(effects.Count == 1);
+            effects[0].Render(Renderer.FrameBuffer);
+            effects[0].PostRender(effects.Count == 1);
 
             for (var index = 1; index < effects.Count; index++)
             {
