@@ -9,7 +9,7 @@ namespace VoxelNet.Physics
 {
     public static class PhysicSimulation
     {
-        public static float FixedTimeStep = 0.01667f;
+        public static float FixedTimeStep = 0.03333f;
         public static Vector3 Gravity = new Vector3(0, -25, 0);
         private static List<Rigidbody> rigidbodies = new List<Rigidbody>();
         //private static float lastTick = 0;
