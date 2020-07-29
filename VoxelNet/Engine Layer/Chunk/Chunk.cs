@@ -24,8 +24,8 @@ namespace VoxelNet
             public short id;
             //public byte x;
             //public byte y;
-           // public byte z;
-            private byte lightStrength;
+            //public byte z;
+            //private byte lightStrength;
 
             //BlockState[] neighbours = new BlockState[6];
 

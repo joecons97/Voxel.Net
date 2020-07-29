@@ -80,7 +80,7 @@ namespace VoxelNet
 
                 World.GetInstance()?.Update();
 
-                PhysicSimulation.Simulate();
+                PhysicSimulation.Simulate(Time.DeltaTime);
             }
 
             UniformBuffers.TimeBuffer.Update(new TimeUniformBuffer(){DeltaTime = Time.DeltaTime, Time = Time.GameTime});
