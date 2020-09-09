@@ -171,7 +171,7 @@ namespace VoxelNet.Assets
             }
         }
 
-        public void RequestChunkUpdate(Chunk chunk, int modXPos, int modZPos, bool threaded = true)
+        public void RequestChunkUpdate(Chunk chunk, bool isPriority, int modXPos, int modZPos, bool threaded = true)
         {
             if (threaded)
             {
@@ -179,7 +179,6 @@ namespace VoxelNet.Assets
                 {
                     if (!chunksToUpdate.Contains(chunk))
                     {
-                        chunksToUpdate.AddFirst(chunk);
                         if(chunk.AreAllNeighboursSet)
                         {
                             bool f = modZPos == 15;
@@ -235,6 +234,10 @@ namespace VoxelNet.Assets
                                 chunksToUpdate.AddLast(chunk.RightNeighbour);
                             }
                         }
+                        if(isPriority)
+                            chunksToUpdate.AddFirst(chunk);
+                        else
+                            chunksToUpdate.AddLast(chunk);
                     }
                 }
             }
@@ -366,7 +369,7 @@ namespace VoxelNet.Assets
                             if (oChunk.AreAllNeighboursSet)
                             {
                                 //7 as x & z as to not force update surrounding chunks too
-                                RequestChunkUpdate(oChunk, 7, 7, true);
+                                RequestChunkUpdate(oChunk, false, 7, 7, true);
                             }
                         }
                         if (TryGetChunkAtPosition(wantedX + 1, wantedZ, out oChunk))
@@ -377,7 +380,7 @@ namespace VoxelNet.Assets
                             if (oChunk.AreAllNeighboursSet)
                             {
                                 //7 as x & z as to not force update surrounding chunks too
-                                RequestChunkUpdate(oChunk, 7, 7, true);
+                                RequestChunkUpdate(oChunk, false, 7, 7, true);
                             }
                         }
                         if (TryGetChunkAtPosition(wantedX, wantedZ - 1, out oChunk))
@@ -388,7 +391,7 @@ namespace VoxelNet.Assets
                             if (oChunk.AreAllNeighboursSet)
                             {
                                 //7 as x & z as to not force update surrounding chunks too
-                                RequestChunkUpdate(oChunk, 7, 7, true);
+                                RequestChunkUpdate(oChunk, false, 7, 7, true);
                             }
                         }
                         if (TryGetChunkAtPosition(wantedX, wantedZ + 1, out oChunk))
@@ -399,7 +402,7 @@ namespace VoxelNet.Assets
                             if (oChunk.AreAllNeighboursSet)
                             {
                                 //7 as x & z as to not force update surrounding chunks too
-                                RequestChunkUpdate(oChunk, 7,7, true);
+                                RequestChunkUpdate(oChunk, false, 7, 7, true);
                             }
                         }
                         loadedChunks.Add(c);

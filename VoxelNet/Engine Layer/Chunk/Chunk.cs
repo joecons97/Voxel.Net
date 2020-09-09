@@ -1116,7 +1116,7 @@ namespace VoxelNet
             {
                 if (updateChunk)
                 {
-                    World.GetInstance().RequestChunkUpdate(this, x, z, true);
+                    World.GetInstance().RequestChunkUpdate(this, true, x, z, true);
                 }
 
                 if (y > GetHeightAtBlock(x, z))

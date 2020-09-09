@@ -57,7 +57,7 @@ namespace VoxelNet.Entities
                         {
                             stack.Item.OnInteract(op.PlacementPosition, chunk);
                             inventory.RemoveItem(stack.Item);
-                            currentWorld.RequestChunkUpdate(chunk, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
+                            currentWorld.RequestChunkUpdate(chunk, true, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
                         }
                     }
                 }
@@ -80,7 +80,7 @@ namespace VoxelNet.Entities
                         var wp = new Vector3(chunkWp.X, 0, chunkWp.Y) + op.BlockPosition;
                         BlockDatabase.GetBlock(op.BlockID).OnBreak(wp, op.ChunkPosition);
 
-                        currentWorld.RequestChunkUpdate(chunk, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
+                        currentWorld.RequestChunkUpdate(chunk, true, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
                     }
                 }
             };
