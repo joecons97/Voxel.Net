@@ -30,6 +30,9 @@ namespace VoxelNet.Decoration
 
         public override void DecorateAtBlock(Chunk chunk, int x, int y, int z)
         {
+            if (chunk.GetBlockID(x, y, z) != (short)GameBlocks.GRASS.ID)
+                return;
+
             bool chance = Maths.Chance(treeChance);
             if (!chance) return;
 

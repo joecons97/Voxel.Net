@@ -161,8 +161,7 @@ namespace VoxelNet
                     for (int z = 0; z < WIDTH; z++)
                     {
                         int h = GetHeightAtBlock(x, z);
-                        if(GetBlockID(x,h,z) == (short)GameBlocks.GRASS.ID)
-                            decorator.DecorateAtBlock(this, x, h, z);
+                        decorator.DecorateAtBlock(this, x, h, z);
                     }
                 }
             }

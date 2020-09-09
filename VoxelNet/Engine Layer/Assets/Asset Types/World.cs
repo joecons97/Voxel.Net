@@ -161,45 +161,7 @@ namespace VoxelNet.Assets
                             bool l = modXPos == 15;
                             bool r = modXPos == 0;
 
-                            if (l)
-                            {
-                                chunksToUpdate.AddFirst(chunk.LeftNeighbour);
-                                if (chunk.LeftNeighbour.AreAllNeighboursSet)
-                                {
-                                    chunksToUpdate.AddFirst(chunk.LeftNeighbour.FrontNeighbour);
-                                    chunksToUpdate.AddFirst(chunk.LeftNeighbour.BackNeighbour);
-                                }
-                            }
-                            else
-                            {
-                                chunksToUpdate.AddLast(chunk.LeftNeighbour);
-                                if (chunk.LeftNeighbour.AreAllNeighboursSet)
-                                {
-                                    chunksToUpdate.AddLast(chunk.LeftNeighbour.FrontNeighbour);
-                                    chunksToUpdate.AddLast(chunk.LeftNeighbour.BackNeighbour);
-                                }
-                            }
-
-                            if (r)
-                            {
-                                chunksToUpdate.AddFirst(chunk.RightNeighbour);
-                                if (chunk.RightNeighbour.AreAllNeighboursSet)
-                                {
-                                    chunksToUpdate.AddFirst(chunk.RightNeighbour.FrontNeighbour);
-                                    chunksToUpdate.AddFirst(chunk.RightNeighbour.BackNeighbour);
-                                }
-                            }
-                            else
-                            {
-                                chunksToUpdate.AddLast(chunk.RightNeighbour);
-                                if (chunk.RightNeighbour.AreAllNeighboursSet)
-                                {
-                                    chunksToUpdate.AddLast(chunk.RightNeighbour.FrontNeighbour);
-                                    chunksToUpdate.AddLast(chunk.RightNeighbour.BackNeighbour);
-                                }
-                            }
-
-                            if(f)
+                            if (f)
                                 chunksToUpdate.AddFirst(chunk.FrontNeighbour);
                             else
                                 chunksToUpdate.AddLast(chunk.FrontNeighbour);
@@ -208,6 +170,44 @@ namespace VoxelNet.Assets
                                 chunksToUpdate.AddFirst(chunk.BackNeighbour);
                             else
                                 chunksToUpdate.AddLast(chunk.BackNeighbour);
+
+                            if (l)
+                            {
+                                if (chunk.LeftNeighbour.AreAllNeighboursSet)
+                                {
+                                    chunksToUpdate.AddFirst(chunk.LeftNeighbour.FrontNeighbour);
+                                    chunksToUpdate.AddFirst(chunk.LeftNeighbour.BackNeighbour);
+                                }
+                                chunksToUpdate.AddFirst(chunk.LeftNeighbour);
+                            }
+                            else
+                            {
+                                if (chunk.LeftNeighbour.AreAllNeighboursSet)
+                                {
+                                    chunksToUpdate.AddLast(chunk.LeftNeighbour.FrontNeighbour);
+                                    chunksToUpdate.AddLast(chunk.LeftNeighbour.BackNeighbour);
+                                }
+                                chunksToUpdate.AddLast(chunk.LeftNeighbour);
+                            }
+
+                            if (r)
+                            {
+                                if (chunk.RightNeighbour.AreAllNeighboursSet)
+                                {
+                                    chunksToUpdate.AddFirst(chunk.RightNeighbour.FrontNeighbour);
+                                    chunksToUpdate.AddFirst(chunk.RightNeighbour.BackNeighbour);
+                                }
+                                chunksToUpdate.AddFirst(chunk.RightNeighbour);
+                            }
+                            else
+                            {
+                                if (chunk.RightNeighbour.AreAllNeighboursSet)
+                                {
+                                    chunksToUpdate.AddLast(chunk.RightNeighbour.FrontNeighbour);
+                                    chunksToUpdate.AddLast(chunk.RightNeighbour.BackNeighbour);
+                                }
+                                chunksToUpdate.AddLast(chunk.RightNeighbour);
+                            }
                         }
                     }
                 }
