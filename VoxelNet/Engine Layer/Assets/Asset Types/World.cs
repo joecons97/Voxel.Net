@@ -90,6 +90,7 @@ namespace VoxelNet.Assets
             WaterHeight = 30;
 
             player = new Player();
+            Player.SetControlsActive(false);
 
             loadedEntities.Add(player);
 
@@ -264,19 +265,16 @@ namespace VoxelNet.Assets
         {
             if (TexturePack == null) return;
 
-            if (HasFinishedInitialLoading)
+            for (var index = 0; index < loadedEntities.Count; index++)
             {
-                for (var index = 0; index < loadedEntities.Count; index++)
-                {
-                    loadedEntities[index].Update();
-                }
+                loadedEntities[index].Update();
             }
 
             float dayInMins = 60f;
 
-            lightAngle += Time.DeltaTime * (6f/dayInMins);
+            lightAngle += Time.DeltaTime * (6f / dayInMins);
 
-            float colTime = (float) Math.Abs(Math.Cos(MathHelper.DegreesToRadians(lightAngle)));
+            float colTime = (float)Math.Abs(Math.Cos(MathHelper.DegreesToRadians(lightAngle)));
             colTime = (float)Math.Pow(colTime, 10);
 
             lightBufferData.SunColour = Vector4.Lerp(Color4.LightYellow.ToVector4(), Color4.OrangeRed.ToVector4(), colTime);
@@ -287,7 +285,7 @@ namespace VoxelNet.Assets
 
             lightBufferData.SunStrength = t;
 
-            Vector4 col = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/5f, Color4.DarkSlateGray.ToVector4(), t) / 5;
+            Vector4 col = Vector4.Lerp(Color4.DarkSlateGray.ToVector4() / 5f, Color4.DarkSlateGray.ToVector4(), t) / 5;
             lightBufferData.AmbientColour = col;
 
             UpdateView();
@@ -433,6 +431,7 @@ namespace VoxelNet.Assets
                 if (currentChunksLoadedNum >= requiredChunksLoadedNum * 2)
                 {
                     HasFinishedInitialLoading = true;
+                    Player.SetControlsActive(true);
                 }
             }
         }
