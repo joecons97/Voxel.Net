@@ -286,6 +286,13 @@ namespace VoxelNet
                             }
                         }
                     }
+                    else if(bD != -1)
+                    {
+                        sbyte op = BlockDatabase.GetBlock(bD).Opacity;
+                        op = (sbyte)(lightVal - op);
+                        op = Math.Max(op, (sbyte)0);
+                        lightmap[x, y - 1, z] = (byte)op;
+                    }
                 }
                 if (y < HEIGHT - 1)
                 {
