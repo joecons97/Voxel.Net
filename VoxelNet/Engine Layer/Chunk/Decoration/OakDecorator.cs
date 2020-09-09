@@ -42,12 +42,12 @@ namespace VoxelNet.Decoration
             {
                 if (treePoses.Count == 0 || treePoses.Any(v => Vector2.Distance(v, new Vector2(x, z)) > treeDists))
                 {
-                    chunk.PlaceBlock(x, y, z, 1, false);
+                    chunk.PlaceBlock(x, y, z, GameBlocks.DIRT, false);
                     var height = World.GetInstance().Randomizer.Next(5, 8);
                     int leaves = 2;
                     for (int i = 0; i < height; i++)
                     {
-                        chunk.PlaceBlock(x, y + i + 1, z, GameBlocks.LOG_OAK, false);
+                        chunk.PlaceBlock(x, y + i + 1, z, (short)GameBlocks.LOG_OAK.ID, false);
                     }
 
                     var leavesHeight = height - leaves;
@@ -78,7 +78,7 @@ namespace VoxelNet.Decoration
                     PlaceLeaf(x - 1, y + leavesHeight + 2 + leaves, z, chunk);
                     PlaceLeaf(x, y + leavesHeight + 2 + leaves, z + 1, chunk);
                     PlaceLeaf(x, y + leavesHeight + 2 + leaves, z - 1, chunk);
-
+                    
                     treePoses.Add(new Vector2(x, z));
                 }
             }

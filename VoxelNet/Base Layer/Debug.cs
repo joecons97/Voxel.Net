@@ -40,5 +40,9 @@ namespace VoxelNet
             if(DebugLevel >= level)
                 Console.WriteLine(prefix + message);
         }
+        public static void Log(object message, DebugLevel level = DebugLevel.Detail)
+        {
+            Log(message.ToString(), level);
+        }
     }
 }

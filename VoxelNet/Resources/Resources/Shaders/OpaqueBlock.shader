@@ -9,6 +9,7 @@ layout(location = 2) in vec4 normal;
 layout(location = 3) in vec2 texCoord2;
 layout(location = 4) in vec4 vertcolor;
 layout(location = 5) in float vertLight;
+float lightMul = 0.0625f;
 
 uniform mat4 u_World = 
 mat4(
@@ -32,7 +33,7 @@ void main()
 
     v_TexCoord = texCoord;
     v_TexCoord2 = texCoord2;
-	v_Light = vertLight;
+	v_Light = vertLight * lightMul;
 
     mat4 wvp = Camera.ProjectionMat * Camera.ViewMat * u_World;
     gl_Position = wvp * position;
@@ -62,14 +63,11 @@ void main()
 
 	vec3 worldNormal = normalize(v_Normal.rgb);
 
-	//float ndl = saturate(dot(worldNormal.rgb, -Lighting.SunDirection.rgb));
 	float ndl = 0;
 
 	vec4 sunColour = Lighting.SunStrength * Lighting.SunColour;
-	//if (v_Light < 0.95)
-	//	sunColour =	vec4(1);
 
-	vec4 pxLight = (sunColour*v_Light);
+	vec4 pxLight = (sunColour*(pow(v_Light + 0.1,2)));
 
 	if (v_TexCoord2 != vec2(-1, -1))
 	{

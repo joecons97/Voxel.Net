@@ -10,7 +10,7 @@ namespace VoxelNet.Blocks
     public class LeavesBlock : Block
     {
         public override bool IsTransparent => true;
-        public override byte Opacity => 6;
+        public override sbyte Opacity => 6;
 
         public override GetBlockColor BlockColor => (x, y, z) =>
         {

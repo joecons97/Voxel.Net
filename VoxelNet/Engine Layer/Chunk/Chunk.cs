@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics;
 using SimplexNoise;
+using SixLabors.ImageSharp.ColorSpaces;
 using VoxelNet.Assets;
 using VoxelNet.Blocks;
 using VoxelNet.Decoration;
@@ -21,25 +22,15 @@ namespace VoxelNet
             public const float LIGHTUNIT = 1f/16f;
 
             public short id;
-            public byte x;
-            public byte y;
-            public byte z;
-            private byte lightStrength = 15;
+            public sbyte x;
+            public sbyte y;
+            public sbyte z;
 
-            public BlockState(byte x, byte y, byte z, Chunk chunk)
+            public BlockState(sbyte x, sbyte y, sbyte z, Chunk chunk)
             {
                 this.x = x;
                 this.y = y;
                 this.z = z;
-            }
-
-            public byte LightStrength
-            {
-                get { return lightStrength;}
-                set
-                {
-                    lightStrength = value;
-                }
             }
         }
 
@@ -78,19 +69,12 @@ namespace VoxelNet
 
         private float noiseScale = 0.25f;
 
-        Vector3[] faceCheckOffsets =
-        {
-            new Vector3(0, 0, 1),
-            new Vector3(0, 0, -1),
-            new Vector3(0, 1, 0),
-            new Vector3(0, -1, 0),
-            new Vector3(1, 0, 0),
-            new Vector3(-1, 0, 0),
-        };
-
         #region MeshData
         private VertexBlockContainer blockContainer;
         private VertexNormalContainer waterContainer;
+
+        private bool shouldRebuildMesh;
+        private bool shouldRebuildWaterMesh;
 
         private uint[] indices;
         private uint[] indicesWater;
@@ -125,22 +109,13 @@ namespace VoxelNet
                     ocean -= 2;
                     ocean = (float)Math.Pow(MathHelper.Clamp(ocean, 0, 1) + (mainNoise/10f), 0.6f);
 
-                    heightmap[x, y] = Math.Min(mainNoise + 0.2f, ocean) * 255f;
+                    heightmap[x, y] = Math.Max(0, Math.Min(mainNoise + 0.2f, ocean) * 255f);
                 }
             }
         }
 
-        public int GetHeightAtBlock(int x, int z)
-        {
-            int h = (int)heightmap[x, z] / 4;
-            h += 16;
-            return h;
-        }
-
         public void FillBlocks()
         {
-            using (OakDecorator decorator = new OakDecorator())
-            {
                 for (int x = 0; x < WIDTH; x++)
                 {
                     for (int z = 0; z < WIDTH; z++)
@@ -148,7 +123,7 @@ namespace VoxelNet
                         int h = GetHeightAtBlock(x, z);
                         for (int y = 0; y < HEIGHT; y++)
                         {
-                            Blocks[x, y, z] = new BlockState((byte) x, (byte) y, (byte) z, this);
+                            Blocks[x, y, z] = new BlockState((sbyte) x, (sbyte) y, (sbyte) z, this);
                             if (y > h)
                             {
                                 if(y <= World.GetInstance().WaterHeight)
@@ -162,7 +137,6 @@ namespace VoxelNet
                                 else
                                 {
                                     Blocks[x, y, z].id = (short)GameBlocks.GRASS.ID;
-                                    decorator.DecorateAtBlock(this, x, y, z);
                                 }
 
                             }
@@ -179,70 +153,19 @@ namespace VoxelNet
                             }
                         }
                     }
-                }
             }
-        }
-
-        void UpdateLight(int x, int z, int startY)
-        {
-            if (startY > HEIGHT - 1)
+            using (OakDecorator decorator = new OakDecorator())
             {
-                startY = HEIGHT - 1;
-                Debug.Log("Attempted to cast natural light from above the world");
-            }
-
-            bool isObstructed = false;
-            for (int y = startY - 1; y > -1; y--)
-            {
-                BlockState state = Blocks[x, y, z];
-
-                if (isObstructed)
+                for (int x = 0; x < WIDTH; x++)
                 {
-                    state.LightStrength = 1;
-                }
-                else if (state.id != 0 && !BlockDatabase.GetBlock(state.id).IsTransparent)
-                {
-                    state.LightStrength = 1;
-                    isObstructed = true;
-                }
-                else
-                    state.LightStrength = 15;
-            }
-        }
-
-        public void CalculateNaturalLight()
-        {
-            for (int x = 0; x < WIDTH; x++)
-            {
-                for (int z = 0; z < WIDTH; z++)
-                {
-                    UpdateLight(x, z, HEIGHT - 1);
-                }
-            }
-        }
-
-        /*public void PropagateBlockState(BlockState state)
-        {
-            if (state.LightStrength < BlockState.LIGHTUNIT * 2)
-                return;
-
-            for (int i = 0; i < 6; i++)
-            {
-                var neighbour = state.GetNeighbour(i);
-                if (neighbour != null)
-                {
-                    if (neighbour.LightStrength < state.LightStrength - BlockState.LIGHTUNIT)
+                    for (int z = 0; z < WIDTH; z++)
                     {
-                        neighbour.LightStrength = state.LightStrength - BlockState.LIGHTUNIT;
+                        int h = GetHeightAtBlock(x, z);
+                        if(GetBlockID(x,h,z) == (short)GameBlocks.GRASS.ID)
+                            decorator.DecorateAtBlock(this, x, h, z);
                     }
                 }
             }
-        }
-        */
-
-        public bool IsInChunk(int x, int y, int z)
-        {
-            return x >= 0 && x < WIDTH && z >= 0 && z < WIDTH && y >= 0 && y < HEIGHT;
         }
 
         public void GenerateMesh()
@@ -265,6 +188,147 @@ namespace VoxelNet
             uint indexCountWater = 0;
 
             Block workingBlock = null;
+
+            List<Vector3> toPropagate = new List<Vector3>();
+            int w = WIDTH * 3;
+            byte[,,] lightmap = new byte[w, HEIGHT, w];
+
+            for (int x = 0; x < w; ++x)
+            {
+                for (int z = 0; z < w; ++z)
+                {
+                    if ((x % 47) * (z % 47) == 0) //filters outer edges
+                    {
+                        //Debug.Log($"these should at least 0 or 47  ->  {x} {z}"); 
+                        for (int yy = 0; yy < HEIGHT; yy++) //dont do outer edges
+                        {
+                            lightmap[x, yy, z] = 15; //set all edges to 15 to stop tracing at edges
+                        }
+                        continue;
+                    }
+                    int worldX = x - WIDTH;
+                    int worldZ = z - WIDTH;
+                    int height = Math.Max(0, GetHeightAtBlock(worldX, worldZ));
+
+                    for (int y = height; y < HEIGHT; y++)
+                    {
+                        //Do manually here!
+                        lightmap[x, y, z] = 15; //set all edges to 15 to stop tracing at edges
+                    }
+
+                    if (x < w - 2) height = Math.Max(height, GetHeightAtBlock(worldX + 1, worldZ));
+                    if (x > 1) height = Math.Max(height, GetHeightAtBlock(worldX - 1, worldZ));
+                    if (z < w - 2) height = Math.Max(height, GetHeightAtBlock(worldX, worldZ + 1));
+                    if (z > 1) height = Math.Max(height, GetHeightAtBlock(worldX, worldZ - 1));
+
+                    height = Math.Min(height + 1, HEIGHT - 1);
+                    if (height < 2) continue;
+
+                    toPropagate.Add(new Vector3(x, height, z));
+                }
+            }
+
+            while (toPropagate.Count > 0)
+            {
+                Vector3 position = toPropagate.Last();
+                toPropagate.RemoveAt(toPropagate.Count - 1);
+                int x = (int)position.X;
+                int y = (int)position.Y;
+                int z = (int)position.Z;
+                int worldX = x - WIDTH;
+                int worldZ = z - WIDTH;
+
+                byte lightVal = lightmap[x, y, z];
+
+                if (x < w - 1)
+                {
+                    byte lightR = lightmap[x + 1, y, z];
+                    if (lightR < lightVal - 1)
+                    {
+                        short bR = GetBlockID(worldX + 1, y, worldZ);
+                        if (bR == 0)
+                        {
+                            lightmap[x + 1, y, z] = (byte)(lightVal - 1);
+                            toPropagate.Add(new Vector3(x + 1, y, z));
+                        }
+                    }
+                }
+                if (x > 0)
+                {
+                    byte lightL = lightmap[x - 1, y, z];
+                    if (lightL < lightVal - 1)
+                    {
+                        short bL = GetBlockID(worldX - 1, y, worldZ);
+                        if (bL == 0)
+                        {
+                            lightmap[x - 1, y, z] = (byte)(lightVal - 1);
+                            toPropagate.Add(new Vector3(x - 1, y, z));
+                        }
+                    }
+                }
+
+                if (y > 0)
+                {
+                    short bD = GetBlockID(worldX, y - 1, worldZ);
+                    if (bD == 0)
+                    {
+                        if (lightVal == 15)
+                        {
+                            lightmap[x, y - 1, z] = (byte)(lightVal);
+                            toPropagate.Add(new Vector3(x, y - 1, z));
+                        }
+                        else
+                        {
+                            byte lightD = lightmap[x, y - 1, z];
+                            if (lightD < lightVal - 1)
+                            {
+                                lightmap[x, y - 1, z] = (byte)(lightVal - 1);
+                                toPropagate.Add(new Vector3(x, y - 1, z));
+                            }
+                        }
+                    }
+                }
+                if (y < HEIGHT - 1)
+                {
+                    byte lightU = lightmap[x, y + 1, z];
+                    if (lightU < lightVal - 1)
+                    {
+                        short bU = GetBlockID(worldX, y + 1, worldZ);
+                        if (bU == 0)
+                        {
+                            lightmap[x, y + 1, z] = (byte)(lightVal - 1);
+                            toPropagate.Add(new Vector3(x, y + 1, z));
+                        }
+                    }
+                }
+
+                if (z < w - 1)
+                {
+                    byte lightF = lightmap[x, y, z + 1];
+                    if (lightF < lightVal - 1)
+                    {
+                        short bF = GetBlockID(worldX, y, worldZ + 1);
+                        if (bF == 0)
+                        {
+                            lightmap[x, y, z + 1] = (byte)(lightVal - 1);
+                            toPropagate.Add(new Vector3(x, y, z + 1));
+                        }
+                    }
+                }
+                if (z > 0)
+                {
+                    byte lightB = lightmap[x, y, z - 1];
+                    if (lightB < lightVal - 1)
+                    {
+                        short bB = GetBlockID(worldX, y, worldZ - 1);
+                        if (bB == 0)
+                        {
+                            lightmap[x, y, z - 1] = (byte)(lightVal - 1);
+                            toPropagate.Add(new Vector3(x, y, z - 1));
+                        }
+                    }
+                }
+            }
 
             for (int x = 0; x < WIDTH; x++)
             {
@@ -330,7 +394,7 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 0 + y, 1 + z));
                 vertices.Add(new Vector3(1 + x, 0 + y, 1 + z));
 
-                float lightVal = GetBlockLight(x, y, z + 1);
+                float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
                 light.Add(lightVal);
                 light.Add(lightVal);
                 light.Add(lightVal);
@@ -374,7 +438,7 @@ namespace VoxelNet
                 vertices.Add(new Vector3(1 + x, 0 + y, 0 + z));
                 vertices.Add(new Vector3(0 + x, 0 + y, 0 + z));
 
-                float lightVal = GetBlockLight(x, y, z - 1);
+                float lightVal = lightmap[x + WIDTH, y, z + WIDTH - 1];//GetBlockLight(x, y, z - 1);
                 light.Add(lightVal);
                 light.Add(lightVal);
                 light.Add(lightVal);
@@ -418,7 +482,7 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 1 + y, 1 + z));
                 vertices.Add(new Vector3(1 + x, 1 + y, 1 + z));
 
-                float lightVal = GetBlockLight(x, y + 1, z);
+                float lightVal = y == HEIGHT - 1 ? 15 : lightmap[x + WIDTH, y + 1, z + WIDTH];//GetBlockLight(x, y + 1, z);
                 light.Add(lightVal);
                 light.Add(lightVal);
                 light.Add(lightVal);
@@ -462,7 +526,7 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 0 + y, 0 + z));
                 vertices.Add(new Vector3(1 + x, 0 + y, 0 + z));
 
-                float lightVal = GetBlockLight(x, y - 1, z);
+                float lightVal = y == 0 ? 15 : lightmap[x + WIDTH, y - 1, z + WIDTH]; //GetBlockLight(x, y - 1, z);
                 light.Add(lightVal);
                 light.Add(lightVal);
                 light.Add(lightVal);
@@ -506,7 +570,7 @@ namespace VoxelNet
                 vertices.Add(new Vector3(1 + x, 0 + y, 1 + z));
                 vertices.Add(new Vector3(1 + x, 0 + y, 0 + z));
 
-                float lightVal = GetBlockLight(x + 1, y, z);
+                float lightVal = lightmap[x + WIDTH + 1, y, z + WIDTH]; //GetBlockLight(x + 1, y, z);
                 light.Add(lightVal);
                 light.Add(lightVal);
                 light.Add(lightVal);
@@ -550,7 +614,7 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 0 + y, 0 + z));
                 vertices.Add(new Vector3(0 + x, 0 + y, 1 + z));
 
-                float lightVal = GetBlockLight(x - 1, y, z);
+                float lightVal = lightmap[x + WIDTH - 1, y, z + WIDTH]; //GetBlockLight(x - 1, y, z);
                 light.Add(lightVal);
                 light.Add(lightVal);
                 light.Add(lightVal);
@@ -773,11 +837,8 @@ namespace VoxelNet
             indices.Clear();
             indicesWater.Clear();
 
-            mesh?.Dispose();
-            mesh = null;
-
-            waterMesh?.Dispose();
-            waterMesh = null;
+            shouldRebuildWaterMesh = true;
+            shouldRebuildMesh = true;
         }
 
         public bool ShouldDrawBlockFacing(int x, int y, int z, int workingBlockID)
@@ -890,12 +951,12 @@ namespace VoxelNet
             return Blocks[x, y, z].id;
         }
 
-        public float GetBlockLight(int x, int y, int z)
+        public int GetHeightAtBlock(int x, int z)
         {
             if (x <= -1)
             {
                 if (LeftNeighbour != null)
-                    return LeftNeighbour.GetBlockLight(WIDTH + x, y, z);
+                    return LeftNeighbour.GetHeightAtBlock(WIDTH + x, z);
 
                 return 0;
             }
@@ -903,7 +964,7 @@ namespace VoxelNet
             if (x >= WIDTH)
             {
                 if (RightNeighbour != null)
-                    return RightNeighbour.GetBlockLight(x - WIDTH, y, z);
+                    return RightNeighbour.GetHeightAtBlock(x - WIDTH, z);
 
                 return 0;
             }
@@ -911,7 +972,7 @@ namespace VoxelNet
             if (z <= -1)
             {
                 if (BackNeighbour != null)
-                    return BackNeighbour.GetBlockLight(x, y, WIDTH + z);
+                    return BackNeighbour.GetHeightAtBlock(x, WIDTH + z);
 
                 return 0;
             }
@@ -919,7 +980,46 @@ namespace VoxelNet
             if (z >= WIDTH)
             {
                 if (FrontNeighbour != null)
-                    return FrontNeighbour.GetBlockLight(x, y, z - WIDTH);
+                    return FrontNeighbour.GetHeightAtBlock(x, z - WIDTH);
+
+                return 0;
+            }
+
+            int h = (int)(heightmap[x, z] / 4);
+            h += 16;
+            return h;
+        }
+
+        /*public byte GetBlockLightRaw(int x, int y, int z)
+        {
+            if (x <= -1)
+            {
+                if (LeftNeighbour != null)
+                    return LeftNeighbour.GetBlockLightRaw(WIDTH + x, y, z);
+
+                return 0;
+            }
+
+            if (x >= WIDTH)
+            {
+                if (RightNeighbour != null)
+                    return RightNeighbour.GetBlockLightRaw(x - WIDTH, y, z);
+
+                return 0;
+            }
+
+            if (z <= -1)
+            {
+                if (BackNeighbour != null)
+                    return BackNeighbour.GetBlockLightRaw(x, y, WIDTH + z);
+
+                return 0;
+            }
+
+            if (z >= WIDTH)
+            {
+                if (FrontNeighbour != null)
+                    return FrontNeighbour.GetBlockLightRaw(x, y, z - WIDTH);
 
                 return 0;
             }
@@ -927,7 +1027,12 @@ namespace VoxelNet
             if (y < 0 || y > HEIGHT - 1)
                 return 0;
 
-            return BlockState.LIGHTUNIT*(float)Blocks[x, y, z].LightStrength;
+            return lightmap[x, y, z];
+        }
+
+        public float GetBlockLight(int x, int y, int z)
+        {
+            return BlockState.LIGHTUNIT * (float) GetBlockLightRaw(x, y, z);
         }
 
         public void SetBlockLight(int x, int y, int z, byte light)
@@ -953,9 +1058,9 @@ namespace VoxelNet
                     FrontNeighbour.SetBlockLight(x, y, z - WIDTH, light);
             }
             else if (!(y < 0 || y > HEIGHT - 1) && Blocks[x, y, z] != null)
-                Blocks[x, y, z].LightStrength = light;
+                lightmap[x, y, z] = light;
         }
-
+        */
         public void PlaceBlock(int x, int y, int z, Block block, bool updateChunk = true)
         {
             PlaceBlock(x, y, z, (short)block.ID, updateChunk);
@@ -963,6 +1068,12 @@ namespace VoxelNet
 
         public void PlaceBlock(int x, int y, int z, short blockIndex, bool updateChunk = true)
         {
+            if (y >= HEIGHT - 1)
+            {
+                Debug.Log($"Tried placing a block at: {x},{y},{z} but the Y value is too high!", DebugLevel.Warning);
+                return;
+            }
+
             if (x <= -1)
             {
                 if (LeftNeighbour != null)
@@ -983,73 +1094,75 @@ namespace VoxelNet
                 if (FrontNeighbour != null)
                     FrontNeighbour.PlaceBlock(x, y, z - WIDTH, blockIndex, updateChunk);
             }
-
-            if (Blocks[x, y, z] != null)
+            else if (Blocks[x, y, z] != null)
             {
                 Blocks[x, y, z].id = blockIndex;
+                Rebuild();
+            }
+            else if(y < HEIGHT - 1)
+            {
+                Blocks[x, y, z] = new BlockState((sbyte)x, (sbyte)y, (sbyte)z, this);
+                Blocks[x, y, z].id = blockIndex;
+                Rebuild();
+            }
+
+            void Rebuild()
+            {
                 if (updateChunk)
                 {
-                    World.GetInstance().RequestChunkUpdate(this);
+                    World.GetInstance().RequestChunkUpdate(this, x, z, true);
+                }
 
-                    if (x == 0 && LeftNeighbour != null)
-                        World.GetInstance().RequestChunkUpdate(LeftNeighbour, true);
-
-                    if (x == WIDTH - 1 && RightNeighbour != null)
-                        World.GetInstance().RequestChunkUpdate(RightNeighbour, true);
-
-                    if (z == 0 && BackNeighbour != null)
-                        World.GetInstance().RequestChunkUpdate(BackNeighbour, true);
-
-                    if (z == WIDTH - 1 && FrontNeighbour != null)
-                        World.GetInstance().RequestChunkUpdate(FrontNeighbour, true);
+                if (y > GetHeightAtBlock(x, z))
+                {
+                    int newY = y - 16;
+                    newY *= 4;
+                    int oldHeight = (int)heightmap[x, z];
+                    heightmap[x, z] = newY;
+                    Debug.Log("Updated the heightmap from: " + oldHeight + " to " + newY);
                 }
             }
         }
 
         public void DestroyBlock(int x, int y, int z)
         {
-            PlaceBlock(x, y, z, 0);
-
-            if(x == 0 && LeftNeighbour != null)
-                World.GetInstance().RequestChunkUpdate(LeftNeighbour, true);
-
-            if (x == WIDTH - 1 && RightNeighbour != null)
-                World.GetInstance().RequestChunkUpdate(RightNeighbour, true);
-
-            if (z == 0 && BackNeighbour != null)
-                World.GetInstance().RequestChunkUpdate(BackNeighbour, true);
-
-            if (z == WIDTH - 1 && FrontNeighbour != null)
-                World.GetInstance().RequestChunkUpdate(FrontNeighbour, true);
+            PlaceBlock(x, y, z, 0, true);
+            if (y == GetHeightAtBlock(x, z))
+            {
+                int newY = y - 16;
+                newY *= 4;
+                int oldHeight = (int)heightmap[x, z];
+                heightmap[x, z] = newY;
+                Debug.Log("Updated the heightmap from: " + oldHeight + " to " + newY);
+            }
         }
 
         public void Render()
         {
-            if (waterMesh == null || mesh == null)
+            if (shouldRebuildMesh)
             {
-                if (indices != null)
-                {
-                    mesh = new Mesh(blockContainer, indices);
-                }
-                if (indicesWater != null)
-                {
-                    waterMesh = new Mesh(waterContainer, indicesWater);
-                }
-
                 if (ChunkMaterial == null)
                 {
                     ChunkMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/World/Blocks.mat");
                     ChunkMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
                 }
 
+                mesh?.Dispose();
+                mesh = new Mesh(blockContainer, indices);
+                shouldRebuildMesh = false;
+            }
+
+            if (shouldRebuildWaterMesh)
+            {
                 if (ChunkWaterMaterial == null)
                 {
                     ChunkWaterMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/World/Water.mat");
                     ChunkWaterMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
                 }
 
-                if (indices == null && indicesWater == null)
-                    return;
+                waterMesh?.Dispose();
+                waterMesh = new Mesh(waterContainer, indicesWater);
+                shouldRebuildWaterMesh = false;
             }
 
             if(waterMesh != null)
@@ -1060,7 +1173,6 @@ namespace VoxelNet
 
         public void Dispose()
         {
-            //Debug.Log("Disposing chunk " + Position.ToString());
             if (RightNeighbour != null)
             {
                 RightNeighbour.LeftNeighbour = null;
