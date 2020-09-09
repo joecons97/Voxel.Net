@@ -359,7 +359,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Resources\Textures\Blocks.png" />
-    <Content Include="Resources\Resources\Textures\bums.txt" />
     <Content Include="Resources\Resources\Textures\FallBack.png" />
     <Content Include="Resources\Resources\Textures\GUI\btn_active.png" />
     <Content Include="Resources\Resources\Textures\GUI\btn_hover.png" />

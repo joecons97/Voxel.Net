@@ -21,6 +21,7 @@ namespace VoxelNet.Assets
     {
         public string Name { get; }
         public string Seed { get; }
+        public bool HasFinishedInitialLoading { get; private set; }
 
         public Camera WorldCamera { get; private set; }
         public Skybox Skybox { get; private set; }
@@ -39,6 +40,12 @@ namespace VoxelNet.Assets
 
         LinkedList<Chunk> chunksToUpdate = new LinkedList<Chunk>();
         private int worldSize = 9;
+        private int requiredChunksLoadedNum = 0;
+        private int currentChunksLoadedNum = 0;
+        Texture loadingScreenTexture;
+        Texture loadingScreenTextureDickJoke;
+        bool isDickJoke = false;
+        GUIStyle loadingScreenStyle;
 
         private static World instance;
         
@@ -108,9 +115,26 @@ namespace VoxelNet.Assets
             WorldCamera = new Camera();
 
             Skybox = new Skybox(AssetDatabase.GetAsset<Material>("Resources/Materials/World/Sky.mat"));
+            loadingScreenTexture = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/img_loading_screen.png");
+            loadingScreenTextureDickJoke = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/img_loading_screen_willy.png");
+            isDickJoke = Maths.Chance(0.1f);
+            loadingScreenStyle = new GUIStyle()
+            {
+                Normal = new GUIStyleOption()
+                {
+                    TextColor = Color4.White
+                },
+                HorizontalAlignment = HorizontalAlignment.Middle,
+                VerticalAlignment = VerticalAlignment.Middle,
+                FontSize = 48,
+                Font = GUI.LabelStyle.Font
+            };
 
             lightAngle = 5;
             lightBufferData = new LightingUniformBufferData();
+
+            HasFinishedInitialLoading = false;
+            requiredChunksLoadedNum = (worldSize + worldSize + 1) * (worldSize + worldSize + 1);
 
             foreach (var entity in loadedEntities)
             {
@@ -135,6 +159,8 @@ namespace VoxelNet.Assets
                         {
                             chunk.GenerateMesh();
                             chunksToUpdate.Remove(chunk);
+                            if (!HasFinishedInitialLoading)
+                                currentChunksLoadedNum++;
                         }
                     }
                 }
@@ -283,9 +309,27 @@ namespace VoxelNet.Assets
 
         public void RenderGUI()
         {
-            foreach (var entity in loadedEntities)
+            if (HasFinishedInitialLoading)
             {
-                entity.RenderGUI();
+                foreach (var entity in loadedEntities)
+                {
+                    entity.RenderGUI();
+                }
+            }
+            else
+            {
+                int perc = (int)(((float)currentChunksLoadedNum / (float)requiredChunksLoadedNum / 2f) * 100f);
+                if (isDickJoke)
+                {
+                    GUI.Image(loadingScreenTextureDickJoke, new Rect(0, 0, Program.Settings.WindowWidth, Program.Settings.WindowHeight));
+                    GUI.Label($"LMAO IT'S A PENIS", new Rect(0, -48, Program.Settings.WindowWidth, Program.Settings.WindowHeight), loadingScreenStyle);
+                }
+                else
+                {
+                    GUI.Image(loadingScreenTexture, new Rect(0, 0, Program.Settings.WindowWidth, Program.Settings.WindowHeight));
+                }
+                GUI.Label($"LOADING...", new Rect(0, 0, Program.Settings.WindowWidth, Program.Settings.WindowHeight), loadingScreenStyle);
+                GUI.Label($"{perc}%", new Rect(0, 48, Program.Settings.WindowWidth, Program.Settings.WindowHeight), loadingScreenStyle);
             }
         }
 
@@ -379,6 +423,14 @@ namespace VoxelNet.Assets
                 chunksToKeep.Clear();
                 newChunks.Clear();
                 lastPlayerPos = new Vector2(roundedX, roundedZ);
+            }
+
+            if (!HasFinishedInitialLoading)
+            {
+                if (currentChunksLoadedNum >= requiredChunksLoadedNum * 2)
+                {
+                    HasFinishedInitialLoading = true;
+                }
             }
         }
 
