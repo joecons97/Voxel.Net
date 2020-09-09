@@ -261,9 +261,12 @@ namespace VoxelNet.Assets
         {
             if (TexturePack == null) return;
 
-            for (var index = 0; index < loadedEntities.Count; index++)
+            if (HasFinishedInitialLoading)
             {
-                loadedEntities[index].Update();
+                for (var index = 0; index < loadedEntities.Count; index++)
+                {
+                    loadedEntities[index].Update();
+                }
             }
 
             float dayInMins = 60f;
@@ -280,9 +283,6 @@ namespace VoxelNet.Assets
             t = (float)Math.Pow(t, .25f) * 1.75f;
 
             lightBufferData.SunStrength = t;
-
-            //if (float.IsNaN(t))
-            //    t = .0f;
 
             Vector4 col = Vector4.Lerp(Color4.DarkSlateGray.ToVector4()/5f, Color4.DarkSlateGray.ToVector4(), t) / 5;
             lightBufferData.AmbientColour = col;
