@@ -19,6 +19,7 @@ namespace VoxelNet.Input
             Settings.Add(new InputSetting("Destroy Block", new Interaction(MouseButton.Left)));
             Settings.Add(new InputSetting("Interact", new Interaction(MouseButton.Right)));
             Settings.Add(new InputSetting("Inventory", new Interaction(Key.Tab)));
+            Settings.Add(new InputSetting("Pause", new Interaction(Key.Escape)));
         }
 
         public InputSetting GetSetting(string name)

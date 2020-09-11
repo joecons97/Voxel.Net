@@ -6,13 +6,11 @@ using VoxelNet.Rendering;
 
 namespace VoxelNet.Menus
 {
-    public class TestMenu : Menu
+    public class MainMenu : Menu
     {
         private GUIStyle titleStyle = (GUIStyle)GUI.LabelStyle.Clone();
 
         OptionsMenu options = new OptionsMenu();
-
-        private string str = "";
 
         private Texture tex;
 

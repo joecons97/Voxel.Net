@@ -4,6 +4,7 @@ using OpenTK;
 using OpenTK.Input;
 using VoxelNet.Assets;
 using VoxelNet.Containers;
+using VoxelNet.Menus;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
 using Vector2 = System.Numerics.Vector2;
@@ -26,6 +27,7 @@ namespace VoxelNet.Entities
         private static bool mouseHidden = true;
 
         PlayerInventory inventory = new PlayerInventory();
+        PauseMenu pauseMenu = new PauseMenu();
 
         public override void Begin()
         {
@@ -33,85 +35,134 @@ namespace VoxelNet.Entities
             currentWorld = World.GetInstance();
             hasHadInitialSet = false;
 
-            Input.Input.GetSetting("Jump").KeyDown += () =>
+            Input.Input.GetSetting("Pause").KeyDown += InputPause;
+
+            Input.Input.GetSetting("Jump").KeyDown += InputJump;
+
+            Input.Input.GetSetting("Interact").KeyDown += InputInteract;
+
+            Input.Input.GetSetting("Destroy Block").KeyDown += InputDestroyBlock;
+
+            Input.Input.GetSetting("Inventory").KeyDown += InputInventory;
+
+            Program.Window.MouseWheel += InputMouseWheel;
+
+            Input.Input.GetSetting("Sprint").KeyDown += InputSprintDown;
+            Input.Input.GetSetting("Sprint").KeyUp += InputSprintUp;
+        }
+
+        public override void Destroyed()
+        {
+            Input.Input.GetSetting("Pause").KeyDown -= InputPause;
+
+            Input.Input.GetSetting("Jump").KeyDown -= InputJump;
+
+            Input.Input.GetSetting("Interact").KeyDown -= InputInteract;
+
+            Input.Input.GetSetting("Destroy Block").KeyDown -= InputDestroyBlock;
+
+            Input.Input.GetSetting("Inventory").KeyDown -= InputInventory;
+
+            Program.Window.MouseWheel -= InputMouseWheel;
+
+            Input.Input.GetSetting("Sprint").KeyDown -= InputSprintDown;
+            Input.Input.GetSetting("Sprint").KeyUp -= InputSprintUp;
+            base.Destroyed();
+        }
+
+        private void InputMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+                inventory.SelectedItemIndex--;
+            else
+                inventory.SelectedItemIndex++;
+
+            if (inventory.SelectedItemIndex > inventory.ContainerSize.X - 1)
+                inventory.SelectedItemIndex = 0;
+            else if (inventory.SelectedItemIndex < 0)
+                inventory.SelectedItemIndex = (int)inventory.ContainerSize.X - 1;
+        }
+
+        void InputSprintDown()
+        {
+            isSprinting = true;
+        }
+
+        void InputSprintUp()
+        {
+            isSprinting = false;
+        }
+
+        void InputInventory()
+        {
+            if (inventory.IsOpen)
+                inventory.Close();
+            else
+                inventory.Open();
+
+            SetMouseVisible(inventory.IsOpen);
+            SetControlsActive(!inventory.IsOpen);
+        }
+
+        void InputPause()
+        {
+            if (!currentWorld.HasFinishedInitialLoading)
+                return;
+
+            if(!pauseMenu.IsOpen)
+                pauseMenu.Show();
+        }
+
+        void InputJump()
+        {
+            if (!controlsEnabled || isInWater)
+                return;
+
+            if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, new Vector3(0, -1, 0), 2.1f, out RayVoxelOut output))
+                rigidbody.AddImpluse(new Vector3(0, 1, 0) * 600);
+        }
+
+        void InputInteract()
+        {
+            if (!controlsEnabled)
+                return;
+
+            if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
+                out RayVoxelOut op))
             {
-                if (!controlsEnabled || isInWater)
-                    return;
-
-                if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, new Vector3(0,-1,0), 2.1f, out RayVoxelOut output))
-                    rigidbody.AddImpluse(new Vector3(0, 1, 0) * 600);
-            };
-
-            Input.Input.GetSetting("Interact").KeyDown += () =>
-            {
-                if (!controlsEnabled)
-                    return;
-
-                if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
-                    out RayVoxelOut op))
+                if (currentWorld.TryGetChunkAtPosition((int)op.PlacementChunk.X, (int)op.PlacementChunk.Y, out Chunk chunk))
                 {
-                    if (currentWorld.TryGetChunkAtPosition((int)op.PlacementChunk.X, (int)op.PlacementChunk.Y, out Chunk chunk))
+                    var stack = inventory.GetItemStackByLocation(inventory.SelectedItemIndex, 0);
+                    if (stack != null)
                     {
-                        var stack = inventory.GetItemStackByLocation(inventory.SelectedItemIndex, 0);
-                        if (stack != null)
-                        {
-                            stack.Item.OnInteract(op.PlacementPosition, chunk);
-                            inventory.RemoveItem(stack.Item);
-                            currentWorld.RequestChunkUpdate(chunk, true, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
-                        }
-                    }
-                }
-            };
-
-            Input.Input.GetSetting("Destroy Block").KeyDown += () =>
-            {
-                if (!controlsEnabled)
-                    return;
-
-                if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
-                    out RayVoxelOut op))
-                {
-                    if (currentWorld.TryGetChunkAtPosition((int) op.ChunkPosition.X, (int) op.ChunkPosition.Y,
-                        out Chunk chunk))
-                    {
-                        chunk.DestroyBlock((int) op.BlockPosition.X, (int) op.BlockPosition.Y, (int) op.BlockPosition.Z);
-
-                        var chunkWp = (op.ChunkPosition * Chunk.WIDTH);
-                        var wp = new Vector3(chunkWp.X, 0, chunkWp.Y) + op.BlockPosition;
-                        BlockDatabase.GetBlock(op.BlockID).OnBreak(wp, op.ChunkPosition);
-
+                        stack.Item.OnInteract(op.PlacementPosition, chunk);
+                        inventory.RemoveItem(stack.Item);
                         currentWorld.RequestChunkUpdate(chunk, true, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
                     }
                 }
-            };
+            }
+        }
 
-            Input.Input.GetSetting("Inventory").KeyDown += () =>
+        void InputDestroyBlock()
+        {
+            if (!controlsEnabled)
+                return;
+
+            if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
+                out RayVoxelOut op))
             {
-                if(inventory.IsOpen)
-                    inventory.Close();
-                else
-                    inventory.Open();
+                if (currentWorld.TryGetChunkAtPosition((int)op.ChunkPosition.X, (int)op.ChunkPosition.Y,
+                    out Chunk chunk))
+                {
+                    chunk.DestroyBlock((int)op.BlockPosition.X, (int)op.BlockPosition.Y, (int)op.BlockPosition.Z);
 
-                SetMouseVisible(inventory.IsOpen);
-                SetControlsActive(!inventory.IsOpen);
-            };
+                    var chunkWp = (op.ChunkPosition * Chunk.WIDTH);
+                    var wp = new Vector3(chunkWp.X, 0, chunkWp.Y) + op.BlockPosition;
+                    BlockDatabase.GetBlock(op.BlockID).OnBreak(wp, op.ChunkPosition);
 
-
-            Program.Window.MouseWheel += (sender, args) =>
-            {
-                if(args.Delta > 0)
-                    inventory.SelectedItemIndex--;
-                else
-                    inventory.SelectedItemIndex++;
-
-                if (inventory.SelectedItemIndex > inventory.ContainerSize.X - 1)
-                    inventory.SelectedItemIndex = 0;
-                else if (inventory.SelectedItemIndex < 0) 
-                    inventory.SelectedItemIndex = (int)inventory.ContainerSize.X - 1;
-            };
-
-            Input.Input.GetSetting("Sprint").KeyDown += () => isSprinting = true;
-            Input.Input.GetSetting("Sprint").KeyUp += () => isSprinting = false;
+                    currentWorld.RequestChunkUpdate(chunk, true, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
+                }
+            }
         }
 
         void HandleInput()
@@ -205,7 +256,7 @@ namespace VoxelNet.Entities
             controlsEnabled = active;
         }
 
-        public static void SetMouseVisible(bool visible)
+        public static void SetMouseVisible(bool visible, bool resetPos = true)
         {
             if (mouseHidden != visible)
                 return;
@@ -214,7 +265,8 @@ namespace VoxelNet.Entities
             Program.Window.CursorVisible = visible;
             Program.Window.CursorGrabbed = !visible;
 
-            Mouse.SetPosition(Program.Window.X + Program.Window.Width/2f, Program.Window.Y + Program.Window.Height/2f);
+            if(resetPos)
+                Mouse.SetPosition(Program.Window.X + Program.Window.Width/2f, Program.Window.Y + Program.Window.Height/2f);
         }
 
         public Container GetInventory()

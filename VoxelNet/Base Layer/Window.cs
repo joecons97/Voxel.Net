@@ -18,6 +18,8 @@ namespace VoxelNet
 {
     public class Window : GameWindow
     {
+        public MainMenu MainMenu { get; private set; }
+
         public Window(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
         {
         }
@@ -42,7 +44,8 @@ namespace VoxelNet
 
             AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
 
-            new TestMenu().Show();
+            MainMenu = new MainMenu();
+            MainMenu.Show();
 
             Program.Settings.UpdateAll();
 
@@ -71,9 +74,12 @@ namespace VoxelNet
 
             Input.Input.Update();
 
-            World.GetInstance()?.Update();
+            if(World.GetInstance() != null)
+            {
+                World.GetInstance().Update();
 
-            PhysicSimulation.Simulate(Time.DeltaTime);
+                PhysicSimulation.Simulate(Time.DeltaTime);
+            }
 
             if (Focused)
             {

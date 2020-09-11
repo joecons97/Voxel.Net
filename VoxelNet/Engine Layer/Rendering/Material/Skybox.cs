@@ -39,7 +39,7 @@ namespace VoxelNet.Rendering
         public void Dispose()
         {
             skyMesh.Dispose();
-            skyMat.Dispose();
+            //skyMat.Dispose();
         }
     }
 }

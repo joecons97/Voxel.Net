@@ -9,6 +9,8 @@ namespace VoxelNet
     {
 		static List<Menu> openMenus = new List<Menu>();
 
+        public bool IsOpen { get; private set; }
+
         public static void RenderGUI()
 		{
             for(int i = 0; i < openMenus.Count; i++)
@@ -24,16 +26,21 @@ namespace VoxelNet
         }
 
         public virtual void Show()
-		{
-			openMenus.Add(this);
-		}
+        {
+            if (!openMenus.Contains(this))
+            {
+                openMenus.Add(this);
+                IsOpen = true;
+            }
+        }
 
         public virtual void Close()
 		{
             if (openMenus.Contains(this))
             {
                 openMenus.Remove(this);
+                IsOpen = false;
             }
-		}
+        }
     }
 }

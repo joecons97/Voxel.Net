@@ -17,7 +17,7 @@ namespace VoxelNet
             return packFile;
         }
 
-        public static T GetAsset<T>(string assetPath) where T : IImportable
+        public static T GetAsset<T>(string assetPath, bool cache = true) where T : IImportable
         {
             if (assets.TryGetValue(assetPath, out IImportable asset))
             {
@@ -29,7 +29,8 @@ namespace VoxelNet
             }
 
             var importable = CreateAsset<T>(assetPath);
-            assets.Add(assetPath, importable);
+            if(cache)
+                assets.Add(assetPath, importable);
 
             return importable;
         }
@@ -70,7 +71,9 @@ namespace VoxelNet
         {
             foreach (var value in assets.Values)
             {
+#pragma warning disable 618
                 value.Dispose();
+#pragma warning restore 618
             }
         }
     }

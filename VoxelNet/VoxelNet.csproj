@@ -218,6 +218,7 @@
     <Compile Include="Engine Layer\Item System\BlockItem.cs" />
     <Compile Include="Engine Layer\Item System\GameItems.cs" />
     <Compile Include="Engine Layer\Item System\Item.cs" />
+    <Compile Include="Engine Layer\Menus\PauseMenu.cs" />
     <Compile Include="Engine Layer\Menus\NewWorldMenu.cs" />
     <Compile Include="Engine Layer\Menus\OptionsMenu.cs" />
     <Compile Include="Engine Layer\Physics\BoundingBox.cs" />
@@ -291,7 +292,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Engine Layer\Menus\Menu.cs" />
-    <Compile Include="Engine Layer\Menus\TestMenu.cs" />
+    <Compile Include="Engine Layer\Menus\MainMenu.cs" />
     <None Include="Resources\Resources\Fonts\MUCHACHOS -Regular.otf" />
     <None Include="Resources\Resources\Fonts\OpenSans-Regular.ttf" />
     <None Include="Resources\Resources\Fonts\SHERWOOD.TTF" />

@@ -45,7 +45,7 @@ namespace VoxelNet.Menus
 
             var cur = possibleDisplayResolutions[selectedRes];
 
-            if (GUI.Button($"Size: {cur.Width} X {cur.Height} - {cur.RefreshRate}hz", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f - 27, 198 * 2, 18 * 2)))
+            if (GUI.Button($"Size: {cur.Width} X {cur.Height} - {cur.RefreshRate}hz", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f - 72, 198 * 2, 18 * 2)))
             {
                 if (++selectedRes >= possibleDisplayResolutions.Count)
                     selectedRes = 0;
@@ -53,12 +53,12 @@ namespace VoxelNet.Menus
 
             string fcString = fullscreenVal ? "On" : "Off";
 
-            if (GUI.Button($"Fullscreen: {fcString}", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f + 27, 198 * 2, 18 * 2)))
+            if (GUI.Button($"Fullscreen: {fcString}", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f - 18, 198 * 2, 18 * 2)))
             {
                 fullscreenVal = !fullscreenVal;
             }
 
-            if (GUI.Button("Back", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f + 81, 190, 18 * 2)))
+            if (GUI.Button("Back", new Rect(Program.Window.Width / 2f - 198, Program.Window.Height / 2f + 36, 190, 18 * 2)))
             {
                 if (PreviousMenu != null)
                     PreviousMenu.Show();
@@ -68,7 +68,7 @@ namespace VoxelNet.Menus
                 fullscreenVal = Program.Settings.Fullscreen;
             }
 
-            if (GUI.Button("Apply", new Rect(Program.Window.Width / 2f + 8, Program.Window.Height / 2f + 81, 190, 18 * 2)))
+            if (GUI.Button("Apply", new Rect(Program.Window.Width / 2f + 8, Program.Window.Height / 2f + 36, 190, 18 * 2)))
             {
                 if (PreviousMenu != null)
                     PreviousMenu.Show();

@@ -63,8 +63,6 @@ void main()
 
 	vec3 worldNormal = normalize(v_Normal.rgb);
 
-	float ndl = 0;
-
 	vec4 sunColour = Lighting.SunStrength * Lighting.SunColour;
 
 	vec4 pxLight = (sunColour*(pow(v_Light + 0.1,2)));

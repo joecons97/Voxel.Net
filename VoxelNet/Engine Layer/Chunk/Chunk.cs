@@ -19,8 +19,6 @@ namespace VoxelNet
     {
         public class BlockState
         {
-            public const float LIGHTUNIT = 1f/16f;
-
             public short id;
             public sbyte x;
             public sbyte y;
@@ -37,7 +35,6 @@ namespace VoxelNet
         public static Material ChunkMaterial;
         public static Material ChunkWaterMaterial;
 
-        public const int LAYERCOUNT = 8;
         public const int WIDTH = 16;
         public const int HEIGHT = 128;
 

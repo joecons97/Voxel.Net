@@ -32,6 +32,7 @@ namespace VoxelNet.Assets
         public float WaterHeight { get; }
 
         private Player player;
+        private Thread chunkThread;
 
         List<Entity> loadedEntities = new List<Entity>();
         List<Chunk> loadedChunks = new List<Chunk>();
@@ -143,13 +144,13 @@ namespace VoxelNet.Assets
             }
 
             ThreadStart chunkThreadStart = ChunkThread;
-            Thread chunkThread = new Thread(chunkThreadStart) {Name = "Chunk Generation Thread"};
+            chunkThread = new Thread(chunkThreadStart) {Name = "Chunk Generation Thread"};
             chunkThread.Start();
         }
 
         void ChunkThread()
         {
-            while (Program.IsRunning)
+            while (Program.IsRunning && instance != null)
             {
                 try
                 {
@@ -495,18 +496,47 @@ namespace VoxelNet.Assets
 
         public void Dispose()
         {
+            chunkThread.Abort();
+            chunkThread = null;
+
             foreach (var entity in loadedEntities)
             {
-                entity.End();
+                DestroyEntity(entity);
             }
+
+            ClearUpEntities();
+            loadedEntities.Clear();
+            loadedEntities = null;
+            player = null;
+
             foreach (var loadedChunk in loadedChunks)
             {
                 loadedChunk.Dispose();
             }
-            Chunk.ChunkMaterial?.Dispose();
-            Chunk.ChunkWaterMaterial?.Dispose();
-            TexturePack?.Dispose();
+            loadedChunks.Clear();
+            loadedChunks = null;
+
+            chunksToUpdate.Clear();
+            chunksToUpdate = null;
+
+            chunksToKeep.Clear();
+            chunksToKeep = null;
+
+            newChunks.Clear();
+            newChunks = null;
+
+            //DONT MANUALLY DISPOSE ASSETS
+
+            //Chunk.ChunkMaterial?.Dispose();
+            //Chunk.ChunkWaterMaterial?.Dispose();
+
+            //loadingScreenTexture.Dispose();
+            //loadingScreenTextureDickJoke.Dispose();
+            //TexturePack.Dispose();
+
             Skybox.Dispose();
+            World.instance = null;
+            GC.Collect();
         }
     }
 }
