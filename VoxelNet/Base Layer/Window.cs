@@ -69,18 +69,19 @@ namespace VoxelNet
 
             Time.UpdateFrameRate(1f / Time.DeltaTime);
 
+            Input.Input.Update();
+
+            World.GetInstance()?.Update();
+
+            PhysicSimulation.Simulate(Time.DeltaTime);
+
             if (Focused)
             {
-                Input.Input.Update();
-
                 KeyboardState kbdState = Keyboard.GetState();
 
                 if (kbdState.IsKeyDown(Key.F4) && kbdState.IsKeyDown(Key.AltLeft))
                     Exit();
 
-                World.GetInstance()?.Update();
-
-                PhysicSimulation.Simulate(Time.DeltaTime);
             }
 
             UniformBuffers.TimeBuffer.Update(new TimeUniformBuffer(){DeltaTime = Time.DeltaTime, Time = Time.GameTime});

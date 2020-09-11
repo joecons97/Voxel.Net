@@ -118,7 +118,7 @@ namespace VoxelNet.Assets
             Skybox = new Skybox(AssetDatabase.GetAsset<Material>("Resources/Materials/World/Sky.mat"));
             loadingScreenTexture = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/img_loading_screen.png");
             loadingScreenTextureDickJoke = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/img_loading_screen_willy.png");
-            isDickJoke = Maths.Chance(0.1f);
+            isDickJoke = Maths.Chance(0.01f);
             loadingScreenStyle = new GUIStyle()
             {
                 Normal = new GUIStyleOption()
@@ -270,23 +270,30 @@ namespace VoxelNet.Assets
                 loadedEntities[index].Update();
             }
 
-            float dayInMins = 60f;
+            if (HasFinishedInitialLoading)
+            {
+                float dayInMins = 20f;
 
-            lightAngle += Time.DeltaTime * (6f / dayInMins);
+                lightAngle += Time.DeltaTime * (6f / dayInMins);
 
-            float colTime = (float)Math.Abs(Math.Cos(MathHelper.DegreesToRadians(lightAngle)));
-            colTime = (float)Math.Pow(colTime, 10);
+                float colTime = (float) Math.Abs(Math.Cos(MathHelper.DegreesToRadians(lightAngle)));
+                colTime = (float) Math.Pow(colTime, 10);
 
-            lightBufferData.SunColour = Vector4.Lerp(Color4.LightYellow.ToVector4(), Color4.OrangeRed.ToVector4(), colTime);
-            lightBufferData.SunDirection = new Vector4(Maths.GetForwardFromRotation(new Vector3(lightAngle, 0, 0)), 1);
+                lightBufferData.SunColour =
+                    Vector4.Lerp(Color4.LightYellow.ToVector4(), Color4.OrangeRed.ToVector4(), colTime);
+                lightBufferData.SunDirection =
+                    new Vector4(Maths.GetForwardFromRotation(new Vector3(lightAngle, 0, 0)), 1);
 
-            float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0));
-            t = (float)Math.Pow(t, .25f) * 1.75f;
+                float t = Vector3.Dot(lightBufferData.SunDirection.Xyz, new Vector3(0, -1, 0));
+                t = Math.Max(.000000001f, t);
+                t = (float) Math.Pow(t, .25f) * 1.75f;
 
-            lightBufferData.SunStrength = t;
+                lightBufferData.SunStrength = t;
 
-            Vector4 col = Vector4.Lerp(Color4.DarkSlateGray.ToVector4() / 5f, Color4.DarkSlateGray.ToVector4(), t) / 5;
-            lightBufferData.AmbientColour = col;
+                Vector4 col = Vector4.Lerp(Color4.DarkSlateGray.ToVector4() / 5f, Color4.DarkSlateGray.ToVector4(), t) /
+                              5;
+                lightBufferData.AmbientColour = col;
+            }
 
             UpdateView();
             ClearUpEntities();
