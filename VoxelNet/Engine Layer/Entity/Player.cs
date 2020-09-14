@@ -109,7 +109,19 @@ namespace VoxelNet.Entities
             if (!currentWorld.HasFinishedInitialLoading)
                 return;
 
-            if(!pauseMenu.IsOpen)
+            if (inventory.IsOpen)
+            {
+                inventory.Close();
+                SetControlsActive(true);
+                SetMouseVisible(false);
+            }
+            else if (pauseMenu.IsOpen)
+            {
+                pauseMenu.Close();
+                SetControlsActive(true);
+                SetMouseVisible(false);
+            }
+            else
                 pauseMenu.Show();
         }
 
