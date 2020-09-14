@@ -130,13 +130,17 @@ namespace VoxelNet.Entities
             if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
                 out RayVoxelOut op))
             {
-                if (currentWorld.TryGetChunkAtPosition((int)op.PlacementChunk.X, (int)op.PlacementChunk.Y, out Chunk chunk))
+                int x = (int)Math.Floor(GetPositionInChunk().X);
+                int z = (int)Math.Floor(GetPositionInChunk().Z);
+                bool isPlayerAtPos = (int) op.PlacementPosition.X == x && (int) op.PlacementPosition.Z == z;
+                if (currentWorld.TryGetChunkAtPosition((int)op.PlacementChunk.X, (int)op.PlacementChunk.Y, out Chunk chunk) &&
+                    !isPlayerAtPos)
                 {
                     var stack = inventory.GetItemStackByLocation(inventory.SelectedItemIndex, 0);
                     if (stack != null)
                     {
                         stack.Item.OnInteract(op.PlacementPosition, chunk);
-                        inventory.RemoveItem(stack.Item);
+                        inventory.RemoveItemFromStack(stack.Item, stack);
                         currentWorld.RequestChunkUpdate(chunk, true, (int)op.BlockPosition.X, (int)op.BlockPosition.Z);
                     }
                 }

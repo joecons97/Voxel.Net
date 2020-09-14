@@ -44,11 +44,11 @@ namespace VoxelNet.Menus
                 Close();
             }
 
-            if (GUI.Button("Load World", new Rect(winWidth / 2f - 198, winHeight / 2f - 27, 198 * 2, 18 * 2)))
+            if (GUI.Button("Load World (Not Implemented)", new Rect(winWidth / 2f - 198, winHeight / 2f - 27, 198 * 2, 18 * 2)))
             {
-                var wrld = new World("New World", new Random().Next(1,999999).ToString());
-                Close();
-                Player.SetMouseVisible(false);
+                //var wrld = new World("New World", new Random().Next(1,999999).ToString());
+                //Close();
+                //Player.SetMouseVisible(false);
             }
 
             if (GUI.Button("Options", new Rect(winWidth / 2f - 198, winHeight / 2f + 27, 198 * 2, 18 * 2)))

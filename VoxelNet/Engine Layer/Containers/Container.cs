@@ -46,6 +46,19 @@ namespace VoxelNet.Containers
                     ItemsList.Remove(stack);
             }
         }
+        public void RemoveItemFromStack(Item item, ItemStack stack)
+        {
+            RemoveItemFromStack(item.Key, stack);
+        }
+
+        public void RemoveItemFromStack(string itemKey, ItemStack stack)
+        {
+            if (stack != null)
+            {
+                if (stack.RemoveFromStack() == ItemStackState.Empty)
+                    ItemsList.Remove(stack);
+            }
+        }
 
         public bool GetIsFull()
         {
