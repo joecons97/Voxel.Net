@@ -201,6 +201,11 @@ namespace VoxelNet.Entities
                 float x = Input.Input.GetMouseDelta().X / 20f;
                 float y = Input.Input.GetMouseDelta().Y / 20f;
 
+                if (y > 0 && currentWorld.WorldCamera.Rotation.X >= 90)
+                    y = 0;
+                else if (y < 0 && currentWorld.WorldCamera.Rotation.X <= -85)
+                    y = 0;
+
                 Rotation = new Vector3(0, Rotation.Y + x, 0);
                 currentWorld.WorldCamera.Rotation = new Vector3(currentWorld.WorldCamera.Rotation.X + y, Rotation.Y, 0);
             }
