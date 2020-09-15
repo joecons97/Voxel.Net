@@ -235,14 +235,16 @@ namespace VoxelNet
                 int worldZ = z - WIDTH;
 
                 byte lightVal = lightmap[x, y, z];
+                byte adjLightVal = 0;
+                short adjBlockId = 0;
 
                 if (x < w - 1)
                 {
-                    byte lightR = lightmap[x + 1, y, z];
-                    if (lightR < lightVal - 1)
+                    adjLightVal = lightmap[x + 1, y, z];
+                    if (adjLightVal < lightVal - 1)
                     {
-                        short bR = GetBlockID(worldX + 1, y, worldZ);
-                        if (bR == 0)
+                        adjBlockId = GetBlockID(worldX + 1, y, worldZ);
+                        if (adjBlockId == 0)
                         {
                             lightmap[x + 1, y, z] = (byte)(lightVal - 1);
                             toPropagate.Add(new Vector3(x + 1, y, z));
@@ -251,11 +253,11 @@ namespace VoxelNet
                 }
                 if (x > 0)
                 {
-                    byte lightL = lightmap[x - 1, y, z];
-                    if (lightL < lightVal - 1)
+                    adjLightVal = lightmap[x - 1, y, z];
+                    if (adjLightVal < lightVal - 1)
                     {
-                        short bL = GetBlockID(worldX - 1, y, worldZ);
-                        if (bL == 0)
+                        adjBlockId = GetBlockID(worldX - 1, y, worldZ);
+                        if (adjBlockId == 0)
                         {
                             lightmap[x - 1, y, z] = (byte)(lightVal - 1);
                             toPropagate.Add(new Vector3(x - 1, y, z));
@@ -265,8 +267,8 @@ namespace VoxelNet
 
                 if (y > 0)
                 {
-                    short bD = GetBlockID(worldX, y - 1, worldZ);
-                    if (bD == 0)
+                    adjBlockId = GetBlockID(worldX, y - 1, worldZ);
+                    if (adjBlockId == 0)
                     {
                         if (lightVal == 15)
                         {
@@ -275,17 +277,17 @@ namespace VoxelNet
                         }
                         else
                         {
-                            byte lightD = lightmap[x, y - 1, z];
-                            if (lightD < lightVal - 1)
+                            adjLightVal = lightmap[x, y - 1, z];
+                            if (adjLightVal < lightVal - 1)
                             {
                                 lightmap[x, y - 1, z] = (byte)(lightVal - 1);
                                 toPropagate.Add(new Vector3(x, y - 1, z));
                             }
                         }
                     }
-                    else if(bD != -1)
+                    else if(adjBlockId != -1)
                     {
-                        sbyte op = BlockDatabase.GetBlock(bD).Opacity;
+                        sbyte op = BlockDatabase.GetBlock(adjBlockId).Opacity;
                         if (op < 15)
                         {
                             op = (sbyte)(lightVal - op);
@@ -297,11 +299,11 @@ namespace VoxelNet
                 }
                 if (y < HEIGHT - 1)
                 {
-                    byte lightU = lightmap[x, y + 1, z];
-                    if (lightU < lightVal - 1)
+                    adjLightVal = lightmap[x, y + 1, z];
+                    if (adjLightVal < lightVal - 1)
                     {
-                        short bU = GetBlockID(worldX, y + 1, worldZ);
-                        if (bU == 0)
+                        adjBlockId = GetBlockID(worldX, y + 1, worldZ);
+                        if (adjBlockId == 0)
                         {
                             lightmap[x, y + 1, z] = (byte)(lightVal - 1);
                             toPropagate.Add(new Vector3(x, y + 1, z));
@@ -311,11 +313,11 @@ namespace VoxelNet
 
                 if (z < w - 1)
                 {
-                    byte lightF = lightmap[x, y, z + 1];
-                    if (lightF < lightVal - 1)
+                    adjLightVal = lightmap[x, y, z + 1];
+                    if (adjLightVal < lightVal - 1)
                     {
-                        short bF = GetBlockID(worldX, y, worldZ + 1);
-                        if (bF == 0)
+                        adjBlockId = GetBlockID(worldX, y, worldZ + 1);
+                        if (adjBlockId == 0)
                         {
                             lightmap[x, y, z + 1] = (byte)(lightVal - 1);
                             toPropagate.Add(new Vector3(x, y, z + 1));
@@ -324,11 +326,11 @@ namespace VoxelNet
                 }
                 if (z > 0)
                 {
-                    byte lightB = lightmap[x, y, z - 1];
-                    if (lightB < lightVal - 1)
+                    adjLightVal = lightmap[x, y, z - 1];
+                    if (adjLightVal < lightVal - 1)
                     {
-                        short bB = GetBlockID(worldX, y, worldZ - 1);
-                        if (bB == 0)
+                        adjBlockId = GetBlockID(worldX, y, worldZ - 1);
+                        if (adjBlockId == 0)
                         {
                             lightmap[x, y, z - 1] = (byte)(lightVal - 1);
                             toPropagate.Add(new Vector3(x, y, z - 1));
@@ -401,11 +403,28 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 0 + y, 1 + z));
                 vertices.Add(new Vector3(1 + x, 0 + y, 1 + z));
 
-                float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
+                int lx = x + WIDTH;
+                int lz = z + WIDTH;
+                int ly = y;
+
+                byte lightR = lightmap[lx + 1,  ly, lz];
+                byte lightL = lightmap[lx - 1,  ly, lz];
+                byte lightF = lightmap[lx,      ly, lz + 1];
+                byte lightB = lightmap[lx,      ly, lz - 1];
+                byte lightU = (ly == 255 ? (byte)15 : lightmap[lx, ly + 1, lz]);
+                byte lightD = (ly == 0 ? (byte)15 : lightmap[lx, ly - 1, lz]);
+                int b = (ly == 0 ? 0 : 1);
+                int t = (ly == 255 ? 0 : 1);
+                byte br = (byte)((lightmap[lx, ly, lz + 1] + lightmap[lx - 1, ly, lz + 1] + lightmap[lx, ly - b, lz + 1] + lightmap[lx - 1, ly - b, lz + 1]) / 4);
+                byte tr = (byte)((lightmap[lx, ly, lz + 1] + lightmap[lx - 1, ly, lz + 1] + lightmap[lx, ly + t, lz + 1] + lightmap[lx - 1, ly + t, lz + 1]) / 4);
+                byte tl = (byte)((lightmap[lx, ly, lz + 1] + lightmap[lx + 1, ly, lz + 1] + lightmap[lx, ly + t, lz + 1] + lightmap[lx + 1, ly + t, lz + 1]) / 4);
+                byte bl = (byte)((lightmap[lx, ly, lz + 1] + lightmap[lx + 1, ly, lz + 1] + lightmap[lx, ly - b, lz + 1] + lightmap[lx + 1, ly - b, lz + 1]) / 4);
+
+                //float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
+                light.Add(tl);
+                light.Add(tr);
+                light.Add(br);
+                light.Add(bl);
 
                 uvs.Add(new Vector2(workingBlock.FrontFace.UVCoordinates.X, workingBlock.FrontFace.UVCoordinates.Y));
                 uvs.Add(new Vector2(workingBlock.FrontFace.UVCoordinates.Width, workingBlock.FrontFace.UVCoordinates.Y));
@@ -445,11 +464,28 @@ namespace VoxelNet
                 vertices.Add(new Vector3(1 + x, 0 + y, 0 + z));
                 vertices.Add(new Vector3(0 + x, 0 + y, 0 + z));
 
-                float lightVal = lightmap[x + WIDTH, y, z + WIDTH - 1];//GetBlockLight(x, y, z - 1);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
+                int lx = x + WIDTH;
+                int lz = z + WIDTH;
+                int ly = y;
+
+                byte lightR = lightmap[lx + 1, ly, lz];
+                byte lightL = lightmap[lx - 1, ly, lz];
+                byte lightF = lightmap[lx, ly, lz + 1];
+                byte lightB = lightmap[lx, ly, lz - 1];
+                byte lightU = (ly == 255 ? (byte)15 : lightmap[lx, ly + 1, lz]);
+                byte lightD = (ly == 0 ? (byte)15 : lightmap[lx, ly - 1, lz]);
+                int b = (ly == 0 ? 0 : 1);
+                int t = (ly == 255 ? 0 : 1);
+                byte bl = (byte)((lightmap[lx, ly, lz - 1] + lightmap[lx - 1, ly, lz - 1] + lightmap[lx, ly - b, lz - 1] + lightmap[lx - 1, ly - b, lz - 1]) / 4);
+                byte tl = (byte)((lightmap[lx, ly, lz - 1] + lightmap[lx - 1, ly, lz - 1] + lightmap[lx, ly + t, lz - 1] + lightmap[lx - 1, ly + t, lz - 1]) / 4);
+                byte tr = (byte)((lightmap[lx, ly, lz - 1] + lightmap[lx + 1, ly, lz - 1] + lightmap[lx, ly + t, lz - 1] + lightmap[lx + 1, ly + t, lz - 1]) / 4);
+                byte br = (byte)((lightmap[lx, ly, lz - 1] + lightmap[lx + 1, ly, lz - 1] + lightmap[lx, ly - b, lz - 1] + lightmap[lx + 1, ly - b, lz - 1]) / 4);
+
+                //float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
+                light.Add(tl);
+                light.Add(tr);
+                light.Add(br);
+                light.Add(bl);
 
                 uvs.Add(new Vector2(workingBlock.BackFace.UVCoordinates.X, workingBlock.BackFace.UVCoordinates.Y));
                 uvs.Add(new Vector2(workingBlock.BackFace.UVCoordinates.Width, workingBlock.BackFace.UVCoordinates.Y));
@@ -489,11 +525,28 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 1 + y, 1 + z));
                 vertices.Add(new Vector3(1 + x, 1 + y, 1 + z));
 
-                float lightVal = y == HEIGHT - 1 ? 15 : lightmap[x + WIDTH, y + 1, z + WIDTH];//GetBlockLight(x, y + 1, z);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
+                int lx = x + WIDTH;
+                int lz = z + WIDTH;
+                int ly = y;
+
+                byte lightR = lightmap[lx + 1, ly, lz];
+                byte lightL = lightmap[lx - 1, ly, lz];
+                byte lightF = lightmap[lx, ly, lz + 1];
+                byte lightB = lightmap[lx, ly, lz - 1];
+                byte lightU = (ly == 255 ? (byte)15 : lightmap[lx, ly + 1, lz]);
+                byte lightD = (ly == 0 ? (byte)15 : lightmap[lx, ly - 1, lz]);
+                int b = (ly == 0 ? 0 : 1);
+                int t = (ly == 255 ? 0 : 1);
+                byte bl = (byte)((lightmap[lx, ly + t, lz] + lightmap[lx - 1, ly + t, lz] + lightmap[lx, ly + t, lz - 1] + lightmap[lx - 1, ly + t, lz - 1]) / 4);
+                byte tl = (byte)((lightmap[lx, ly + t, lz] + lightmap[lx - 1, ly + t, lz] + lightmap[lx, ly + t, lz + 1] + lightmap[lx - 1, ly + t, lz + 1]) / 4);
+                byte tr = (byte)((lightmap[lx, ly + t, lz] + lightmap[lx + 1, ly + t, lz] + lightmap[lx, ly + t, lz + 1] + lightmap[lx + 1, ly + t, lz + 1]) / 4);
+                byte br = (byte)((lightmap[lx, ly + t, lz] + lightmap[lx + 1, ly + t, lz] + lightmap[lx, ly + t, lz - 1] + lightmap[lx + 1, ly + t, lz - 1]) / 4);
+
+                //float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
+                light.Add(br);
+                light.Add(bl);
+                light.Add(tl);
+                light.Add(tr);
 
                 uvs.Add(new Vector2(workingBlock.TopFace.UVCoordinates.X, workingBlock.TopFace.UVCoordinates.Y));
                 uvs.Add(new Vector2(workingBlock.TopFace.UVCoordinates.Width, workingBlock.TopFace.UVCoordinates.Y));
@@ -533,11 +586,28 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 0 + y, 0 + z));
                 vertices.Add(new Vector3(1 + x, 0 + y, 0 + z));
 
-                float lightVal = y == 0 ? 15 : lightmap[x + WIDTH, y - 1, z + WIDTH]; //GetBlockLight(x, y - 1, z);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
+                int lx = x + WIDTH;
+                int lz = z + WIDTH;
+                int ly = y;
+
+                byte lightR = lightmap[lx + 1, ly, lz];
+                byte lightL = lightmap[lx - 1, ly, lz];
+                byte lightF = lightmap[lx, ly, lz + 1];
+                byte lightB = lightmap[lx, ly, lz - 1];
+                byte lightU = (ly == 255 ? (byte)15 : lightmap[lx, ly + 1, lz]);
+                byte lightD = (ly == 0 ? (byte)15 : lightmap[lx, ly - 1, lz]);
+                int b = (ly == 0 ? 0 : 1);
+                int t = (ly == 255 ? 0 : 1);
+                byte tl = (byte)((lightmap[lx, ly - b, lz] + lightmap[lx - 1, ly - b, lz] + lightmap[lx, ly - b, lz - 1] + lightmap[lx - 1, ly - b, lz - 1]) / 4);
+                byte bl = (byte)((lightmap[lx, ly - b, lz] + lightmap[lx - 1, ly - b, lz] + lightmap[lx, ly - b, lz + 1] + lightmap[lx - 1, ly - b, lz + 1]) / 4);
+                byte br = (byte)((lightmap[lx, ly - b, lz] + lightmap[lx + 1, ly - b, lz] + lightmap[lx, ly - b, lz + 1] + lightmap[lx + 1, ly - b, lz + 1]) / 4);
+                byte tr = (byte)((lightmap[lx, ly - b, lz] + lightmap[lx + 1, ly - b, lz] + lightmap[lx, ly - b, lz - 1] + lightmap[lx + 1, ly - b, lz - 1]) / 4);
+
+                //float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
+                light.Add(br);
+                light.Add(bl);
+                light.Add(tl);
+                light.Add(tr);
 
                 uvs.Add(new Vector2(workingBlock.BottomFace.UVCoordinates.X, workingBlock.BottomFace.UVCoordinates.Y));
                 uvs.Add(new Vector2(workingBlock.BottomFace.UVCoordinates.Width, workingBlock.BottomFace.UVCoordinates.Y));
@@ -577,11 +647,28 @@ namespace VoxelNet
                 vertices.Add(new Vector3(1 + x, 0 + y, 1 + z));
                 vertices.Add(new Vector3(1 + x, 0 + y, 0 + z));
 
-                float lightVal = lightmap[x + WIDTH + 1, y, z + WIDTH]; //GetBlockLight(x + 1, y, z);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
+                int lx = x + WIDTH;
+                int lz = z + WIDTH;
+                int ly = y;
+
+                byte lightR = lightmap[lx + 1, ly, lz];
+                byte lightL = lightmap[lx - 1, ly, lz];
+                byte lightF = lightmap[lx, ly, lz + 1];
+                byte lightB = lightmap[lx, ly, lz - 1];
+                byte lightU = (ly == 255 ? (byte)15 : lightmap[lx, ly + 1, lz]);
+                byte lightD = (ly == 0 ? (byte)15 : lightmap[lx, ly - 1, lz]);
+                int b = (ly == 0 ? 0 : 1);
+                int t = (ly == 255 ? 0 : 1);
+                byte bl = (byte)((lightmap[lx + 1, ly, lz] + lightmap[lx + 1, ly, lz - 1] + lightmap[lx + 1, ly - b, lz] + lightmap[lx + 1, ly - b, lz - 1]) / 4);
+                byte tl = (byte)((lightmap[lx + 1, ly, lz] + lightmap[lx + 1, ly, lz - 1] + lightmap[lx + 1, ly + t, lz] + lightmap[lx + 1, ly + t, lz - 1]) / 4);
+                byte tr = (byte)((lightmap[lx + 1, ly, lz] + lightmap[lx + 1, ly, lz + 1] + lightmap[lx + 1, ly + t, lz] + lightmap[lx + 1, ly + t, lz + 1]) / 4);
+                byte br = (byte)((lightmap[lx + 1, ly, lz] + lightmap[lx + 1, ly, lz + 1] + lightmap[lx + 1, ly - b, lz] + lightmap[lx + 1, ly - b, lz + 1]) / 4);
+
+                //float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
+                light.Add(tl);
+                light.Add(tr);
+                light.Add(br);
+                light.Add(bl);
 
                 uvs.Add(new Vector2(workingBlock.RightFace.UVCoordinates.X, workingBlock.RightFace.UVCoordinates.Y));
                 uvs.Add(new Vector2(workingBlock.RightFace.UVCoordinates.Width, workingBlock.RightFace.UVCoordinates.Y));
@@ -621,11 +708,28 @@ namespace VoxelNet
                 vertices.Add(new Vector3(0 + x, 0 + y, 0 + z));
                 vertices.Add(new Vector3(0 + x, 0 + y, 1 + z));
 
-                float lightVal = lightmap[x + WIDTH - 1, y, z + WIDTH]; //GetBlockLight(x - 1, y, z);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
-                light.Add(lightVal);
+                int lx = x + WIDTH;
+                int lz = z + WIDTH;
+                int ly = y;
+
+                byte lightR = lightmap[lx + 1, ly, lz];
+                byte lightL = lightmap[lx - 1, ly, lz];
+                byte lightF = lightmap[lx, ly, lz + 1];
+                byte lightB = lightmap[lx, ly, lz - 1];
+                byte lightU = (ly == 255 ? (byte)15 : lightmap[lx, ly + 1, lz]);
+                byte lightD = (ly == 0 ? (byte)15 : lightmap[lx, ly - 1, lz]);
+                int b = (ly == 0 ? 0 : 1);
+                int t = (ly == 255 ? 0 : 1);
+                byte br = (byte)((lightmap[lx - 1, ly, lz] + lightmap[lx - 1, ly, lz - 1] + lightmap[lx - 1, ly - b, lz] + lightmap[lx - 1, ly - b, lz - 1]) / 4);
+                byte tr = (byte)((lightmap[lx - 1, ly, lz] + lightmap[lx - 1, ly, lz - 1] + lightmap[lx - 1, ly + t, lz] + lightmap[lx - 1, ly + t, lz - 1]) / 4);
+                byte tl = (byte)((lightmap[lx - 1, ly, lz] + lightmap[lx - 1, ly, lz + 1] + lightmap[lx - 1, ly + t, lz] + lightmap[lx - 1, ly + t, lz + 1]) / 4);
+                byte bl = (byte)((lightmap[lx - 1, ly, lz] + lightmap[lx - 1, ly, lz + 1] + lightmap[lx - 1, ly - b, lz] + lightmap[lx - 1, ly - b, lz + 1]) / 4);
+
+                //float lightVal = lightmap[x + WIDTH, y, z + WIDTH + 1];//GetBlockLight(x, y, z + 1);
+                light.Add(tl);
+                light.Add(tr);
+                light.Add(br);
+                light.Add(bl);
 
                 uvs.Add(new Vector2(workingBlock.LeftFace.UVCoordinates.X, workingBlock.LeftFace.UVCoordinates.Y));
                 uvs.Add(new Vector2(workingBlock.LeftFace.UVCoordinates.Width, workingBlock.LeftFace.UVCoordinates.Y));
