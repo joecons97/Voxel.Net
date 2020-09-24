@@ -334,7 +334,7 @@
     <None Include="Resources\Resources\Shaders\PostProcessing\ACES.shader" />
     <None Include="Resources\Resources\Shaders\PostProcessing\ContrastPPE.shader" />
     <None Include="Resources\Resources\Shaders\SkyProc.shader" />
-    <None Include="Resources\Resources\Shaders\Sky\Atmos.glsl" />
+    <None Include="Resources\Resources\Shaders\Sky\Scattering.glsl" />
     <None Include="Resources\Resources\Shaders\Time.ubo" />
     <None Include="Resources\Resources\Shaders\TransparentBlock.shader" />
     <None Include="Resources\Resources\Shaders\Voxel.glsl" />

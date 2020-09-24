@@ -33,7 +33,8 @@ namespace VoxelNet.Rendering
                 worldCam = World.GetInstance().WorldCamera;
             }
 
-            Renderer.DrawRequest(skyMesh, skyMat, Matrix4.CreateScale(worldCam.FarPlane / 2) * Matrix4.CreateTranslation(worldCam.Position));
+            //(World.GetInstance().RenderDistance * 2) * Chunk.WIDTH
+            Renderer.DrawRequest(skyMesh, skyMat, Matrix4.CreateScale(worldCam.FarPlane/2f) * Matrix4.CreateTranslation(worldCam.Position));
         }
 
         public void Dispose()

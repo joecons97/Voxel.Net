@@ -31,6 +31,8 @@ namespace VoxelNet.Assets
         public CellNoise BiomeNoise { get; private set; }
         public float WaterHeight { get; }
 
+        public int RenderDistance => worldSize;
+
         private Player player;
         private Thread chunkThread;
 

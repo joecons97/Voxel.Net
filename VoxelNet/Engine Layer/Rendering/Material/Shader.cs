@@ -312,7 +312,8 @@ namespace VoxelNet.Rendering
             string infoLogVert = GL.GetShaderInfoLog(vertShader);
             if (infoLogVert != System.String.Empty)
             {
-                Debug.Assert(infoLogVert);
+                //Debug.Assert(infoLogVert);
+                throw new Exception("Vertex Shader " + vertShader + " failed to compile!\n" + infoLogVert);
             }
             else
             {
@@ -325,7 +326,8 @@ namespace VoxelNet.Rendering
 
             if (infoLogFrag != System.String.Empty)
             {
-                Debug.Assert(infoLogFrag);
+                throw new Exception("FragShader " + fragShader + " failed to compile!\n" + infoLogFrag);
+
             }
             else
             {

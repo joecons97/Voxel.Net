@@ -3,3 +3,4 @@
 shader Resources/Shaders/SkyProc.shader
 
 uniform number U_SunSize 0.025
+uniform number U_SkyStrength 0.125
