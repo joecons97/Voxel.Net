@@ -207,19 +207,23 @@ float shdwcrv(float x)
     return x;
 }
 
-//float sphSoftShadow(vec3 position, vec3 L)
-//{
-//    const float k = 10.;
-//    //vec4 sph = vec4(-up*earthRadius,earthRadius);
-//    vec3 oc = position + upVector * earthRadius;
-//    float b = dot(oc, L);
-//    float c = dot(oc, oc) - earthRadius * earthRadius;
-//    float h = b * b - c;
-//    
-//    float d = -earthRadius + sqrt(max(0.0, earthRadius * earthRadius - h));
-//    float t = -b - sqrt(max(0.0, h));
-//    return (t < 0.0) ? 1.0 : shdwcrv(k * d / t);
-//}
+float sphSoftShadow(vec3 position, vec3 L)
+{
+    const float k = 10.;
+    //vec4 sph = vec4(-up*earthRadius,earthRadius);
+    vec3 oc = position + upVector * earthRadius;
+    float b = dot(oc, L);
+    float c = dot(oc, oc) - earthRadius * earthRadius;
+    float h = b * b - c;
+    
+    float d = -earthRadius + sqrt(max(0.0, earthRadius * earthRadius - h));
+    float t = -b - sqrt(max(0.0, h));
+    //return (t < 0.0) ? 1.0 : shdwcrv(k * d / t);
+    if(t < 0.0)
+        return 1.0;
+    else
+        return shdwcrv(k * d / t);
+}
 
 vec3 GetSkyScatter(vec3 col, vec3 V, vec3 sunVec, vec3 moonVec, float sunIntensity)
 {
@@ -241,8 +245,8 @@ vec3 GetSkyScatter(vec3 col, vec3 V, vec3 sunVec, vec3 moonVec, float sunIntensi
 
     vec3 skyColorM = col + (moonLight);
 
-   // float ertShdwSun = sphSoftShadow(thickness.x * V, sunVec);
-   // float ertShdwMoon = sphSoftShadow(thickness.x * V, moonVec);
+    float ertShdwSun = sphSoftShadow(thickness.x * V, sunVec);
+    float ertShdwMoon = sphSoftShadow(thickness.x * V, moonVec);
 
     for (int i = 0; i < int(steps); i++)
     {
@@ -253,5 +257,5 @@ vec3 GetSkyScatter(vec3 col, vec3 V, vec3 sunVec, vec3 moonVec, float sunIntensi
         skyColorM = skyColorM * viewAbsorb + scatterM;
     }
 
-    return skyColorS+ skyColorM;//(skyColorS * ertShdwSun) + (skyColorM * ertShdwMoon);
+    return (skyColorS * ertShdwSun) + (skyColorM * ertShdwMoon);
 }

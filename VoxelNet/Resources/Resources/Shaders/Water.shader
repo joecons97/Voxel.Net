@@ -76,6 +76,8 @@ uniform sampler2D u_ColorMap;
 
 uniform vec4 u_ShallowColour = vec4(0,0.25f,0.5f, 1);
 uniform vec4 u_DeepColour = vec4(0, 0.025f, 0.05f, 1);
+uniform float u_ColourDepth = 0.125f;
+uniform float u_waterDepth = 2;
 
 in vec4 v_Color;
 in vec4 v_WaveHeight;
@@ -134,9 +136,9 @@ void main()
     }
 	vec4 pxLight = max((ndl * Lighting.SunStrength * Lighting.SunColour), 0) + Lighting.AmbientColour;
 
-    vec4 waterColour = mix(u_DeepColour, u_ShallowColour, GetDepth(0.125f)) * waveTex;
+    vec4 waterColour = mix(u_DeepColour, u_ShallowColour, GetDepth(u_ColourDepth)) * waveTex;
 
-	vec4 final = mix(texCol, waterColour * pxLight, 1 - GetDepth(2));
+	vec4 final = mix(texCol, waterColour * pxLight, 1 - GetDepth(u_waterDepth));
 
    //vec4 bg = texture(u_Src, uvs);
     vec3 spec = gloss * Lighting.SunColour.rgb * 5;

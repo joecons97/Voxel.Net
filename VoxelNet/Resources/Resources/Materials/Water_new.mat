@@ -1,0 +1,9 @@
+//Generated material file: 30/09/2020 12:23:21
+//Valid material type: number, mat4, vec2, vec3, vec4
+shader Resources/Shaders/Water.shader
+
+//Uniforms
+uniform vec4 u_ShallowColour 343,3242,342,342
+uniform vec4 u_DeepColour 342,3432,3420,23420
+uniform number u_ColourDepth 342
+uniform number u_waterDepth 3434
