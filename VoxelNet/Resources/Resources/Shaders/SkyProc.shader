@@ -41,6 +41,7 @@ layout(location = 0) out vec4 color;
 
 uniform float U_SunSize;
 uniform float U_SkyStrength;
+uniform vec3 U_SkyColor;
 
 in vec3 v_TexCoord;
 in vec3 v_WorldPosition;
@@ -58,7 +59,7 @@ void main()
 {
     vec3 lightDir = -normalize(Lighting.SunDirection).rgb;
 
-    vec3 skyScatter = GetSkyScatter(vec3(0.529411765, 0.807843137, 0.921568627), v_Position, lightDir, -lightDir, 1) * U_SkyStrength;
+    vec3 skyScatter = GetSkyScatter(U_SkyColor, v_Position, lightDir, -lightDir, 1) * U_SkyStrength;
 
     vec3 sun = vec3(MieScatter(-Lighting.SunDirection.rgb, U_SunSize, 50)) * (Lighting.SunColour.rgb);
     vec3 moon = vec3(MieScatter(Lighting.SunDirection.rgb, U_SunSize, 50)) / 2;

@@ -17,7 +17,7 @@ namespace VoxelNet.Rendering
 
         public Skybox(Material.Material mat)
         {
-            skyMesh = AssetDatabase.GetAsset<Mesh>("Resources/Models/InvertedCube.obj");
+            skyMesh = AssetDatabase.GetAsset<Mesh>("Resources/Models/SkySphere.obj");
             skyMat = mat;
         }
 

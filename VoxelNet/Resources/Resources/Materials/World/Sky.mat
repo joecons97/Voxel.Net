@@ -1,6 +1,8 @@
-﻿//Valid material type: number, mat4, vec2, vec3, vec4
-
+//Generated material file: 30/09/2020 22:52:36
+//Valid material type: number, mat4, vec2, vec3, vec4
 shader Resources/Shaders/SkyProc.shader
 
+//Uniforms
 uniform number U_SunSize 0.025
 uniform number U_SkyStrength 0.125
+uniform vec3 U_SkyColor 0.1,0.1,1

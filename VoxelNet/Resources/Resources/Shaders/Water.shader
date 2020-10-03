@@ -74,10 +74,10 @@ uniform sampler2D u_Src;
 uniform sampler2D u_Depth;
 uniform sampler2D u_ColorMap;
 
-uniform vec4 u_ShallowColour = vec4(0,0.25f,0.5f, 1);
-uniform vec4 u_DeepColour = vec4(0, 0.025f, 0.05f, 1);
-uniform float u_ColourDepth = 0.125f;
-uniform float u_waterDepth = 2;
+uniform vec4 u_ShallowColour;
+uniform vec4 u_DeepColour;
+uniform float u_ColourDepth;
+uniform float u_waterDepth;
 
 in vec4 v_Color;
 in vec4 v_WaveHeight;

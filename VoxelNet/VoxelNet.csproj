@@ -211,6 +211,7 @@
     <Compile Include="Engine Layer\Containers\ItemStack.cs" />
     <Compile Include="Engine Layer\Containers\PlayerInventory.cs" />
     <Compile Include="Engine Layer\Entity\Entity.cs" />
+    <Compile Include="Engine Layer\Entity\Interfaces\IDamageable.cs" />
     <Compile Include="Engine Layer\Entity\ItemEntity.cs" />
     <Compile Include="Engine Layer\Entity\Player.cs" />
     <Compile Include="Engine Layer\GUI\GUI.cs" />
@@ -312,6 +313,7 @@
     <None Include="Resources\Resources\Materials\TestMaterial.mat" />
     <None Include="Resources\Resources\Materials\World\Water.mat" />
     <None Include="Resources\Resources\Models\InvertedCube.obj" />
+    <None Include="Resources\Resources\Models\SkySphere.obj" />
     <None Include="Resources\Resources\Models\Tests\HiSphere.obj" />
     <None Include="Resources\Resources\Models\Tests\LoSphere.obj" />
     <None Include="Resources\Resources\Models\Tests\sponza.obj" />
@@ -365,6 +367,9 @@
     <Content Include="Resources\Resources\Textures\GUI\btn_hover.png" />
     <Content Include="Resources\Resources\Textures\GUI\btn_normal.png" />
     <Content Include="Resources\Resources\Textures\GUI\Crosshair.png" />
+    <Content Include="Resources\Resources\Textures\GUI\heart.png" />
+    <Content Include="Resources\Resources\Textures\GUI\heart_empty.png" />
+    <Content Include="Resources\Resources\Textures\GUI\heart_half.png" />
     <Content Include="Resources\Resources\Textures\GUI\Inventory_Slot.png" />
     <Content Include="Resources\Resources\Textures\Items\Def_Item.png" />
     <Content Include="Resources\Resources\Textures\Pack_Icon.png" />

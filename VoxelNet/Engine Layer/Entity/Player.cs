@@ -4,6 +4,7 @@ using OpenTK;
 using OpenTK.Input;
 using VoxelNet.Assets;
 using VoxelNet.Containers;
+using VoxelNet.Entities.Interfaces;
 using VoxelNet.Menus;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
@@ -11,8 +12,11 @@ using Vector2 = System.Numerics.Vector2;
 
 namespace VoxelNet.Entities
 {
-    public class Player : Entity
+    public class Player : Entity, IDamageable
     {
+        public const int MAX_HEALTH = 20;
+        private int currentHealth = MAX_HEALTH;
+
         private bool hasHadInitialSet;
         private World currentWorld;
         private Rigidbody rigidbody;
@@ -28,12 +32,25 @@ namespace VoxelNet.Entities
 
         PlayerInventory inventory = new PlayerInventory();
         PauseMenu pauseMenu = new PauseMenu();
+        private Texture heartIcon;
+        private Texture heartHalfIcon;
+        private Texture heartEmptyIcon;
+
+        private float hungerLossTickRate = 10;
+        private float hungerLossSprintTickRate = 2;
+        private float lastHungerLossTick;
+        private float healthIncreaseTickRate = 4;
+        private float lastHealthIncreaseTick;
 
         public override void Begin()
         {
             Name = "Player";
             currentWorld = World.GetInstance();
             hasHadInitialSet = false;
+
+            heartIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart.png");
+            heartHalfIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_half.png");
+            heartEmptyIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_empty.png");
 
             Input.Input.GetSetting("Pause").KeyDown += InputPause;
 
@@ -67,6 +84,11 @@ namespace VoxelNet.Entities
 
             Input.Input.GetSetting("Sprint").KeyDown -= InputSprintDown;
             Input.Input.GetSetting("Sprint").KeyUp -= InputSprintUp;
+
+            heartEmptyIcon.Dispose();
+            heartHalfIcon.Dispose();
+            heartIcon.Dispose();
+
             base.Destroyed();
         }
 
@@ -255,6 +277,23 @@ namespace VoxelNet.Entities
                     rigidbody.Drag = isInWater ? UnderWaterDrag : 0;
                 }
             }
+
+            if (currentWorld.HasFinishedInitialLoading)
+            {
+                float hungerTick = isSprinting ? hungerLossSprintTickRate : hungerLossTickRate;
+                if (lastHungerLossTick + hungerTick <= Time.GameTime)
+                {
+                    lastHungerLossTick = Time.GameTime;
+                }
+
+                if (lastHealthIncreaseTick + healthIncreaseTickRate <= Time.GameTime)
+                {
+                    if (currentHealth < MAX_HEALTH)
+                        SetHealth(currentHealth + 1);
+
+                    lastHealthIncreaseTick = Time.GameTime;
+                }
+            }
         }
 
         public override void RenderGUI()
@@ -270,6 +309,33 @@ namespace VoxelNet.Entities
 
             GUI.Image(currentWorld.TexturePack.Crosshair, new Rect((Program.Window.Width / 2) - 16, (Program.Window.Height / 2) - 16, 32, 32));
             inventory.RenderToolBar();
+
+            float winWidth = Program.Settings.WindowWidth;
+            float winHeight = Program.Settings.WindowHeight;
+            int size = 23;
+            for (int i = 0; i < MAX_HEALTH; i++)
+            {
+                int forX = size * (i / 2);
+                if (i % 2 != 0)
+                {
+                    if (i == currentHealth)
+                    {
+                        GUI.Image(heartHalfIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (i < currentHealth)
+                    {
+                        GUI.Image(heartIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
+                        continue;
+                    }
+                }
+
+                if(i > currentHealth)
+                    GUI.Image(heartEmptyIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
+            }
         }
 
         public static void SetControlsActive(bool active)
@@ -294,5 +360,27 @@ namespace VoxelNet.Entities
         {
             return inventory;
         }
+
+        public void Die()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TakeDamage(int damage)
+        {
+            currentHealth -= damage;
+            if (currentHealth <= 0)
+            {
+                currentHealth = 0;
+                Die();
+            }
+        }
+
+        public void SetHealth(int health)
+        {
+            currentHealth = health;
+        }
+
+        public int GetHealth() => currentHealth;
     }
 }

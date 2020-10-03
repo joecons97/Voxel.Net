@@ -152,7 +152,7 @@ namespace VoxelNet.Rendering
 
         public IImportable Import(string path, ZipFile pack)
         {
-            bool srgb = !path.Contains("/RenderGUI/");
+            bool srgb = !path.Contains("/RenderGUI/") || path.Contains("GUI");
 
             if (pack.ContainsEntry(path))
             {

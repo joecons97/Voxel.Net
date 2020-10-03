@@ -46,7 +46,7 @@ namespace VoxelNet.Decoration
                 if (treePoses.Count == 0 || treePoses.Any(v => Vector2.Distance(v, new Vector2(x, z)) > treeDists))
                 {
                     chunk.PlaceBlock(x, y, z, GameBlocks.DIRT, false);
-                    var height = World.GetInstance().Randomizer.Next(5, 8);
+                    var height = World.GetInstance().Randomizer.Next(4, 8);
                     int leaves = 2;
                     for (int i = 0; i < height; i++)
                     {

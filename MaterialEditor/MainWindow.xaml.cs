@@ -18,6 +18,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MaterialEditor.Controls;
 using Microsoft.Win32;
+using Xceed.Wpf.Toolkit;
+using MessageBox = System.Windows.MessageBox;
 using Path = System.IO.Path;
 
 namespace MaterialEditor
@@ -59,7 +61,6 @@ namespace MaterialEditor
             foreach (var key in material.PropertyTypes.Keys)
             {
                 var type = material.PropertyTypes[key];
-                var value = material.Properties[key];
 
                 switch (type)
                 {
