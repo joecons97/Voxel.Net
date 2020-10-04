@@ -338,6 +338,12 @@ namespace VoxelNet.Entities
             }
         }
 
+        public override void OnPreVoxelCollisionEnter()
+        {
+            int dmg = (int) (-rigidbody.Velocity.Y / 10f);
+            TakeDamage(dmg);
+        }
+
         public static void SetControlsActive(bool active)
         {
             controlsEnabled = active;

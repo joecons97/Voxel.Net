@@ -37,6 +37,17 @@ namespace VoxelNet
         {
         }
 
+        //Physics Virtual Functions
+        public virtual void OnPreVoxelCollisionEnter()
+        {
+
+        }  
+        
+        public virtual void OnPostVoxelCollisionEnter()
+        {
+
+        }
+
         public Vector3 GetForwardVector()
         {
             return Maths.GetForwardFromRotation(Rotation);

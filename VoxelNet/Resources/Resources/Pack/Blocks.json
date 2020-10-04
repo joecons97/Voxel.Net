@@ -29,7 +29,6 @@
         "Y": 0
       }
     },
-
     {
       "block_id": "Block_Grass",
 
@@ -79,7 +78,6 @@
         "Y": 0
       }
     },
-
     {
       "block_id": "Block_Stone",
       "top_face": {
@@ -236,6 +234,33 @@
       },
       "back_face": {
         "X": 0,
+        "Y": 2
+      }
+    },
+    {
+      "block_id": "Block_Oak_Wood_Planks",
+      "top_face": {
+        "X": 1,
+        "Y": 2
+      },
+      "bottom_face": {
+        "X": 1,
+        "Y": 2
+      },
+      "left_face": {
+        "X": 1,
+        "Y": 2
+      },
+      "right_face": {
+        "X": 1,
+        "Y": 2
+      },
+      "front_face": {
+        "X": 1,
+        "Y": 2
+      },
+      "back_face": {
+        "X": 1,
         "Y": 2
       }
     }

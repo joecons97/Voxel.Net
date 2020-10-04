@@ -8,9 +8,9 @@ using VoxelNet.Assets;
 
 namespace VoxelNet.Blocks
 {
-    public class OakLogBlock : Block
+    public class OakWoodPlanks : Block
     {
-        public override string Key => "Block_Log_Oak";
+        public override string Key => "Block_Oak_Wood_Planks";
 
         public override void OnBreak(Vector3 WorldPosition, Vector2 ChunkPosition)
         {

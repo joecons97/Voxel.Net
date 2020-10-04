@@ -45,7 +45,9 @@ namespace VoxelNet.Physics
                         if (body.GetCollisionShapes()[c]
                             .IntersectsWorldDirectional(body, new Vector3(normVelocity.X / 10, .25f, 0)))
                         {
+                            body.Owner.OnPreVoxelCollisionEnter();
                             body.Velocity = new Vector3(0, body.Velocity.Y, body.Velocity.Z);
+                            body.Owner.OnPostVoxelCollisionEnter();
                         }
                     }
 
@@ -54,7 +56,9 @@ namespace VoxelNet.Physics
                         if (body.GetCollisionShapes()[c]
                             .IntersectsWorldDirectional(body, new Vector3(0, .25f, normVelocity.Z / 10)))
                         {
+                            body.Owner.OnPreVoxelCollisionEnter();
                             body.Velocity = new Vector3(body.Velocity.X, body.Velocity.Y, 0);
+                            body.Owner.OnPostVoxelCollisionEnter();
                         }
                     }
 
@@ -62,16 +66,20 @@ namespace VoxelNet.Physics
                     {
                         if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(0, .1f, 0)))
                         {
+                            body.Owner.OnPreVoxelCollisionEnter();
                             body.Velocity = new Vector3(body.Velocity.X, 0, body.Velocity.Z);
+                            body.Owner.OnPostVoxelCollisionEnter();
                         }
                     }
                     else if (body.Velocity.Y < 0)
                     {
                         if (body.GetCollisionShapes()[c].IntersectsWorldDirectional(body, new Vector3(0, -.1f, 0)))
                         {
+                            body.Owner.OnPreVoxelCollisionEnter();
                             body.Velocity = new Vector3(body.Velocity.X, 0, body.Velocity.Z);
                             body.Owner.Position = new Vector3(body.Owner.Position.X,
                                 (float) Math.Round(body.Owner.Position.Y), body.Owner.Position.Z);
+                            body.Owner.OnPostVoxelCollisionEnter();
                         }
                     }
                 }
