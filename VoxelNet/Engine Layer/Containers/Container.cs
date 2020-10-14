@@ -71,7 +71,7 @@ namespace VoxelNet.Containers
             return sl == null;
         }
 
-        Vector2 GetFirstEmptyLocationInContainer()
+        public Vector2 GetFirstEmptyLocationInContainer()
         {
             for (int y = 0; y < ContainerSize.Y; y++)
             {
@@ -86,6 +86,23 @@ namespace VoxelNet.Containers
             }
 
             return new Vector2(-1,-1);
+        }
+
+        public Vector2 GetFirstFilledLocationInContainer()
+        {
+            for (int y = 0; y < ContainerSize.Y; y++)
+            {
+                for (int x = 0; x < ContainerSize.X; x++)
+                {
+                    var stack = ItemsList.FirstOrDefault(v =>
+                        v.LocationInContainer.X == x && v.LocationInContainer.Y == y);
+
+                    if (stack != null)
+                        return new Vector2(x, y);
+                }
+            }
+
+            return new Vector2(-1, -1);
         }
 
         ItemStack GetFirstEmptyStackByItem(Item item)

@@ -209,9 +209,11 @@
     <Compile Include="Engine Layer\Chunk\Decoration\OakDecorator.cs" />
     <Compile Include="Engine Layer\Containers\Container.cs" />
     <Compile Include="Engine Layer\Containers\ContainerRenderer.cs" />
+    <Compile Include="Engine Layer\Containers\CraftingContainer.cs" />
     <Compile Include="Engine Layer\Containers\ItemStack.cs" />
     <Compile Include="Engine Layer\Containers\PlayerInventory.cs" />
     <Compile Include="Engine Layer\Crafting System\CraftingRecipe.cs" />
+    <Compile Include="Engine Layer\Assets\CraftingRecipeDatabase.cs" />
     <Compile Include="Engine Layer\Crafting System\Recipes\WoodenPlanksRecipe.cs" />
     <Compile Include="Engine Layer\Entity\Entity.cs" />
     <Compile Include="Engine Layer\Entity\Interfaces\IDamageable.cs" />
