@@ -85,12 +85,6 @@ namespace VoxelNet.Containers
                                 }
                             }
                         }
-
-                        //if (SelectedStack.PreviousParent != null)
-                        //{
-                        //    SelectedStack.PreviousParent.ItemsList.Add(SelectedStack);
-                        //    SelectedStack = null;
-                        //}
                     }
                 }
                 else if (args.Button == MouseButton.Right)
