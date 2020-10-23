@@ -15,7 +15,7 @@ namespace VoxelNet.Containers
         Full
     }
 
-    public class ItemStack
+    public class ItemStack : ICloneable
     {
         public string ItemKey { get; }
 
@@ -89,9 +89,16 @@ namespace VoxelNet.Containers
             StackSize -= num;
 
             if (StackSize <= 0)
+            {
                 return ItemStackState.Empty;
+            }
 
             return ItemStackState.Normal;
+        }
+
+        public object Clone()
+        {
+            return new ItemStack(Item, StackSize, LocationInContainer);
         }
     }
 }

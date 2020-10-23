@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Input;
 using VoxelNet.Rendering;
 
 namespace VoxelNet.Containers
@@ -17,6 +18,8 @@ namespace VoxelNet.Containers
 
         public static Texture ContainerBackground { get; private set; }
         public static Texture ContainerSlot { get; private set; }
+
+        public static ItemStack StackBlockedForSelection { get; set; }
 
         public static ItemStack SelectedStack { get; set; }
 
@@ -38,27 +41,97 @@ namespace VoxelNet.Containers
                     TextColor = Color4.White
                 }
             };
-            Input.Input.GetSetting("Destroy Block").KeyUp += () =>
+            Input.Input.MouseDown += (sender, args) =>
             {
-                if (SelectedStack != null)
+                if (args.Button == MouseButton.Left)
                 {
-                    for (int i = 0; i < toDraw.Count; i++)
+                    if (SelectedStack != null)
                     {
-                        if (toDraw[i].SelectedSlot != new Vector2(-1, -1) && toDraw[i].GetIsSlotFree(toDraw[i].SelectedSlot))
+                        for (int i = 0; i < toDraw.Count; i++)
                         {
-                            SelectedStack.LocationInContainer = toDraw[i].SelectedSlot;
-                            toDraw[i].ItemsList.Add(SelectedStack);
-                            SelectedStack = null;
-                            return;
-                        }
-                    }
+                            if (toDraw[i].SelectedSlot == new Vector2(-1, -1))
+                            {
+                                continue;
+                            }
 
-                    if (SelectedStack.PreviousParent != null)
-                    {
-                        SelectedStack.PreviousParent.ItemsList.Add(SelectedStack);
-                        SelectedStack = null;
+                            if (toDraw[i].GetIsSlotFree(toDraw[i].SelectedSlot))
+                            {
+                                SelectedStack.LocationInContainer = toDraw[i].SelectedSlot;
+                                toDraw[i].ItemsList.Add(SelectedStack);
+                                toDraw[i].ItemDroppedIntoContainer(SelectedStack);
+                                StackBlockedForSelection = SelectedStack;
+                                SelectedStack = null;
+                                return;
+                            }
+                            else
+                            {
+                                var stackAtLocation = toDraw[i].GetItemStackByLocation(toDraw[i].SelectedSlot);
+                                if (stackAtLocation.ItemKey == SelectedStack.ItemKey)
+                                {
+                                    int possibleNewSize =
+                                        (stackAtLocation.StackSize + stackAtLocation.StackSize) -
+                                        stackAtLocation.Item.MaxStackSize;
+                                    if (stackAtLocation.AddToStack(SelectedStack.StackSize) == ItemStackState.Full)
+                                    {
+                                        SelectedStack.StackSize = possibleNewSize;
+                                        StackBlockedForSelection = stackAtLocation;
+                                    }
+                                    else
+                                    {
+                                        StackBlockedForSelection = SelectedStack;
+                                        SelectedStack = null;
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+
+                        //if (SelectedStack.PreviousParent != null)
+                        //{
+                        //    SelectedStack.PreviousParent.ItemsList.Add(SelectedStack);
+                        //    SelectedStack = null;
+                        //}
                     }
                 }
+                else if (args.Button == MouseButton.Right)
+                {
+                    if (SelectedStack != null)
+                    {
+                        for (int i = 0; i < toDraw.Count; i++)
+                        {
+                            if (toDraw[i].SelectedSlot == new Vector2(-1, -1))
+                            {
+                                continue;
+                            }
+
+                            if (toDraw[i].GetIsSlotFree(toDraw[i].SelectedSlot))
+                            {
+                                ItemStack newStack = new ItemStack(SelectedStack.ItemKey, 1, toDraw[i].SelectedSlot);
+                                toDraw[i].ItemsList.Add(newStack);
+                                toDraw[i].ItemDroppedIntoContainer(newStack);
+
+                                if (SelectedStack.RemoveFromStack() == ItemStackState.Empty)
+                                    SelectedStack = null;
+
+                                return;
+                            }
+                            else
+                            {
+                                var stackAtLocation = toDraw[i].GetItemStackByLocation(toDraw[i].SelectedSlot);
+                                if (stackAtLocation.ItemKey == SelectedStack.ItemKey && !stackAtLocation.IsStackFull())
+                                {
+                                    stackAtLocation.AddToStack();
+
+                                    if (SelectedStack.RemoveFromStack() == ItemStackState.Empty)
+                                        SelectedStack = null;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                StackBlockedForSelection = null;
             };
         }
 
@@ -90,7 +163,7 @@ namespace VoxelNet.Containers
             if (SelectedStack != null)
             {
                 var rect = new Rect(GUI.MousePosition.X, GUI.MousePosition.Y, SLOT_SIZE-8, SLOT_SIZE-8);
-                if (GUI.HoldButton(SelectedStack.Item.Icon, rect))
+                if (GUI.PressButton(SelectedStack.Item.Icon, rect))
                 {
                     
                 }

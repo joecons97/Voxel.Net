@@ -14,7 +14,7 @@ namespace VoxelNet.CraftingSystem.Recipes
         };
         public override Dictionary<char, string> ItemsKey { get; } = new Dictionary<char, string>()
         {
-            {'#', GameBlocks.LOG_OAK.Key }
+            {'#', GameItems.LOG_OAK.Key }
         };
 
         public override CraftingRecipeOutput Output { get; } = new CraftingRecipeOutput(GameItems.PLANKS_OAK.Key, 4);

@@ -30,6 +30,7 @@ namespace VoxelNet.Entities
         private static bool controlsEnabled = true;
         private static bool mouseHidden = true;
 
+        CraftingContainer craftingInventory = new CraftingContainer();
         PlayerInventory inventory = new PlayerInventory();
         PauseMenu pauseMenu = new PauseMenu();
         private Texture heartIcon;
@@ -118,9 +119,15 @@ namespace VoxelNet.Entities
         void InputInventory()
         {
             if (inventory.IsOpen)
+            {
                 inventory.Close();
+                craftingInventory.Close();
+            }
             else
+            {
                 inventory.Open();
+                craftingInventory.Open();
+            }
 
             SetMouseVisible(inventory.IsOpen);
             SetControlsActive(!inventory.IsOpen);

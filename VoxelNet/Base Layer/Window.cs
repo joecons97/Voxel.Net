@@ -115,6 +115,8 @@ namespace VoxelNet
 
             Input.Input.PostRenderUpdate();
 
+            GUI.EndFrame();
+
             Context.SwapBuffers();
 
             base.OnRenderFrame(e);

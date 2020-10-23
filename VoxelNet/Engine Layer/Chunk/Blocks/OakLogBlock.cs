@@ -14,7 +14,7 @@ namespace VoxelNet.Blocks
 
         public override void OnBreak(Vector3 WorldPosition, Vector2 ChunkPosition)
         {
-            World.GetInstance().AddEntity(new ItemEntity(GameItems.PLANKS_OAK) { Position = WorldPosition + new Vector3(.5f, 0, .5f) });
+            World.GetInstance().AddEntity(new ItemEntity(GameItems.LOG_OAK) { Position = WorldPosition + new Vector3(.5f, 0, .5f) });
         }
     }
 }
