@@ -18,6 +18,7 @@ namespace VoxelNet
             WATER = new WaterBlock();
             LOG_OAK = new OakLogBlock();
             LEAVES_OAK = new LeavesOakBlock();
+            PLANKS_OAK = new OakWoodPlanks();
         }
 
         public static DirtBlock DIRT { get; private set; }
@@ -31,6 +32,8 @@ namespace VoxelNet
         public static WaterBlock WATER { get; private set; }
 
         public static OakLogBlock LOG_OAK { get; private set; }
+
+        public static OakWoodPlanks PLANKS_OAK { get; private set; }
 
         public static LeavesOakBlock LEAVES_OAK { get; private set; }
     }

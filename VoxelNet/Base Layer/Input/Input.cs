@@ -17,6 +17,9 @@ namespace VoxelNet.Input
         private static KeyboardKeyEventArgs lastKeyDown;
         private static char lastKeyPress;
 
+        public static event EventHandler<MouseButtonEventArgs> MouseDown;
+        public static event EventHandler<MouseButtonEventArgs> MouseUp;
+
         static Input()
         {
             Program.Window.KeyDown += (sender, args) =>
@@ -42,6 +45,8 @@ namespace VoxelNet.Input
             };
             Program.Window.MouseDown += (sender, args) =>
             {
+                MouseDown?.Invoke(sender, args);
+
                 var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
                 foreach (var input in inputs)
                 {
@@ -50,6 +55,8 @@ namespace VoxelNet.Input
             };
             Program.Window.MouseUp += (sender, args) =>
             {
+                MouseUp?.Invoke(sender, args);
+
                 var inputs = Program.Settings.Input.Settings.Where(x => x.Main.MouseButton == args.Button);
                 foreach (var input in inputs)
                 {

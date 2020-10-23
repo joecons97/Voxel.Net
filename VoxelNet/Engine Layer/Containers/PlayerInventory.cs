@@ -23,9 +23,6 @@ namespace VoxelNet.Containers
 
         public void RenderToolBar()
         {
-            if (IsOpen)
-                return;
-
             float winWidth = Program.Settings.WindowWidth;
             float winHeight = Program.Settings.WindowHeight;
             float slotSize = ContainerRenderer.SLOT_SIZE;
@@ -63,10 +60,10 @@ namespace VoxelNet.Containers
             float winWidth = Program.Settings.WindowWidth;
             float winHeight = Program.Settings.WindowHeight;
             float slotSize = ContainerRenderer.SLOT_SIZE;
-            Vector2 size = ContainerSize * slotSize * 2;
+            Vector2 size = new Vector2(ContainerSize.X, ContainerSize.Y + 3) * slotSize * 2;
 
-            Rect parentRect = new Rect((winWidth / 2f) - (size.X / 4f) - slotSize / 2f, (winHeight / 2f) - (size.Y / 4f) - slotSize / 2f,
-                (size.X / 2f + 35), (size.Y / 2f + 30) + 12);
+            Rect parentRect = new Rect((winWidth / 2f) - (size.X / 4f) - slotSize / 2f, (winHeight / 2f) - ((size.Y) / 4f) - slotSize / 2f,
+                (size.X / 2f + 35), ((size.Y) / 2f + 30) + 12);
 
             GUI.Image(ContainerRenderer.ContainerBackground, parentRect, 5);
 
@@ -75,7 +72,7 @@ namespace VoxelNet.Containers
             {
                 for (int y = (int)ContainerSize.Y - 1; y >= 0; y--)
                 {
-                    var rect = new Rect(x * (slotSize + 2) + parentRect.X + 10, ((ContainerSize.Y - 1) - y) * (slotSize + 2) + parentRect.Y + 10,
+                    var rect = new Rect(x * (slotSize + 2) + parentRect.X + 10, ((ContainerSize.Y - 1) - (y - 3)) * (slotSize + 2) + parentRect.Y + 10,
                         slotSize, slotSize);
 
                     if (y == 0)

@@ -192,6 +192,7 @@
     <Compile Include="Engine Layer\Assets\Asset Types\World.cs" />
     <Compile Include="Engine Layer\Chunk\BlockColors.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\Block.cs" />
+    <Compile Include="Engine Layer\Chunk\Blocks\OakWoodPlanks.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\OakLogBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\SandBlock.cs" />
     <Compile Include="Engine Layer\Chunk\Blocks\GameBlocks.cs" />
@@ -208,8 +209,12 @@
     <Compile Include="Engine Layer\Chunk\Decoration\OakDecorator.cs" />
     <Compile Include="Engine Layer\Containers\Container.cs" />
     <Compile Include="Engine Layer\Containers\ContainerRenderer.cs" />
+    <Compile Include="Engine Layer\Containers\CraftingContainer.cs" />
     <Compile Include="Engine Layer\Containers\ItemStack.cs" />
     <Compile Include="Engine Layer\Containers\PlayerInventory.cs" />
+    <Compile Include="Engine Layer\Crafting System\CraftingRecipe.cs" />
+    <Compile Include="Engine Layer\Assets\CraftingRecipeDatabase.cs" />
+    <Compile Include="Engine Layer\Crafting System\Recipes\WoodenPlanksRecipe.cs" />
     <Compile Include="Engine Layer\Entity\Entity.cs" />
     <Compile Include="Engine Layer\Entity\Interfaces\IDamageable.cs" />
     <Compile Include="Engine Layer\Entity\ItemEntity.cs" />

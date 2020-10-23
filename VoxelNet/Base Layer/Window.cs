@@ -30,6 +30,7 @@ namespace VoxelNet
 
             GameBlocks.Init();
             GameItems.Init();
+            CraftingRecipeDatabase.Init();
 
             VSync = VSyncMode.Off;
             GL.Enable(EnableCap.CullFace);
@@ -113,6 +114,8 @@ namespace VoxelNet
             Menu.RenderGUI();
 
             Input.Input.PostRenderUpdate();
+
+            GUI.EndFrame();
 
             Context.SwapBuffers();
 

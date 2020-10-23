@@ -39,7 +39,7 @@ namespace VoxelNet.Containers
 
         public void RemoveItem(string itemKey)
         {
-            var stack = GetFirstEmptyStackByItem(itemKey);
+            var stack = GetFirstStackByItem(itemKey);
             if (stack != null)
             {
                 if (stack.RemoveFromStack() == ItemStackState.Empty)
@@ -71,7 +71,7 @@ namespace VoxelNet.Containers
             return sl == null;
         }
 
-        Vector2 GetFirstEmptyLocationInContainer()
+        public Vector2 GetFirstEmptyLocationInContainer()
         {
             for (int y = 0; y < ContainerSize.Y; y++)
             {
@@ -88,6 +88,23 @@ namespace VoxelNet.Containers
             return new Vector2(-1,-1);
         }
 
+        public Vector2 GetFirstFilledLocationInContainer()
+        {
+            for (int y = 0; y < ContainerSize.Y; y++)
+            {
+                for (int x = 0; x < ContainerSize.X; x++)
+                {
+                    var stack = ItemsList.FirstOrDefault(v =>
+                        v.LocationInContainer.X == x && v.LocationInContainer.Y == y);
+
+                    if (stack != null)
+                        return new Vector2(x, y);
+                }
+            }
+
+            return new Vector2(-1, -1);
+        }
+
         ItemStack GetFirstEmptyStackByItem(Item item)
         {
             var stack = ItemsList.FirstOrDefault(x => x.ItemKey == item.Key && !x.IsStackFull());
@@ -98,6 +115,19 @@ namespace VoxelNet.Containers
         ItemStack GetFirstEmptyStackByItem(string key)
         {
             var stack = ItemsList.FirstOrDefault(x => x.ItemKey == key && !x.IsStackFull());
+            if (stack != null) return stack;
+
+            return null;
+        }
+
+        ItemStack GetFirstStackByItem(Item item)
+        {
+            return GetFirstStackByItem(item.Key);
+        }
+
+        ItemStack GetFirstStackByItem(string key)
+        {
+            var stack = ItemsList.FirstOrDefault(x => x.ItemKey == key);
             if (stack != null) return stack;
 
             return null;
@@ -131,13 +161,14 @@ namespace VoxelNet.Containers
             var stack = GetItemStackByLocation(x, y);
             if (stack != null)
             {
-                if (GUI.HoldButton(stack.Item.Icon, rectIcon))
+                if (GUI.PressButton(stack.Item.Icon, rectIcon))
                 {
-                    if (ContainerRenderer.SelectedStack == null)
+                    if (ContainerRenderer.SelectedStack == null && ContainerRenderer.StackBlockedForSelection != stack)
                     {
                         stack.PreviousParent = this;
                         ContainerRenderer.SelectedStack = stack;
                         ItemsList.Remove(stack);
+                        ItemRemovedFromContainer(stack);
                     }
                 }
 
@@ -177,5 +208,8 @@ namespace VoxelNet.Containers
             if(anySlotSelected == false) 
                 SelectedSlot = new Vector2(-1, -1);
         }
+
+        public virtual void ItemDroppedIntoContainer(ItemStack itemStack) { }
+        public virtual void ItemRemovedFromContainer(ItemStack itemStack) { }
     }
 }

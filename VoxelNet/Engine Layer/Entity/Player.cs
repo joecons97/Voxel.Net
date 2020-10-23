@@ -30,6 +30,7 @@ namespace VoxelNet.Entities
         private static bool controlsEnabled = true;
         private static bool mouseHidden = true;
 
+        CraftingContainer craftingInventory = new CraftingContainer();
         PlayerInventory inventory = new PlayerInventory();
         PauseMenu pauseMenu = new PauseMenu();
         private Texture heartIcon;
@@ -118,9 +119,15 @@ namespace VoxelNet.Entities
         void InputInventory()
         {
             if (inventory.IsOpen)
+            {
                 inventory.Close();
+                craftingInventory.Close();
+            }
             else
+            {
                 inventory.Open();
+                craftingInventory.Open();
+            }
 
             SetMouseVisible(inventory.IsOpen);
             SetControlsActive(!inventory.IsOpen);
@@ -336,6 +343,12 @@ namespace VoxelNet.Entities
                 if(i > currentHealth)
                     GUI.Image(heartEmptyIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
             }
+        }
+
+        public override void OnPreVoxelCollisionEnter()
+        {
+            int dmg = (int) (-rigidbody.Velocity.Y / 10f);
+            TakeDamage(dmg);
         }
 
         public static void SetControlsActive(bool active)

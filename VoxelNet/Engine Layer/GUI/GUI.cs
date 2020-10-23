@@ -27,6 +27,8 @@ namespace VoxelNet
         private static int elementCount;
         private static int textCarrot;
 
+        private static bool mouseButtonClick = false;
+
         public static Vector2 DEFAULT_RESOLUTION { get; } = new Vector2(1280, 720);
 
         static GUI()
@@ -96,9 +98,32 @@ namespace VoxelNet
                 MousePosition = new Vector2(args.Position.X, args.Position.Y);
             };
 
-            Program.Window.MouseDown += (sender, args) => { lastClickedId = ""; };
+            Program.Window.MouseDown += (sender, args) =>
+            {
+                if (args.Button == MouseButton.Left)
+                {
+                    mouseButtonClick = true;
+                }
 
-            Program.Window.KeyDown += (sender, args) => {if(args.Key == Key.Enter){ lastClickedId = "";} };
+                lastClickedId = "";
+            };
+
+            Program.Window.MouseUp += (sender, args) =>
+            {
+                if (args.Button == MouseButton.Left)
+                {
+                    //mouseButtonClick = false;
+                }
+
+            };
+
+            Program.Window.KeyDown += (sender, args) =>
+            {
+                if (args.Key == Key.Enter)
+                {
+                    lastClickedId = "";
+                }
+            };
         }
 
         static void ClearID()
@@ -109,6 +134,11 @@ namespace VoxelNet
         public static void NewFrame()
         {
             elementCount = 0;
+        }
+
+        public static void EndFrame()
+        {
+            mouseButtonClick = false;
         }
 
         public static void PushID(string id)
@@ -194,14 +224,6 @@ namespace VoxelNet
                 GenerateTextAndRender(text, size, style, false, false);
             }
 
-            //bool ret = id == lastClickedId && up;
-
-            //if (ret)
-            //{
-            //    lastClickedId = "";
-            //    ClearID();
-            //}
-
             elementCount++;
             return output;
         }
@@ -238,17 +260,82 @@ namespace VoxelNet
                 GenerateImage(image, size, false, true, style.SlicedBorderSize);
             }
 
-            //bool ret = id == lastClickedId && up;
+            elementCount++;
+            return output;
+        }
 
-            //if (ret)
-            //{
-            //    lastClickedId = "";
-            //    ClearID();
-            //}
+        public static bool PressButton(string text, Rect size)
+        {
+            return PressButton(text, size, ButtonStyle);
+        }
+
+        public static bool PressButton(string text, Rect size, GUIStyle style)
+        {
+            string id = (elementCount + 1).ToString();
+            PushID(id);
+
+            bool output = false;
+
+            if (size.IsPointInside(MousePosition))
+            {
+                if (mouseButtonClick)
+                {
+                    GenerateImage(style.Active.Background, size, false, true, style.SlicedBorderSize);
+                    GenerateTextAndRender(text, size, style, false, true);
+                    output = true;
+                }
+                else
+                {
+                    GenerateImage(style.Hover.Background, size, true, false, style.SlicedBorderSize);
+                    GenerateTextAndRender(text, size, style, true, false);
+                }
+            }
+            else
+            {
+                GenerateImage(style.Normal.Background, size, false, false, style.SlicedBorderSize);
+                GenerateTextAndRender(text, size, style, false, false);
+            }
 
             elementCount++;
             return output;
         }
+
+        public static bool PressButton(Texture image, Rect size)
+        {
+            return PressButton(image, size, ButtonStyle);
+        }
+
+        public static bool PressButton(Texture image, Rect size, GUIStyle style)
+        {
+            string id = (elementCount + 1).ToString();
+            PushID(id);
+
+            bool output = false;
+
+            if (size.IsPointInside(MousePosition))
+            {
+                if (mouseButtonClick)
+                {
+                    GenerateImage(style.Active.Background, size, false, true, style.SlicedBorderSize);
+                    GenerateImage(image, size, false, true, style.SlicedBorderSize);
+                    output = true;
+                }
+                else
+                {
+                    GenerateImage(style.Hover.Background, size, true, false, style.SlicedBorderSize);
+                    GenerateImage(image, size, false, true, style.SlicedBorderSize);
+                }
+            }
+            else
+            {
+                GenerateImage(style.Normal.Background, size, false, false, style.SlicedBorderSize);
+                GenerateImage(image, size, false, true, style.SlicedBorderSize);
+            }
+
+            elementCount++;
+            return output;
+        }
+
 
         public static void Label(string text, Rect size)
         {

@@ -18,8 +18,10 @@ namespace VoxelNet
         static void Main()
         {
 
+#if (!DEBUG)
             try
             {
+#endif
                 IsRunning = true;
                 LoadSettings();
                 using (Window = new Window(Settings.WindowWidth, Settings.WindowHeight, PROGRAMTITLE))
@@ -27,12 +29,14 @@ namespace VoxelNet
                     Window.Run();
                 }
                 IsRunning = false;
+#if (!DEBUG)
             }
             catch(Exception ex)
             {
                 IsRunning = false;
                 MessageBox.Show(ex.Message + " " + ex.StackTrace, "Fatal Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+#endif
         }
 
         static void LoadSettings()
