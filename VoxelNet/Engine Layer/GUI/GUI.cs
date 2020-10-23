@@ -224,14 +224,6 @@ namespace VoxelNet
                 GenerateTextAndRender(text, size, style, false, false);
             }
 
-            //bool ret = id == lastClickedId && up;
-
-            //if (ret)
-            //{
-            //    lastClickedId = "";
-            //    ClearID();
-            //}
-
             elementCount++;
             return output;
         }
@@ -267,14 +259,6 @@ namespace VoxelNet
                 GenerateImage(style.Normal.Background, size, false, false, style.SlicedBorderSize);
                 GenerateImage(image, size, false, true, style.SlicedBorderSize);
             }
-
-            //bool ret = id == lastClickedId && up;
-
-            //if (ret)
-            //{
-            //    lastClickedId = "";
-            //    ClearID();
-            //}
 
             elementCount++;
             return output;
@@ -312,14 +296,6 @@ namespace VoxelNet
                 GenerateTextAndRender(text, size, style, false, false);
             }
 
-            //bool ret = id == lastClickedId && up;
-
-            //if (ret)
-            //{
-            //    lastClickedId = "";
-            //    ClearID();
-            //}
-
             elementCount++;
             return output;
         }
@@ -355,14 +331,6 @@ namespace VoxelNet
                 GenerateImage(style.Normal.Background, size, false, false, style.SlicedBorderSize);
                 GenerateImage(image, size, false, true, style.SlicedBorderSize);
             }
-
-            //bool ret = id == lastClickedId && up;
-
-            //if (ret)
-            //{
-            //    lastClickedId = "";
-            //    ClearID();
-            //}
 
             elementCount++;
             return output;
