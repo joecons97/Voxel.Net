@@ -15,7 +15,10 @@ namespace VoxelNet.Entities
     public class Player : Entity, IDamageable
     {
         public const int MAX_HEALTH = 20;
-        private int currentHealth = MAX_HEALTH;
+        public const int MAX_HUNGER = 20;
+        private float currentHealth = MAX_HEALTH;
+
+        private float currentHunger = MAX_HUNGER;
 
         private bool hasHadInitialSet;
         private World currentWorld;
@@ -37,8 +40,12 @@ namespace VoxelNet.Entities
         private Texture heartHalfIcon;
         private Texture heartEmptyIcon;
 
-        private float hungerLossTickRate = 10;
-        private float hungerLossSprintTickRate = 2;
+        private Texture hungerIcon;
+        private Texture hungerHalfIcon;
+        private Texture hungerEmptyIcon;
+
+        private float hungerLossTickRate = .5f;
+        private float hungerLossAmount = 0.01f;
         private float lastHungerLossTick;
         private float healthIncreaseTickRate = 4;
         private float lastHealthIncreaseTick;
@@ -52,6 +59,10 @@ namespace VoxelNet.Entities
             heartIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart.png");
             heartHalfIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_half.png");
             heartEmptyIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_empty.png");
+
+            hungerIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger.png");
+            hungerHalfIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger_half.png");
+            hungerEmptyIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger_empty.png");
 
             Input.Input.GetSetting("Pause").KeyDown += InputPause;
 
@@ -89,6 +100,10 @@ namespace VoxelNet.Entities
             heartEmptyIcon.Dispose();
             heartHalfIcon.Dispose();
             heartIcon.Dispose();
+
+            hungerHalfIcon.Dispose();
+            hungerEmptyIcon.Dispose();
+            hungerIcon.Dispose();
 
             base.Destroyed();
         }
@@ -287,16 +302,24 @@ namespace VoxelNet.Entities
 
             if (currentWorld.HasFinishedInitialLoading)
             {
-                float hungerTick = isSprinting ? hungerLossSprintTickRate : hungerLossTickRate;
-                if (lastHungerLossTick + hungerTick <= Time.GameTime)
+                if (lastHungerLossTick + hungerLossTickRate <= Time.GameTime)
                 {
+                    hungerLossAmount = isSprinting ? 0.25f : 0.01f;
+
+                    if(currentHunger > 0)
+                        currentHunger -= hungerLossAmount;
+                    else
+                    {
+                        currentHealth -= 0.0625f;
+                        TakeDamage(0);
+                    }
                     lastHungerLossTick = Time.GameTime;
                 }
 
                 if (lastHealthIncreaseTick + healthIncreaseTickRate <= Time.GameTime)
                 {
-                    if (currentHealth < MAX_HEALTH)
-                        SetHealth(currentHealth + 1);
+                    if (currentHealth < MAX_HEALTH && currentHunger == MAX_HUNGER)
+                        SetHealth((int)currentHealth + 1);
 
                     lastHealthIncreaseTick = Time.GameTime;
                 }
@@ -323,32 +346,55 @@ namespace VoxelNet.Entities
             for (int i = 0; i < MAX_HEALTH; i++)
             {
                 int forX = size * (i / 2);
+                int curHealth = (int)Math.Ceiling(currentHealth);
+
+                if (i > curHealth)
+                    GUI.Image(heartEmptyIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
+
                 if (i % 2 != 0)
                 {
-                    if (i == currentHealth)
+                    if (i == curHealth)
                     {
                         GUI.Image(heartHalfIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
-                        continue;
                     }
                 }
                 else
                 {
-                    if (i < currentHealth)
+                    if (i <= curHealth)
                     {
                         GUI.Image(heartIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
-                        continue;
                     }
                 }
+            }
 
-                if(i > currentHealth)
-                    GUI.Image(heartEmptyIcon, new Rect((winWidth / 2) - 240 + forX, winHeight - 110, size, size));
+            for (int i = MAX_HUNGER; i > 0; i--)
+            {
+                int forX = size * ((MAX_HUNGER - i) / 2) - (size/4);
+                int curHunger = (int)Math.Ceiling(currentHunger);
+
+                if (i > curHunger)
+                    GUI.Image(hungerEmptyIcon, new Rect((winWidth / 2) + forX, winHeight - 110, size, size));
+
+                if (i % 2 != 0)
+                {
+                    if (i == curHunger)
+                    {
+                        GUI.Image(hungerHalfIcon, new Rect((winWidth / 2) + forX, winHeight - 110, size, size));
+                    }
+                }
+                else
+                {
+                    if (i <= curHunger)
+                    {
+                        GUI.Image(hungerIcon, new Rect((winWidth / 2) + forX, winHeight - 110, size, size));
+                    }
+                }
             }
         }
 
         public override void OnPreVoxelCollisionEnter()
         {
-            int dmg = (int) (-rigidbody.Velocity.Y / 10f);
-            TakeDamage(dmg);
+            //Fall damage here...
         }
 
         public static void SetControlsActive(bool active)
@@ -376,7 +422,7 @@ namespace VoxelNet.Entities
 
         public void Die()
         {
-            throw new NotImplementedException();
+            //The player died
         }
 
         public void TakeDamage(int damage)
@@ -394,6 +440,6 @@ namespace VoxelNet.Entities
             currentHealth = health;
         }
 
-        public int GetHealth() => currentHealth;
+        public int GetHealth() => (int)Math.Ceiling(currentHealth);
     }
 }
