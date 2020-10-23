@@ -387,9 +387,7 @@ namespace VoxelNet.Entities
 
         public override void OnPreVoxelCollisionEnter()
         {
-            //int dmg = (int) (-rigidbody.Velocity.Y / 100f);
-            //TakeDamage(dmg);
-            Debug.Log(rigidbody.Velocity.Y);
+            //Fall damage here...
         }
 
         public static void SetControlsActive(bool active)
@@ -417,7 +415,7 @@ namespace VoxelNet.Entities
 
         public void Die()
         {
-            throw new NotImplementedException();
+            //The player died
         }
 
         public void TakeDamage(int damage)
