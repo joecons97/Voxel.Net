@@ -23,8 +23,8 @@ namespace VoxelNet.Containers
 
         public void RenderToolBar()
         {
-            float winWidth = Program.Settings.WindowWidth;
-            float winHeight = Program.Settings.WindowHeight;
+            float winWidth = Window.WindowWidth;
+            float winHeight = Window.WindowHeight;
             float slotSize = ContainerRenderer.SLOT_SIZE;
             Vector2 size = new Vector2(ContainerSize.X, 1) * slotSize * 2;
             int y = 0;
@@ -57,8 +57,8 @@ namespace VoxelNet.Containers
 
         public override void RenderGUI()
         {
-            float winWidth = Program.Settings.WindowWidth;
-            float winHeight = Program.Settings.WindowHeight;
+            float winWidth = Window.WindowWidth;
+            float winHeight = Window.WindowHeight;
             float slotSize = ContainerRenderer.SLOT_SIZE;
             Vector2 size = new Vector2(ContainerSize.X, ContainerSize.Y + 3) * slotSize * 2;
 

@@ -18,6 +18,9 @@ namespace VoxelNet
 {
     public class Window : GameWindow
     {
+        public static int WindowWidth { get; private set; }
+        public static int WindowHeight { get; private set; }
+
         public MainMenu MainMenu { get; private set; }
 
         public Window(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
@@ -72,6 +75,9 @@ namespace VoxelNet
             Time.DeltaTime = (float)e.Time;
 
             Time.UpdateFrameRate(1f / Time.DeltaTime);
+
+            WindowWidth = this.Width;
+            WindowHeight = this.Height;
 
             Input.Input.Update();
 

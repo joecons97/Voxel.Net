@@ -16,13 +16,26 @@ namespace VoxelNet.Rendering
         public Vector4 Position;
     }
 
+    public enum CameraProjectionType
+    {
+        Perspective,
+        Orthographic
+    }
+
     public class Camera
     {
         public Vector3 Position { get; set; }
         public Vector3 Rotation { get; set; }
 
+        public CameraProjectionType ProjectionType { get; set; } = CameraProjectionType.Perspective;
+
         public Matrix4 ViewMatrix { get; private set; }
         public Matrix4 ProjectionMatrix { get; private set; }
+
+        /// <summary>
+        /// This is only used when the camera is Orthographic
+        /// </summary>
+        public Vector2 CameraSize { get; set; } = Vector2.One;
 
         public float NearPlane { get; } = 0.1f;
         public float FarPlane { get; } = 900f;
@@ -34,9 +47,18 @@ namespace VoxelNet.Rendering
         public void Update()
         {
             ViewMatrix = Matrix4.LookAt(Position, Position + GetForward(), GetUp());
-            ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(
-                MathHelper.DegreesToRadians(Program.Settings.FieldOfView),
-                (float) Program.Settings.WindowWidth / (float) Program.Settings.WindowHeight, NearPlane, FarPlane);
+            switch (ProjectionType)
+            {
+                case CameraProjectionType.Perspective:
+                    ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(
+                        MathHelper.DegreesToRadians(Program.Settings.FieldOfView),
+                        (float)Window.WindowWidth / (float)Window.WindowHeight, NearPlane, FarPlane);
+                    break;
+                case CameraProjectionType.Orthographic:
+                    ProjectionMatrix = Matrix4.CreateOrthographic(CameraSize.X,
+                        CameraSize.Y, NearPlane, FarPlane);
+                    break;
+            }
 
             Frustum.UpdateMatrix(ViewMatrix * ProjectionMatrix);
 

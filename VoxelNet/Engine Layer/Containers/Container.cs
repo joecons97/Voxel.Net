@@ -178,8 +178,8 @@ namespace VoxelNet.Containers
 
         public virtual void RenderGUI()
         {
-            float winWidth = Program.Settings.WindowWidth;
-            float winHeight = Program.Settings.WindowHeight;
+            float winWidth = Window.WindowWidth;
+            float winHeight = Window.WindowHeight;
             float slotSize = ContainerRenderer.SLOT_SIZE;
             Vector2 size = ContainerSize * slotSize * 2;
 
