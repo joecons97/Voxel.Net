@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 using VoxelNet.Buffers;
+using VoxelNet.Misc;
 
 namespace VoxelNet.Rendering
 {
@@ -44,9 +45,28 @@ namespace VoxelNet.Rendering
 
         private CameraUniformBuffer bufferData = new CameraUniformBuffer();
 
+        public Camera()
+        {
+            GenerateProjectionMatrix();
+
+            Program.Window.Resize += (sender, args) => GenerateProjectionMatrix();
+        }
+
         public void Update()
         {
             ViewMatrix = Matrix4.LookAt(Position, Position + GetForward(), GetUp());
+            
+            Frustum.UpdateMatrix(ViewMatrix * ProjectionMatrix);
+
+            bufferData.ProjectionMat = ProjectionMatrix;
+            bufferData.ViewMat = ViewMatrix;
+            bufferData.Position = new Vector4(Position, 1);
+
+            UniformBuffers.WorldCameraBuffer.Update(bufferData);
+        }
+
+        void GenerateProjectionMatrix()
+        {
             switch (ProjectionType)
             {
                 case CameraProjectionType.Perspective:
@@ -59,45 +79,21 @@ namespace VoxelNet.Rendering
                         CameraSize.Y, NearPlane, FarPlane);
                     break;
             }
-
-            Frustum.UpdateMatrix(ViewMatrix * ProjectionMatrix);
-
-            bufferData.ProjectionMat = ProjectionMatrix;
-            bufferData.ViewMat = ViewMatrix;
-            bufferData.Position = new Vector4(Position, 1);
-
-            UniformBuffers.WorldCameraBuffer.Update(bufferData);
         }
 
         public Vector3 GetForward()
         {
-            float yaw = MathHelper.DegreesToRadians(Rotation.Y + 90);
-            float pitch = MathHelper.DegreesToRadians(Rotation.X);
-
-            float x = (float) (Math.Cos(yaw) * Math.Cos(pitch));
-            float y = (float)Math.Sin(pitch);
-            float z = (float)(Math.Cos(pitch) * Math.Sin(yaw));
-
-            return new Vector3(-x, -y, -z).Normalized();
+            return Maths.GetForwardFromRotation(Rotation);
         }
 
         public Vector3 GetRight()
         {
-            float yaw = MathHelper.DegreesToRadians(Rotation.Y);
-
-            float x = (float)Math.Cos(yaw);
-            float z = (float)Math.Sin(yaw);
-
-            return new Vector3(x, 0, z).Normalized();
+            return Maths.GetRightFromRotation(Rotation);
         }
 
         public Vector3 GetUp()
         {
-            float pitch = MathHelper.DegreesToRadians(Rotation.X + 90);
-
-            float y = (float)Math.Sin(pitch);
-
-            return new Vector3(0, y, 0).Normalized();
+            return Maths.GetUpFromRotation(Rotation);
         }
     }
 }
