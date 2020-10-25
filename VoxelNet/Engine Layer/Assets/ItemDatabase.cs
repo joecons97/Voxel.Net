@@ -11,6 +11,11 @@ namespace VoxelNet.Assets
     {
         static Dictionary<string, Item> items = new Dictionary<string, Item>();
 
+        public static List<Item> GetItems()
+        {
+            return items.Values.ToList().OrderBy(x => x.Key).ToList();
+        }
+
         public static void RegisterItem(Item item)
         {
             if (items.ContainsKey(item.Key))

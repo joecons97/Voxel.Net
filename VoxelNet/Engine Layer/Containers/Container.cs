@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
+using OpenTK.Graphics;
+using VoxelNet.Rendering;
 
 namespace VoxelNet.Containers
 {
@@ -15,6 +17,32 @@ namespace VoxelNet.Containers
         public bool IsOpen { get; set; }
 
         public Vector2 SelectedSlot { get; set; }
+
+        public GUIStyle SlotStyle = new GUIStyle()
+        {
+            FontSize = 48,
+            Font = AssetDatabase.GetAsset<Font>("Resources/Fonts/SHERWOOD.ttf"),
+            HorizontalAlignment = HorizontalAlignment.Middle,
+            VerticalAlignment = VerticalAlignment.Middle,
+            SlicedBorderSize = 1f,
+
+            Normal = new GUIStyleOption()
+            {
+                Background = null,
+                TextColor = Color4.White
+            },
+            Hover = new GUIStyleOption()
+            {
+                Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/slot_hover.png"),
+                TextColor = Color4.White
+            },
+            Active = new GUIStyleOption()
+            {
+                Background = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/slot_hover.png"),
+                TextColor = Color4.White
+            }
+        };
+
 
         public void AddItem(Item item)
         {
@@ -161,7 +189,7 @@ namespace VoxelNet.Containers
             var stack = GetItemStackByLocation(x, y);
             if (stack != null)
             {
-                if (GUI.PressButton(stack.Item.Icon, rectIcon))
+                if (GUI.PressButton(stack.Item.Icon, rectIcon, SlotStyle))
                 {
                     if (ContainerRenderer.SelectedStack == null && ContainerRenderer.StackBlockedForSelection != stack)
                     {
@@ -178,8 +206,8 @@ namespace VoxelNet.Containers
 
         public virtual void RenderGUI()
         {
-            float winWidth = Program.Settings.WindowWidth;
-            float winHeight = Program.Settings.WindowHeight;
+            float winWidth = Window.WindowWidth;
+            float winHeight = Window.WindowHeight;
             float slotSize = ContainerRenderer.SLOT_SIZE;
             Vector2 size = ContainerSize * slotSize * 2;
 

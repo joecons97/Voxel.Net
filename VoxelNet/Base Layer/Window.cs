@@ -18,6 +18,13 @@ namespace VoxelNet
 {
     public class Window : GameWindow
     {
+        public static int WindowWidth { get; private set; }
+        public static int WindowHeight { get; private set; }
+
+        public static readonly Vector4 CLEAR_COLOUR = new Vector4(.39f, .58f, .92f, 1.0f);
+
+        public static bool IsLoadingDone { get; private set; }
+
         public MainMenu MainMenu { get; private set; }
 
         public Window(int width, int height, string title) : base(width, height, GraphicsMode.Default, title)
@@ -26,10 +33,12 @@ namespace VoxelNet
 
         protected override void OnLoad(EventArgs e)
         {
+            IsLoadingDone = false;
             AssetDatabase.SetPack(AssetDatabase.DEFAULTPACK);
 
             GameBlocks.Init();
             GameItems.Init();
+
             CraftingRecipeDatabase.Init();
 
             VSync = VSyncMode.Off;
@@ -38,10 +47,7 @@ namespace VoxelNet
             GL.Enable(EnableCap.FramebufferSrgb);
 
             GL.Enable(EnableCap.DepthTest);
-            GL.ClearColor(.39f, .58f, .92f, 1.0f);
-
-            PostProcessingEffects.RegisterEffect(new Bloom());
-            PostProcessingEffects.RegisterEffect(new ACESTonemapEffect());
+            GL.ClearColor(CLEAR_COLOUR.X, CLEAR_COLOUR.Y, CLEAR_COLOUR.Z, CLEAR_COLOUR.Z);
 
             AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
 
@@ -49,6 +55,22 @@ namespace VoxelNet
             MainMenu.Show();
 
             Program.Settings.UpdateAll();
+
+
+            //Load texture pack before generating icons
+            AssetDatabase.GetAsset<TexturePack>("");
+
+            IconGenerator.GenerateBlockItemIcons();
+
+            WindowWidth = Program.Settings.WindowWidth;
+            WindowHeight = Program.Settings.WindowHeight;
+
+            PostProcessingEffects.RegisterEffect(new Bloom());
+            PostProcessingEffects.RegisterEffect(new ACESTonemapEffect());
+
+            IsLoadingDone = true;
+
+            OnResize(null);
 
             base.OnLoad(e);
         }
@@ -73,58 +95,71 @@ namespace VoxelNet
 
             Time.UpdateFrameRate(1f / Time.DeltaTime);
 
-            Input.Input.Update();
-
-            if(World.GetInstance() != null)
+            if (IsLoadingDone)
             {
-                World.GetInstance().Update();
+                WindowWidth = this.Width;
+                WindowHeight = this.Height;
 
-                PhysicSimulation.Simulate(Time.DeltaTime);
+                Input.Input.Update();
+
+                if (World.GetInstance() != null)
+                {
+                    World.GetInstance().Update();
+
+                    PhysicSimulation.Simulate(Time.DeltaTime);
+                }
+
+                if (Focused)
+                {
+                    KeyboardState kbdState = Keyboard.GetState();
+
+                    if (kbdState.IsKeyDown(Key.F4) && kbdState.IsKeyDown(Key.AltLeft))
+                        Exit();
+
+                }
+
+                UniformBuffers.TimeBuffer.Update(new TimeUniformBuffer()
+                    {DeltaTime = Time.DeltaTime, Time = Time.GameTime});
             }
-
-            if (Focused)
-            {
-                KeyboardState kbdState = Keyboard.GetState();
-
-                if (kbdState.IsKeyDown(Key.F4) && kbdState.IsKeyDown(Key.AltLeft))
-                    Exit();
-
-            }
-
-            UniformBuffers.TimeBuffer.Update(new TimeUniformBuffer(){DeltaTime = Time.DeltaTime, Time = Time.GameTime});
 
             base.OnUpdateFrame(e);
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            GUI.NewFrame();
+            if (IsLoadingDone)
+            {
+                GUI.NewFrame();
 
-            Renderer.ClippedCount = 0;
-            Renderer.DrawCalls = 0;
+                Renderer.ClippedCount = 0;
+                Renderer.DrawCalls = 0;
 
-            World.GetInstance()?.Render();
+                World.GetInstance()?.Render();
 
-            Renderer.DrawQueue();
+                Renderer.DrawQueue();
 
-            PostProcessingEffects.RenderEffects();
+                PostProcessingEffects.RenderEffects();
 
-            World.GetInstance()?.RenderGUI();
-            ContainerRenderer.RenderGUI();
-            Menu.RenderGUI();
+                World.GetInstance()?.RenderGUI();
+                ContainerRenderer.RenderGUI();
+                Menu.RenderGUI();
 
-            Input.Input.PostRenderUpdate();
+                Input.Input.PostRenderUpdate();
 
-            GUI.EndFrame();
+                GUI.EndFrame();
+            }
 
             Context.SwapBuffers();
-
             base.OnRenderFrame(e);
         }
 
         protected override void OnResize(EventArgs e)
         {
-            GL.Viewport(ClientRectangle);
+            if (IsLoadingDone)
+            {
+                GL.Viewport(ClientRectangle);
+            }
+
             base.OnResize(e);
         }
     }

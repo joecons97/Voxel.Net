@@ -12,7 +12,7 @@ namespace VoxelNet.Blocks
 {
     public class Block
     {
-        public virtual string Key { get; set; } = "NULL";
+        public virtual string Key { get; set; } = "";
         public int ID { get; set; } = -1;
         public virtual GetBlockColor BlockColor { get; set; } = (x, y, z) => Color4.White;
         public virtual sbyte Opacity { get; set; } = 15;
@@ -20,12 +20,12 @@ namespace VoxelNet.Blocks
         public virtual bool TransparencyCullsSelf { get; set; } = false;
         public virtual Shape CollisionShape { get; set; } = new BoundingBox(0,1,0,1,0,1);
 
-        public Face TopFace { get; set; }
-        public Face BottomFace { get; set; }
-        public Face LeftFace { get; set; }
-        public Face RightFace { get; set; }
-        public Face FrontFace { get; set; }
-        public Face BackFace { get; set; }
+        public Face TopFace { get; set; } = new Face(new Rect(0,0,1,1), new Rect(0, 0, 0, 0));
+        public Face BottomFace { get; set; } = new Face(new Rect(0, 0, 1, 1), new Rect(0, 0, 0, 0));
+        public Face LeftFace { get; set; } = new Face(new Rect(0, 0, 1, 1), new Rect(0, 0, 0, 0));
+        public Face RightFace { get; set; } = new Face(new Rect(0, 0, 1, 1), new Rect(0, 0, 0, 0));
+        public Face FrontFace { get; set; } = new Face(new Rect(0, 0, 1, 1), new Rect(0, 0, 0, 0));
+        public Face BackFace { get; set; } = new Face(new Rect(0, 0, 1, 1), new Rect(0, 0, 0, 0));
 
         public Block()
         {

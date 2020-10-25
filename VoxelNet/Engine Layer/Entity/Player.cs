@@ -340,8 +340,8 @@ namespace VoxelNet.Entities
             GUI.Image(currentWorld.TexturePack.Crosshair, new Rect((Program.Window.Width / 2) - 16, (Program.Window.Height / 2) - 16, 32, 32));
             inventory.RenderToolBar();
 
-            float winWidth = Program.Settings.WindowWidth;
-            float winHeight = Program.Settings.WindowHeight;
+            float winWidth = Window.WindowWidth;
+            float winHeight = Window.WindowHeight;
             int size = 23;
             for (int i = 0; i < MAX_HEALTH; i++)
             {

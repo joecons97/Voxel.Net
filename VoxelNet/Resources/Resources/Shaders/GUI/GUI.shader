@@ -28,8 +28,5 @@ void main()
 {
 	vec4 texCol = texture(u_Texture, v_TexCoord);
 
-    //if (texCol.r < 0.5)
-    //    discard;
-
     color = texCol;
 }

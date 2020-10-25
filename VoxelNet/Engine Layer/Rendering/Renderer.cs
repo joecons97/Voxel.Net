@@ -42,7 +42,7 @@ namespace VoxelNet.Rendering
             if (worldMatrix == default)
                 worldMatrix = Matrix4.Identity;
 
-            if (!World.GetInstance().WorldCamera.Frustum.Intersects(mesh.Bounds.Transform(worldMatrix.ExtractTranslation(), Vector3.One)))
+            if (World.GetInstance() != null && !World.GetInstance().WorldCamera.Frustum.Intersects(mesh.Bounds.Transform(worldMatrix.ExtractTranslation(), Vector3.One)))
             {
                 ClippedCount++;
                 return;

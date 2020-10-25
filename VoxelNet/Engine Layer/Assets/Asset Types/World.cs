@@ -113,6 +113,7 @@ namespace VoxelNet.Assets
         public void Begin()
         {
             TexturePack = AssetDatabase.GetAsset<TexturePack>("");
+
             TerrainNoise = new OpenSimplex(Seed.GetSeedNum());
             BiomeNoise = new CellNoise(Seed.GetSeedNum());
             Randomizer = new Random(Seed.GetSeedNum());
@@ -332,15 +333,15 @@ namespace VoxelNet.Assets
                 int perc = (int)(((float)currentChunksLoadedNum / (float)requiredChunksLoadedNum / 2f) * 100f);
                 if (isDickJoke)
                 {
-                    GUI.Image(loadingScreenTextureDickJoke, new Rect(0, 0, Program.Settings.WindowWidth, Program.Settings.WindowHeight));
-                    GUI.Label($"LMAO IT'S A PENIS", new Rect(0, -48, Program.Settings.WindowWidth, Program.Settings.WindowHeight), loadingScreenStyle);
+                    GUI.Image(loadingScreenTextureDickJoke, new Rect(0, 0, Window.WindowWidth, Window.WindowHeight));
+                    GUI.Label($"LMAO IT'S A PENIS", new Rect(0, -48, Window.WindowWidth, Window.WindowHeight), loadingScreenStyle);
                 }
                 else
                 {
-                    GUI.Image(loadingScreenTexture, new Rect(0, 0, Program.Settings.WindowWidth, Program.Settings.WindowHeight));
+                    GUI.Image(loadingScreenTexture, new Rect(0, 0, Window.WindowWidth, Window.WindowHeight));
                 }
-                GUI.Label($"LOADING...", new Rect(0, 0, Program.Settings.WindowWidth, Program.Settings.WindowHeight), loadingScreenStyle);
-                GUI.Label($"{perc}%", new Rect(0, 48, Program.Settings.WindowWidth, Program.Settings.WindowHeight), loadingScreenStyle);
+                GUI.Label($"LOADING...", new Rect(0, 0, Window.WindowWidth, Window.WindowHeight), loadingScreenStyle);
+                GUI.Label($"{perc}%", new Rect(0, 48, Window.WindowWidth, Window.WindowHeight), loadingScreenStyle);
             }
         }
 

@@ -19,7 +19,7 @@ namespace VoxelNet.PostProcessing
         {
             cutoffMaterial.Shader.SetUniform("u_Cutoff", BrightnessCutoff);
 
-           Blit(src, fbo, cutoffMaterial);
+            Blit(src, fbo, cutoffMaterial);
 
             for (int i = 0; i < BlurIterations; i++)
             {

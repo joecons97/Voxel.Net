@@ -241,6 +241,7 @@
     <Compile Include="Engine Layer\Rendering\Buffers\UniformBuffer.cs" />
     <Compile Include="Engine Layer\Rendering\Camera.cs" />
     <Compile Include="Engine Layer\Rendering\Frustum.cs" />
+    <Compile Include="Engine Layer\Rendering\IconGenerator.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Skybox.cs" />
     <Compile Include="Engine Layer\Rendering\Material\Uniform.cs" />
     <Compile Include="Engine Layer\Assets\Asset Types\Mesh.cs" />
@@ -376,6 +377,7 @@
     <Content Include="Resources\Resources\Textures\GUI\heart_empty.png" />
     <Content Include="Resources\Resources\Textures\GUI\heart_half.png" />
     <Content Include="Resources\Resources\Textures\GUI\Inventory_Slot.png" />
+    <Content Include="Resources\Resources\Textures\GUI\slot_hover.png" />
     <Content Include="Resources\Resources\Textures\Items\Def_Item.png" />
     <Content Include="Resources\Resources\Textures\Pack_Icon.png" />
   </ItemGroup>

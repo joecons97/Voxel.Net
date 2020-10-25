@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -81,6 +82,10 @@ namespace VoxelNet
         {
             Position = position;
             worldMatrix = Matrix4.CreateTranslation(Position.X * WIDTH, 0, Position.Y * WIDTH);
+
+            //Default heightmap used for icon generation
+            heightmap = new float[WIDTH,WIDTH];
+            heightmap[0, 0] = 1;
         }
 
         public float[,] GetHeightMap()
@@ -1248,6 +1253,33 @@ namespace VoxelNet
             }
         }
 
+        public void RenderForIcon()
+        {
+            if (shouldRebuildMesh)
+            {
+                if (ChunkMaterial == null)
+                {
+                    ChunkMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/World/Blocks.mat");
+                    if (World.GetInstance() != null)
+                        ChunkMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
+                    else
+                        ChunkMaterial.SetTexture(0, AssetDatabase.GetAsset<TexturePack>("").Blocks);
+                }
+
+                mesh?.Dispose();
+                mesh = new Mesh(blockContainer, indices);
+                shouldRebuildMesh = false;
+            }
+
+            if (mesh != null)
+            {
+                Matrix4 mat =
+                    Matrix4.CreateTranslation(-1, -0.9f, 0) * Matrix4.CreateFromQuaternion(new Quaternion(-0.2391197f, 0.369638f, -0.09904902f, 0.8924006f)) *
+                    Matrix4.CreateScale(1, -1, -1);
+                Renderer.DrawNow(mesh, ChunkMaterial, mat);
+            }
+        }
+
         public void Render()
         {
             if (shouldRebuildMesh)
@@ -1255,7 +1287,10 @@ namespace VoxelNet
                 if (ChunkMaterial == null)
                 {
                     ChunkMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/World/Blocks.mat");
-                    ChunkMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
+                    if(World.GetInstance() != null)
+                        ChunkMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
+                    else
+                        ChunkMaterial.SetTexture(0, AssetDatabase.GetAsset<TexturePack>("").Blocks);
                 }
 
                 mesh?.Dispose();
@@ -1268,7 +1303,10 @@ namespace VoxelNet
                 if (ChunkWaterMaterial == null)
                 {
                     ChunkWaterMaterial = AssetDatabase.GetAsset<Material>("Resources/Materials/World/Water.mat");
-                    ChunkWaterMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
+                    if (World.GetInstance() != null)
+                        ChunkMaterial.SetTexture(0, World.GetInstance().TexturePack.Blocks);
+                    else
+                        ChunkMaterial.SetTexture(0, AssetDatabase.GetAsset<TexturePack>("").Blocks);
                 }
 
                 waterMesh?.Dispose();

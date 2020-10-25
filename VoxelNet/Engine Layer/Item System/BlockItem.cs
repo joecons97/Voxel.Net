@@ -17,7 +17,7 @@ namespace VoxelNet
         {
             Block = block;
             Name = block.Key;
-            IconLocation = $"Resources/Textures/Items/{Name}.png";
+            //IconLocation = $"Resources/Textures/Items/{Name}.png";
             GenerateGraphics();
             ItemDatabase.RegisterItem(this);
         }
