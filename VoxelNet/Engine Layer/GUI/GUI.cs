@@ -494,6 +494,8 @@ namespace VoxelNet
 
         static void GenerateImage(Texture image, Rect size, bool isHovered, bool isActive, float sliceSize)
         {
+            if (image == null) return;
+
             float x = ((size.X / Program.Window.Width) * 2) - 1;
             float y = (((Program.Window.Height - size.Y) / Program.Window.Height)*2)-1;
             float maxX = x + ((size.Width * 2) / Program.Window.Width);

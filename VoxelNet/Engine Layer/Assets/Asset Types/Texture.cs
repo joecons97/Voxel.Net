@@ -133,6 +133,16 @@ namespace VoxelNet.Rendering
             GL.TextureParameter(Handle, TextureParameterName.TextureMaxLevel, 0);
         }
 
+        public Texture(FrameBufferObject fbo, bool disposeFbo)
+        {
+            this.Width = fbo.Width;
+            this.Height = fbo.Height;
+            this.Handle = fbo.ColorHandle;
+
+            if (disposeFbo)
+                fbo.DisposeWithoutColorHandle();
+        }
+
         public Color4 GetPixel(int x, int y)
         {
             int index = x * (int)Height + y;

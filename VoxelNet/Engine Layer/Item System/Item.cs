@@ -12,7 +12,7 @@ namespace VoxelNet
     public abstract class Item
     {
         public virtual string Name { get; protected set; }
-        public virtual string IconLocation { get; protected set; } = "Resources/Textures/Items/Def_Item.png";
+        public virtual string IconLocation { get; set; } = "Resources/Textures/Items/Def_Item.png";
         public int ID { get; set; }
         public abstract string Key { get; }
         public Texture Icon { get; private set; }
@@ -30,7 +30,7 @@ namespace VoxelNet
 
         }
 
-        protected void GenerateGraphics()
+        public void GenerateGraphics()
         {
             Icon = AssetDatabase.GetAsset<Texture>(IconLocation);
             if (Icon != null)

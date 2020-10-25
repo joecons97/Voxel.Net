@@ -65,7 +65,7 @@ namespace VoxelNet.Rendering
             UniformBuffers.WorldCameraBuffer.Update(bufferData);
         }
 
-        void GenerateProjectionMatrix()
+        public void GenerateProjectionMatrix()
         {
             switch (ProjectionType)
             {
@@ -75,8 +75,8 @@ namespace VoxelNet.Rendering
                         (float)Window.WindowWidth / (float)Window.WindowHeight, NearPlane, FarPlane);
                     break;
                 case CameraProjectionType.Orthographic:
-                    ProjectionMatrix = Matrix4.CreateOrthographic(CameraSize.X,
-                        CameraSize.Y, NearPlane, FarPlane);
+                    ProjectionMatrix = Matrix4.CreateOrthographic(CameraSize.X * 2f,
+                        CameraSize.Y *2f, NearPlane, FarPlane);
                     break;
             }
         }

@@ -103,7 +103,7 @@ namespace VoxelNet.Containers
             if (stack != null)
             {
                 stack = (ItemStack)stack.Clone();
-                if (GUI.PressButton(stack.Item.Icon, rectIcon))
+                if (GUI.PressButton(stack.Item.Icon, rectIcon, SlotStyle))
                 {
                     if (ContainerRenderer.SelectedStack == null)
                     {

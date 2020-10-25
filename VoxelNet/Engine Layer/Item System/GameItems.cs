@@ -11,12 +11,13 @@ namespace VoxelNet
     {
         public static void Init()
         {
-            DIRT = new BlockItem(GameBlocks.DIRT);
+            var NULL = new BlockItem(new Block());
             GRASS = new BlockItem(GameBlocks.GRASS);
             STONE = new BlockItem(GameBlocks.STONE);
             SAND = new BlockItem(GameBlocks.SAND);
             LOG_OAK = new BlockItem(GameBlocks.LOG_OAK);
             PLANKS_OAK = new BlockItem(GameBlocks.PLANKS_OAK);
+            DIRT = new BlockItem(GameBlocks.DIRT);
         }
 
         public static BlockItem DIRT { get; private set; }
@@ -28,6 +29,7 @@ namespace VoxelNet
         public static BlockItem SAND { get; private set; }
 
         public static BlockItem LOG_OAK { get; private set; }
+
         public static BlockItem PLANKS_OAK { get; private set; }
     }
 }

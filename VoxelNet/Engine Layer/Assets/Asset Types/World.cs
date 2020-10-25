@@ -113,6 +113,7 @@ namespace VoxelNet.Assets
         public void Begin()
         {
             TexturePack = AssetDatabase.GetAsset<TexturePack>("");
+
             TerrainNoise = new OpenSimplex(Seed.GetSeedNum());
             BiomeNoise = new CellNoise(Seed.GetSeedNum());
             Randomizer = new Random(Seed.GetSeedNum());

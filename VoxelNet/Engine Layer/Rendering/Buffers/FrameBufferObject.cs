@@ -32,7 +32,7 @@ namespace VoxelNet
             /*Initialise colour texture*/
             ColorHandle = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, ColorHandle);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba16f, width, height, 0, PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba16f, width, height, 0, PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
 
@@ -52,8 +52,7 @@ namespace VoxelNet
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
-                    //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureCompareMode, (int)TextureCompareMode.CompareRefToTexture);
-                    //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureCompareFunc, (int)DepthFunction.Less);
+
                     GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, DepthHandle, 0);
                     break;
                 case FBOType.DepthRenderBuffer:
@@ -63,7 +62,8 @@ namespace VoxelNet
                     GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, DepthHandle);
                     break;
             }
-            Unbind();
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         public void Bind()
@@ -75,7 +75,7 @@ namespace VoxelNet
         public void Unbind()
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            GL.Viewport(0, 0, Program.Window.Width, Program.Window.Height);
+            GL.Viewport(Program.Window.ClientRectangle);
         }
 
         public void BindToRead()
@@ -87,8 +87,17 @@ namespace VoxelNet
 
         public void Dispose()
         {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.DeleteFramebuffer(Handle);
             GL.DeleteTexture(ColorHandle);
+            GL.DeleteTexture(DepthHandle);
+            GL.DeleteRenderbuffer(DepthHandle);
+        }
+
+        public void DisposeWithoutColorHandle()
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.DeleteFramebuffer(Handle);
             GL.DeleteTexture(DepthHandle);
             GL.DeleteRenderbuffer(DepthHandle);
         }

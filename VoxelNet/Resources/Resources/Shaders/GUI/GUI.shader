@@ -16,7 +16,7 @@ void main()
 #version 330 core
 
 #queue transparent
-#blend oneminus
+//#blend oneminus
 
 layout(location = 0) out vec4 color;
 
@@ -28,8 +28,8 @@ void main()
 {
 	vec4 texCol = texture(u_Texture, v_TexCoord);
 
-    //if (texCol.r < 0.5)
-    //    discard;
+    if (texCol.a < 0.5)
+        discard;
 
     color = texCol;
 }
