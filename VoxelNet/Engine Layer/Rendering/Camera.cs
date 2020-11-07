@@ -25,8 +25,47 @@ namespace VoxelNet.Rendering
 
     public class Camera
     {
-        public Vector3 Position { get; set; }
-        public Vector3 Rotation { get; set; }
+        private Vector3 _position;
+
+        public Vector3 Position
+        {
+            get
+            {
+                if (Parent == null)
+                    return _position;
+                else
+                    return Parent.WorldPosition;
+            }
+            set
+            {
+                if (Parent == null)
+                    _position = value;
+                else
+                    Debug.Log("You cannot set the Camera's position whilst is has a parent!");
+            }
+        }
+
+        private Vector3 _rotation;
+
+        public Vector3 Rotation
+        {
+            get
+            {
+                if (Parent == null)
+                    return _rotation;
+                else
+                    return Parent.WorldRotation;
+            }
+            set
+            {
+                if (Parent == null)
+                    _rotation = value;
+                else
+                    Debug.Log("You cannot set the Camera's position whilst is has a parent!");
+            }
+        }
+
+        public Entity Parent { get; set; }
 
         public CameraProjectionType ProjectionType { get; set; } = CameraProjectionType.Perspective;
 

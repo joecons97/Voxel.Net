@@ -28,6 +28,8 @@ namespace VoxelNet.Rendering
         public bool IsTransparent { get; private set; }
         public BlendType Blending { get; private set; }
 
+        public string FileLocation{ get; }
+
         public CullType CullingType { get; private set; } = CullType.Back;
 
         Dictionary<string, Uniform> uniforms = new Dictionary<string, Uniform>();
@@ -36,6 +38,7 @@ namespace VoxelNet.Rendering
 
         public Shader(string fileLocation)
         {
+            FileLocation = fileLocation;
             short shaderType = -1;
             string[] src = new string[2];
             //-1 = none, 0 = vertex, 1 = fragment
@@ -72,11 +75,6 @@ namespace VoxelNet.Rendering
             }
 
             CompileShader(src[0], src[1]);
-        }
-
-        public Shader(string vertexSrc, string fragmentSrc)
-        {
-            CompileShader(vertexSrc, fragmentSrc);
         }
 
         public int GetUniformLocation(string uniform)

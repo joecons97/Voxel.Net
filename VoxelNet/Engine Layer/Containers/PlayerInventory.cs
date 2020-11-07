@@ -11,10 +11,19 @@ namespace VoxelNet.Containers
     public class PlayerInventory : Container
     {
         Vector2 size = new Vector2(9,4);
+        public int SelectedItemIndex { get; set; } = 0;
+
         public override Vector2 ContainerSize => size;
 
-        public int SelectedItemIndex = 0;
         public static Texture SelectedSlotTexture { get; private set; }
+
+        public ItemStack SelectedStack
+        {
+            get
+            {
+                return ItemsList.ElementAtOrDefault(SelectedItemIndex);
+            }
+        }
 
         public PlayerInventory()
         {

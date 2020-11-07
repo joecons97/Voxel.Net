@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,31 +18,18 @@ namespace VoxelNet.Misc
         }
         public static Vector3 GetForwardFromRotation(Vector3 Rotation)
         {
-            float yaw = MathHelper.DegreesToRadians(Rotation.Y + 90);
-            float pitch = MathHelper.DegreesToRadians(Rotation.X);
-
-            float x = (float)(Math.Cos(yaw) * Math.Cos(pitch));
-            float y = (float)Math.Sin(pitch);
-            float z = (float)(Math.Cos(pitch) * Math.Sin(yaw));
-
-            return new Vector3(-x, -y, -z).Normalized();
+            var quat = new Quaternion(Rotation.ToRadians()).Inverted();
+            return Vector3.Transform(new Vector3(0, 0, -1), quat);
         }
         public static Vector3 GetRightFromRotation(Vector3 Rotation)
         {
-            float yaw = MathHelper.DegreesToRadians(Rotation.Y);
-
-            float x = (float)Math.Cos(yaw);
-            float z = (float)Math.Sin(yaw);
-
-            return new Vector3(x, 0, z);
+            var quat = new Quaternion(Rotation.ToRadians()).Inverted();
+            return Vector3.Transform(new Vector3(1, 0, 0), quat);
         }
         public static Vector3 GetUpFromRotation(Vector3 Rotation)
         {
-            float pitch = MathHelper.DegreesToRadians(Rotation.X + 90);
-
-            float y = (float)Math.Sin(pitch);
-
-            return new Vector3(0, y, 0);
+            var quat = new Quaternion(Rotation.ToRadians()).Inverted();
+            return Vector3.Transform(new Vector3(0, 1, 0), quat);
         }
 
         public static bool Chance(float chance)

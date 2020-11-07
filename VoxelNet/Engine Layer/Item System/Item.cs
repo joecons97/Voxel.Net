@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
 using VoxelNet.Rendering;
+using VoxelNet.Rendering.Material;
 
 namespace VoxelNet
 {
@@ -17,6 +18,7 @@ namespace VoxelNet
         public abstract string Key { get; }
         public Texture Icon { get; private set; }
         public Mesh Mesh { get; private set; }
+        public Material Material { get; private set; }
 
         public int MaxStackSize { get; protected set; } = 64;
 
@@ -36,14 +38,22 @@ namespace VoxelNet
             if (Icon != null)
             {
                 string path = $"Item/Model/{Name}";
+                string matPath = $"Item/Material/{Name}";
                 if (AssetDatabase.ContainsAssetOfType(path, typeof(Mesh)))
                     Mesh = AssetDatabase.GetAsset<Mesh>(path);
                 else
                 {
                     Mesh = CreateModel();
-
+                    Mesh.FrustumCull = false;
                     if (!AssetDatabase.RegisterAsset(Mesh, path))
                         Mesh = null;
+                }
+
+                if (AssetDatabase.ContainsAssetOfType(matPath, typeof(Material)))
+                    Material = AssetDatabase.GetAsset<Material>(matPath);
+                else
+                {
+                    Material = AssetDatabase.CloneAsset<Material>("Resources/Materials/Fallback.mat", matPath, $"{Name}_Material");
                 }
             }
         }

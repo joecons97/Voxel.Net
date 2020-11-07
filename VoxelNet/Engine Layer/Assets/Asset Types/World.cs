@@ -141,9 +141,9 @@ namespace VoxelNet.Assets
             HasFinishedInitialLoading = false;
             requiredChunksLoadedNum = (worldSize + worldSize + 1) * (worldSize + worldSize + 1);
 
-            foreach (var entity in loadedEntities)
+            for (var index = 0; index < loadedEntities.Count; index++)
             {
-                entity.Begin();
+                loadedEntities[index].Begin();
             }
 
             ThreadStart chunkThreadStart = ChunkThread;
@@ -271,7 +271,8 @@ namespace VoxelNet.Assets
 
             for (var index = 0; index < loadedEntities.Count; index++)
             {
-                loadedEntities[index].Update();
+                if (loadedEntities[index].Parent == null)
+                    loadedEntities[index].Update();
             }
 
             if (HasFinishedInitialLoading)
@@ -310,6 +311,12 @@ namespace VoxelNet.Assets
                 if (loadedEntities.Contains(entitiesToDestroy[i]))
                 { 
                     int index = loadedEntities.IndexOf(entitiesToDestroy[i]);
+                    for (int j = 0; j < loadedEntities[index].GetChildCount(); j++)
+                    {
+                        loadedEntities[index].FindChild(j).Destroyed();
+                        int childIndex = loadedEntities.IndexOf(loadedEntities[index].FindChild(j));
+                        loadedEntities.RemoveAt(childIndex);
+                    }
                     loadedEntities[index].Destroyed();
                     loadedEntities[index] = null;
                     loadedEntities.RemoveAt(index);
@@ -458,7 +465,8 @@ namespace VoxelNet.Assets
             WorldCamera.Update();
             for (var index = 0; index < loadedEntities.Count; index++)
             {
-                loadedEntities[index].Render();
+                if (loadedEntities[index].Parent == null)
+                    loadedEntities[index].Render();
             }
 
             for (var index = 0; index < loadedChunks.Count; index++)

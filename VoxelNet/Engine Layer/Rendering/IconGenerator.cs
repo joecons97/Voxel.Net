@@ -15,7 +15,7 @@ namespace VoxelNet.Rendering
     {
         public static void GenerateBlockItemIcons()
         {
-            const int ICON_SIZE = 64;
+            const int ICON_SIZE = 128;
 
             FrameBufferObject fbo = null;
 

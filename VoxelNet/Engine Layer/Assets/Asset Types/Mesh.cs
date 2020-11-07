@@ -17,6 +17,8 @@ namespace VoxelNet.Rendering
         public VertexBuffer VertexBuffer { get; }
         public VertexArray VertexArray { get; }
 
+        public bool FrustumCull { get; set; } = true;
+
         public VertexContainer VertexContainer { get; }
         public uint[] Indices { get; }
 

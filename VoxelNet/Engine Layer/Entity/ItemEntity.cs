@@ -23,11 +23,18 @@ namespace VoxelNet
         {
             rigidbody = new Rigidbody(this, 5, new BoundingBox(-0.125f, 0.125f, -0.125f, 0.125f, -0.125f, 0.125f));
             rigidbody.AddImpluse(new Vector3(0, 30, 0));
+            Scale = new Vector3(.25f, -.25f, .25f);
+            Mesh = item.Mesh;
+            Material = item.Material;
+            Material.SetTexture(0, item.Icon);
+
             base.Begin();
         }
 
         public override void Update()
         {
+            Rotation += new Vector3(0, 1, 0);
+
             var chunkPos = Position.ToChunkPosition();
             if (World.GetInstance().TryGetChunkAtPosition((int)chunkPos.X, (int)chunkPos.Z, out Chunk chunk))
             {
@@ -62,16 +69,6 @@ namespace VoxelNet
         {
             rigidbody.ClearOwner();
             rigidbody = null;
-        }
-
-        public override void Render()
-        {
-            var material = AssetDatabase.GetAsset<Material>("Resources/Materials/Fallback.mat");
-            material.SetTexture(0, item.Icon);
-            var mat = Matrix4.CreateScale(new Vector3(.25f, -.25f,.25f)) * Matrix4.CreateRotationY(Time.GameTime) * Matrix4.CreateTranslation(Position);
-            Renderer.DrawRequest(item.Mesh, material, mat);
-
-            base.Render();
         }
     }
 }

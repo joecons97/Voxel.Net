@@ -62,6 +62,18 @@ namespace VoxelNet
             return (T) importable.Import(path, packFile);
         }
 
+        public static T CloneAsset<T>(string path, string newPath, string newName) where T : IImportable, ICloneable
+        {
+            var asset = GetAsset<T>(path);
+            if (asset == null)
+            {
+                Debug.Log($"CloneAsset: Asset at path: {path} could not be found!");
+                return default;
+            }
+
+            return (T)asset.Clone();
+        }
+
         public static void SetPack(string pack)
         {
             packFile = ZipFile.Read("Resources/" + pack + ".vnp");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Input;
@@ -19,6 +20,9 @@ namespace VoxelNet.Entities
         private float currentHealth = MAX_HEALTH;
 
         private float currentHunger = MAX_HUNGER;
+
+        private Entity handEntity;
+        private Entity cameraEntity;
 
         private bool hasHadInitialSet;
         private World currentWorld;
@@ -50,64 +54,7 @@ namespace VoxelNet.Entities
         private float healthIncreaseTickRate = 4;
         private float lastHealthIncreaseTick;
 
-        public override void Begin()
-        {
-            Name = "Player";
-            currentWorld = World.GetInstance();
-            hasHadInitialSet = false;
-
-            heartIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart.png");
-            heartHalfIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_half.png");
-            heartEmptyIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_empty.png");
-
-            hungerIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger.png");
-            hungerHalfIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger_half.png");
-            hungerEmptyIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger_empty.png");
-
-            Input.Input.GetSetting("Pause").KeyDown += InputPause;
-
-            Input.Input.GetSetting("Jump").KeyDown += InputJump;
-
-            Input.Input.GetSetting("Interact").KeyDown += InputInteract;
-
-            Input.Input.GetSetting("Destroy Block").KeyDown += InputDestroyBlock;
-
-            Input.Input.GetSetting("Inventory").KeyDown += InputInventory;
-
-            Program.Window.MouseWheel += InputMouseWheel;
-
-            Input.Input.GetSetting("Sprint").KeyDown += InputSprintDown;
-            Input.Input.GetSetting("Sprint").KeyUp += InputSprintUp;
-        }
-
-        public override void Destroyed()
-        {
-            Input.Input.GetSetting("Pause").KeyDown -= InputPause;
-
-            Input.Input.GetSetting("Jump").KeyDown -= InputJump;
-
-            Input.Input.GetSetting("Interact").KeyDown -= InputInteract;
-
-            Input.Input.GetSetting("Destroy Block").KeyDown -= InputDestroyBlock;
-
-            Input.Input.GetSetting("Inventory").KeyDown -= InputInventory;
-
-            Program.Window.MouseWheel -= InputMouseWheel;
-
-            Input.Input.GetSetting("Sprint").KeyDown -= InputSprintDown;
-            Input.Input.GetSetting("Sprint").KeyUp -= InputSprintUp;
-
-            heartEmptyIcon.Dispose();
-            heartHalfIcon.Dispose();
-            heartIcon.Dispose();
-
-            hungerHalfIcon.Dispose();
-            hungerEmptyIcon.Dispose();
-            hungerIcon.Dispose();
-
-            base.Destroyed();
-        }
-
+        #region Input Handlers
         private void InputMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
@@ -174,7 +121,7 @@ namespace VoxelNet.Entities
             if (!controlsEnabled || isInWater)
                 return;
 
-            if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, new Vector3(0, -1, 0), 2.1f, out RayVoxelOut output))
+            if (Raycast.CastVoxel(cameraEntity.WorldPosition, new Vector3(0, -1, 0), 2.1f, out RayVoxelOut output))
                 rigidbody.AddImpluse(new Vector3(0, 1, 0) * 600);
         }
 
@@ -183,7 +130,7 @@ namespace VoxelNet.Entities
             if (!controlsEnabled)
                 return;
 
-            if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
+            if (Raycast.CastVoxel(cameraEntity.WorldPosition, cameraEntity.GetForwardVector(), 5,
                 out RayVoxelOut op))
             {
                 int x = (int)Math.Floor(GetPositionInChunk().X);
@@ -208,7 +155,7 @@ namespace VoxelNet.Entities
             if (!controlsEnabled)
                 return;
 
-            if (Raycast.CastVoxel(currentWorld.WorldCamera.Position, currentWorld.WorldCamera.GetForward(), 5,
+            if (Raycast.CastVoxel(cameraEntity.WorldPosition, cameraEntity.GetForwardVector(), 5,
                 out RayVoxelOut op))
             {
                 if (currentWorld.TryGetChunkAtPosition((int)op.ChunkPosition.X, (int)op.ChunkPosition.Y,
@@ -257,23 +204,96 @@ namespace VoxelNet.Entities
                 float x = Input.Input.GetMouseDelta().X / 20f;
                 float y = Input.Input.GetMouseDelta().Y / 20f;
 
-                if (y > 0 && currentWorld.WorldCamera.Rotation.X >= 90)
+                if (y > 0 && cameraEntity.Rotation.X >= 90)
                     y = 0;
-                else if (y < 0 && currentWorld.WorldCamera.Rotation.X <= -85)
+                else if (y < 0 && cameraEntity.Rotation.X <= -85)
                     y = 0;
 
                 Rotation = new Vector3(0, Rotation.Y + x, 0);
-                currentWorld.WorldCamera.Rotation = new Vector3(currentWorld.WorldCamera.Rotation.X + y, Rotation.Y, 0);
+                cameraEntity.Rotation = new Vector3(cameraEntity.Rotation.X + y, 0, 0);
             }
 
             rigidbody.Velocity = new Vector3(vel.X, rigidbody.Velocity.Y, vel.Z);
+        }
+        #endregion
+
+        public override void Begin()
+        {
+            Name = "Player";
+            currentWorld = World.GetInstance();
+            hasHadInitialSet = false;
+            heartIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart.png");
+            heartHalfIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_half.png");
+            heartEmptyIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/heart_empty.png");
+
+            hungerIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger.png");
+            hungerHalfIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger_half.png");
+            hungerEmptyIcon = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/hunger_empty.png");
+
+            Input.Input.GetSetting("Pause").KeyDown += InputPause;
+
+            Input.Input.GetSetting("Jump").KeyDown += InputJump;
+
+            Input.Input.GetSetting("Interact").KeyDown += InputInteract;
+
+            Input.Input.GetSetting("Destroy Block").KeyDown += InputDestroyBlock;
+
+            Input.Input.GetSetting("Inventory").KeyDown += InputInventory;
+
+            Program.Window.MouseWheel += InputMouseWheel;
+
+            Input.Input.GetSetting("Sprint").KeyDown += InputSprintDown;
+            Input.Input.GetSetting("Sprint").KeyUp += InputSprintUp;
+
+
+            cameraEntity = new Entity();
+            cameraEntity.Name = "Camera";
+            cameraEntity.Parent = this;
+            cameraEntity.Position = new Vector3(0, 1.7f, 0);
+            currentWorld.AddEntity(cameraEntity);
+            currentWorld.WorldCamera.Parent = cameraEntity;
+
+            handEntity = new Entity();
+            handEntity.Name = "Hand";
+            handEntity.Parent = cameraEntity;
+            handEntity.Position = new Vector3(.25f, -1f, -1);
+            handEntity.Scale = new Vector3(1, -1, 1);
+            currentWorld.AddEntity(handEntity);
+        }
+
+        public override void Destroyed()
+        {
+            Input.Input.GetSetting("Pause").KeyDown -= InputPause;
+
+            Input.Input.GetSetting("Jump").KeyDown -= InputJump;
+
+            Input.Input.GetSetting("Interact").KeyDown -= InputInteract;
+
+            Input.Input.GetSetting("Destroy Block").KeyDown -= InputDestroyBlock;
+
+            Input.Input.GetSetting("Inventory").KeyDown -= InputInventory;
+
+            Program.Window.MouseWheel -= InputMouseWheel;
+
+            Input.Input.GetSetting("Sprint").KeyDown -= InputSprintDown;
+            Input.Input.GetSetting("Sprint").KeyUp -= InputSprintUp;
+
+            heartEmptyIcon.Dispose();
+            heartHalfIcon.Dispose();
+            heartIcon.Dispose();
+
+            hungerHalfIcon.Dispose();
+            hungerEmptyIcon.Dispose();
+            hungerIcon.Dispose();
+
+            base.Destroyed();
         }
 
         public override void Update()
         {
             if (!hasHadInitialSet)
             {
-                Position.Y = Chunk.HEIGHT;
+                Position = new Vector3(Position.X, Chunk.HEIGHT, Position.Z);
                 if (Raycast.CastVoxel(new Vector3(Position),
                     new Vector3(0, -1, 0), Chunk.HEIGHT, out RayVoxelOut hit))
                 {
@@ -285,7 +305,7 @@ namespace VoxelNet.Entities
                 }
             }
 
-            currentWorld.WorldCamera.Position = Position + new Vector3(0, 1.7f, 0);
+            //currentWorld.WorldCamera.Position = Position + new Vector3(0, 1.7f, 0);
 
             if (hasHadInitialSet)
             {
@@ -322,6 +342,17 @@ namespace VoxelNet.Entities
                         SetHealth((int)currentHealth + 1);
 
                     lastHealthIncreaseTick = Time.GameTime;
+                }
+
+                if (inventory.SelectedStack != null)
+                {
+                    handEntity.Mesh = inventory.SelectedStack.Item.Mesh;
+                    handEntity.Material = inventory.SelectedStack.Item.Material;
+                }
+                else
+                {
+                    handEntity.Mesh = null;
+                    handEntity.Material = null;
                 }
             }
         }

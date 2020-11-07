@@ -11,7 +11,7 @@ using VoxelNet.Assets;
 
 namespace VoxelNet.Rendering.Material
 {
-    public class Material : IImportable, IDisposable
+    public class Material : IImportable, IDisposable, ICloneable
     {
         public string Name { get; private set; }
         public Shader Shader { get; private set; }
@@ -134,6 +134,7 @@ namespace VoxelNet.Rendering.Material
                 }
             }
         }
+
         public Material(string[] lines, string matName)
         {
             Name = matName;
@@ -312,6 +313,20 @@ namespace VoxelNet.Rendering.Material
 
             Debug.Log("Loaded material from file");
             return new Material(path, Path.GetFileName(path));
+        }
+
+        public object Clone()
+        {
+            var mat = new Material();
+            mat.Shader = Shader;//new Shader(Shader.FileLocation);
+            mat.Name = Name + " (Clone)";
+            mat.UseMultiDraw = UseMultiDraw;
+            for (int i = 0; i < textures.Count; i++)
+            {
+                mat.textures.Add(textures[i]);
+            }
+
+            return mat;
         }
     }
 }

@@ -50,6 +50,18 @@ namespace VoxelNet
             return new Vector3((float)Math.Floor(final.X), (float)Math.Floor(final.Y), (float)Math.Floor(final.Z));
         }
 
+        public static Vector3 ToRadians(this Vector3 vec)
+        {
+            return new Vector3(MathHelper.DegreesToRadians(vec.X), MathHelper.DegreesToRadians(vec.Y),
+                MathHelper.DegreesToRadians(vec.Z));
+        }
+
+        public static Vector3 ToDegrees(this Vector3 vec)
+        {
+            return new Vector3(MathHelper.RadiansToDegrees(vec.X), MathHelper.RadiansToDegrees(vec.Y),
+                MathHelper.RadiansToDegrees(vec.Z));
+        }
+
         public static Color4 GetRandomColor()
         {
             byte r, g, b, a;
