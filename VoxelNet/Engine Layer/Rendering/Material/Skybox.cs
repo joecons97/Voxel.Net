@@ -34,7 +34,7 @@ namespace VoxelNet.Rendering
             }
 
             //(World.GetInstance().RenderDistance * 2) * Chunk.WIDTH
-            Renderer.DrawRequest(skyMesh, skyMat, Matrix4.CreateScale(worldCam.FarPlane/2f) * Matrix4.CreateTranslation(worldCam.Position));
+            Renderer.DrawRequest(skyMesh, false, skyMat, Matrix4.CreateScale(worldCam.FarPlane/2f) * Matrix4.CreateTranslation(worldCam.Position));
         }
 
         public void Dispose()

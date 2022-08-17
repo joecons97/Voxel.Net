@@ -62,6 +62,11 @@ namespace VoxelNet
                 MathHelper.RadiansToDegrees(vec.Z));
         }
 
+        public static float GetMagnitude(this Vector3 vec)
+        {
+            return (float)Math.Sqrt((vec.X * vec.X) + (vec.Y * vec.Y) + (vec.Z * vec.Z));
+        }
+
         public static Color4 GetRandomColor()
         {
             byte r, g, b, a;

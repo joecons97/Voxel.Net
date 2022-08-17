@@ -51,7 +51,7 @@ namespace VoxelNet.Assets
         GUIStyle loadingScreenStyle;
 
         private static World instance;
-        
+
         private LightingUniformBufferData lightBufferData;
         private float lightAngle;
 
@@ -61,7 +61,8 @@ namespace VoxelNet.Assets
 
         [JsonIgnore]
         public string Path =>
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + $"\\Blue Eyes\\Voxel.Net\\Worlds\\{Name}\\{Name}.world";
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) +
+            $"\\Blue Eyes\\Voxel.Net\\Worlds\\{Name}\\{Name}.world";
 
         public static World GetInstance()
         {
@@ -122,6 +123,7 @@ namespace VoxelNet.Assets
             Skybox = new Skybox(AssetDatabase.GetAsset<Material>("Resources/Materials/World/Sky.mat"));
             loadingScreenTexture = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/img_loading_screen.png");
             loadingScreenTextureDickJoke = AssetDatabase.GetAsset<Texture>("Resources/Textures/GUI/img_loading_screen_willy.png");
+
             isDickJoke = Maths.Chance(0.01f);
             loadingScreenStyle = new GUIStyle()
             {
@@ -337,17 +339,20 @@ namespace VoxelNet.Assets
             }
             else
             {
-                int perc = (int)(((float)currentChunksLoadedNum / (float)requiredChunksLoadedNum / 2f) * 100f);
+                int perc = (int) (((float) currentChunksLoadedNum / (float) requiredChunksLoadedNum / 2f) * 100f);
                 if (isDickJoke)
                 {
                     GUI.Image(loadingScreenTextureDickJoke, new Rect(0, 0, Window.WindowWidth, Window.WindowHeight));
-                    GUI.Label($"LMAO IT'S A PENIS", new Rect(0, -48, Window.WindowWidth, Window.WindowHeight), loadingScreenStyle);
+                    GUI.Label($"LMAO IT'S A PENIS", new Rect(0, -48, Window.WindowWidth, Window.WindowHeight),
+                        loadingScreenStyle);
                 }
                 else
                 {
                     GUI.Image(loadingScreenTexture, new Rect(0, 0, Window.WindowWidth, Window.WindowHeight));
                 }
-                GUI.Label($"LOADING...", new Rect(0, 0, Window.WindowWidth, Window.WindowHeight), loadingScreenStyle);
+
+                GUI.Label($"GENERATING WORLD", new Rect(0, 0, Window.WindowWidth, Window.WindowHeight),
+                    loadingScreenStyle);
                 GUI.Label($"{perc}%", new Rect(0, 48, Window.WindowWidth, Window.WindowHeight), loadingScreenStyle);
             }
         }

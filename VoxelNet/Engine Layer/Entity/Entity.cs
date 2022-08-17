@@ -27,6 +27,9 @@ namespace VoxelNet
         }
 
         public Mesh Mesh { get; set; }
+
+        public bool IgnoreFrustumCulling { get; set; } = false;
+
         public Material Material { get; set; }
 
         public Matrix4 ModelMatrix { get; private set; }
@@ -109,7 +112,7 @@ namespace VoxelNet
 
             if (Mesh != null)
             {
-                Renderer.DrawRequest(Mesh, Material, ModelMatrix);
+                Renderer.DrawRequest(Mesh, IgnoreFrustumCulling, Material, ModelMatrix);
             }
 
             for (int i = 0; i < _children.Count; i++)

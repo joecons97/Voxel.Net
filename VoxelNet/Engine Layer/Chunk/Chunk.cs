@@ -1315,9 +1315,9 @@ namespace VoxelNet
             }
 
             if(waterMesh != null)
-                Renderer.DrawRequest(waterMesh, ChunkWaterMaterial, worldMatrix);
+                Renderer.DrawRequest(waterMesh, false, ChunkWaterMaterial, worldMatrix);
             if(mesh != null)
-                Renderer.DrawRequest(mesh, ChunkMaterial, worldMatrix);
+                Renderer.DrawRequest(mesh, false, ChunkMaterial, worldMatrix);
         }
 
         public void Dispose()

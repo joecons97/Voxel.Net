@@ -9,6 +9,7 @@ using VoxelNet.Entities.Interfaces;
 using VoxelNet.Menus;
 using VoxelNet.Physics;
 using VoxelNet.Rendering;
+using VoxelNet.Rendering.Material;
 using Vector2 = System.Numerics.Vector2;
 
 namespace VoxelNet.Entities
@@ -17,6 +18,9 @@ namespace VoxelNet.Entities
     {
         public const int MAX_HEALTH = 20;
         public const int MAX_HUNGER = 20;
+        
+        readonly Vector3 HAND_POS = new Vector3(0.1125f, -.2f, -.15f);
+
         private float currentHealth = MAX_HEALTH;
 
         private float currentHunger = MAX_HUNGER;
@@ -254,10 +258,13 @@ namespace VoxelNet.Entities
             currentWorld.WorldCamera.Parent = cameraEntity;
 
             handEntity = new Entity();
+            handEntity.IgnoreFrustumCulling = true;
+            handEntity.Mesh = AssetDatabase.GetAsset<Mesh>("Resources/Models/Player/Arm.obj");
             handEntity.Name = "Hand";
             handEntity.Parent = cameraEntity;
-            handEntity.Position = new Vector3(.25f, -1f, -1);
-            handEntity.Scale = new Vector3(1, -1, 1);
+            handEntity.Position = HAND_POS;
+            handEntity.Rotation = new Vector3(45, 0, 20);
+            handEntity.Scale = new Vector3(1, 1, 1);
             currentWorld.AddEntity(handEntity);
         }
 
@@ -344,15 +351,22 @@ namespace VoxelNet.Entities
                     lastHealthIncreaseTick = Time.GameTime;
                 }
 
-                if (inventory.SelectedStack != null)
+                //if (inventory.SelectedStack != null)
+                //{
+                //    handEntity.Mesh = inventory.SelectedStack.Item.Mesh;
+                //    handEntity.Material = inventory.SelectedStack.Item.Material;
+                //}
+                //else
+                //{
+                //    handEntity.Mesh = null;
+                //    handEntity.Material = null;
+                //}
+
+                float mag = rigidbody.Velocity.GetMagnitude();
+                if (mag > 0)
                 {
-                    handEntity.Mesh = inventory.SelectedStack.Item.Mesh;
-                    handEntity.Material = inventory.SelectedStack.Item.Material;
-                }
-                else
-                {
-                    handEntity.Mesh = null;
-                    handEntity.Material = null;
+                    var wantedPos = HAND_POS + new Vector3((float)Math.Sin(Time.GameTime * 5), (float)Math.Cos(Time.GameTime * 10), 0) * 0.0625f;
+                    handEntity.Position = Vector3.Lerp(HAND_POS, wantedPos, Time.DeltaTime);
                 }
             }
         }

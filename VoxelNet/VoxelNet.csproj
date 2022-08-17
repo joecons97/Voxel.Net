@@ -319,6 +319,7 @@
     <None Include="Resources\Resources\Materials\TestMaterial.mat" />
     <None Include="Resources\Resources\Materials\World\Water.mat" />
     <None Include="Resources\Resources\Models\InvertedCube.obj" />
+    <None Include="Resources\Resources\Models\Player\Arm.obj" />
     <None Include="Resources\Resources\Models\SkySphere.obj" />
     <None Include="Resources\Resources\Models\Tests\HiSphere.obj" />
     <None Include="Resources\Resources\Models\Tests\LoSphere.obj" />
@@ -380,6 +381,7 @@
     <Content Include="Resources\Resources\Textures\GUI\slot_hover.png" />
     <Content Include="Resources\Resources\Textures\Items\Def_Item.png" />
     <Content Include="Resources\Resources\Textures\Pack_Icon.png" />
+    <Content Include="Resources\Resources\Textures\Player\Default_Skin.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

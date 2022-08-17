@@ -34,7 +34,7 @@ namespace VoxelNet.Rendering
             };
         }
 
-        public static void DrawRequest(Mesh mesh, Material.Material material, Matrix4 worldMatrix = default)
+        public static void DrawRequest(Mesh mesh, bool ignoreFrustumCulling, Material.Material material, Matrix4 worldMatrix = default)
         {
             if (mesh.IndexBuffer.Length == 0)
                  return;
@@ -42,7 +42,7 @@ namespace VoxelNet.Rendering
             if (worldMatrix == default)
                 worldMatrix = Matrix4.Identity;
 
-            if (World.GetInstance() != null && mesh.FrustumCull && 
+            if (World.GetInstance() != null && !ignoreFrustumCulling && mesh.FrustumCull && 
                 !World.GetInstance().WorldCamera.Frustum.Intersects(mesh.Bounds.Transform(worldMatrix.ExtractTranslation(), Vector3.One)))
             {
                 ClippedCount++;
@@ -187,7 +187,7 @@ namespace VoxelNet.Rendering
                     }
                     catch
                     {
-                        Debug.Log("Error when trying to render an object");
+                        Debug.Log("Error when trying to render an object", DebugLevel.Warning);
                     }
 
                     call.draws[j].mesh.VertexArray.Unbind();
